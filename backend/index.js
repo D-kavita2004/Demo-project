@@ -5,6 +5,7 @@ import connectDB from "./Config/db.js";
 import express from "express";
 import authRoutes from "./Src/Routes/authentication.routes.js";
 import verifyToken from "./Src/Middlewares/verifyToken.middleware.js";
+import formRoutes from "./Src/Routes/form.routes.js"
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 app.use("/auth",authRoutes);
+app.use("/form",formRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({ status: "OK" });

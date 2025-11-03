@@ -5,20 +5,129 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import axios from "axios";
+import { useContext } from "react";
+import { UserContext } from "../Constants/userContext";
+import { useLocation } from "react-router-dom";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const QualityForm = () => {
+
+  const myData =  {
+      // ========== Issuing Section ==========
+      receivingNo: "RCV-2025-001",
+      referenceNo: "REF-12345",
+      partName: "Gear Assembly",
+      subjectMatter: "Inspection Report",
+      approved: "John Doe",
+      checked: "Jane Smith",
+      issued: "Production Team",
+
+      // ========== Defectiveness Detail ==========
+      supplierName: "ABC Components Ltd.",
+      groupName: "Quality Group A",
+      stateOfProcess: "Machining",
+      associatedLotNo: "LOT-7789",
+      discoveredDate: "2025-10-20",
+      issueDate: "2025-10-22",
+      orderNo: "ORD-9988",
+      drawingNo: "DRW-5567",
+      processName: "Turning",
+      machineName: "CNC Lathe Machine",
+      totalQuantity: 100,
+      usedQuantity: 60,
+      residualQuantity: 40,
+      defectRate: 4.5,
+      managerInstructions: "Isolate defective items and investigate cause.",
+      productImage: "",
+
+      // ========== Quality Check Comment ==========
+      qcComment: "Checked and verified by QC team.",
+      approvalStatus: "approved",
+      checkedByQC: "Ravi Kumar",
+      qcInstructions: "Proceed with 100% inspection for next batch.",
+      defectCost: 250.75,
+      unit: "piece",
+      occurrenceSection: "Assembly Line 2",
+      importanceLevel: "A",
+      reportTimeLimit: "2025-11-10",
+
+      // ========== Measures Report ==========
+      measuresReport: "Replaced faulty parts and retrained staff.",
+      responsibleSection: "Maintenance",
+      causeDetails: "Improper clamping caused vibration defects.",
+      countermeasures: "Added additional support; training conducted.",
+      enforcementDate: "2025-10-25",
+      standardization:
+        "Updated SOP and shared learnings across all production lines.",
+
+      // ========== Results of Measures ==========
+      enforcementDateResult: "2025-10-28",
+      enforcementResult: "Measures implemented successfully.",
+      enforcementJudgment: "Effective",
+      enforcementSecInCharge: "R&D Team",
+      enforcementQCSection: "QC Section A",
+      enforcementApproved: true,
+
+      effectDate: "2025-11-01",
+      effectResult: "No recurrence of issue detected.",
+      effectJudgment: "Stable",
+      effectSecInCharge: "Production",
+      effectQCSection: "QC Section A",
+      effectApproved: true,
+    }
+  const location = useLocation();
+   const [isOpen, setIsOpen] = useState(false);
+  const formFromState = location.state?.data?.formData; 
+  const myDefaultData = formFromState || myData;
+  console.log(myDefaultData);
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm();
+  } = useForm({
+    defaultValues:myDefaultData});
 
-  const onSubmit = (data) => {
-    console.log("Form Data Submitted:", data);
-    reset();
+  const {user} = useContext(UserContext);
+  const navigate = useNavigate();
+  const onSubmit = async(data) => {
+    try{
+      const res = axios.post("http://localhost:3000/form/modifyForm",{
+        formData:data,
+        filledBy:user.team,
+        status: user.team === "Quality" ? "pending_prod" : "pending_quality",
+      })
+      console.log(res);
+      console.log("Form Data Submitted:", data);
+      navigate("/");
+      // reset();
+    }
+    catch(err){
+      console.log(err);
+    }
+    
   };
+ const handleApprove = async (id) => {
+  console.log("iddddddd",id)
+    try {
+      // Call the API to approve the form
+      const response = await axios.post(
+        `http://localhost:3000/form/approveForm`,
+        {formId:id},
+        { withCredentials: true } // if your backend uses cookies
+      );
 
+      console.log("Form approved:", response.data);
+      
+      // Open modal after approval
+      setIsOpen(true);
+    } catch (error) {
+      console.error("Error approving form:", error.response?.data || error.message);
+    } 
+  };
   return (
     <Card className="max-w-5xl mx-auto mt-8 shadow-lg rounded-2xl">
       <CardHeader>
@@ -756,8 +865,28 @@ const QualityForm = () => {
 
         <CardFooter className="flex justify-center py-6">
           <Button type="submit" className="px-8 py-2 text-lg">
-            Submit Report
+            Submit
           </Button>
+         {
+          (location?.state?.data?.status === "pending_quality" && user.team === "Quality") && (
+            <Button className="px-8 py-2 text-lg" onClick={()=>{handleApprove(location.state?.data?._id)}}>
+             Approve
+          </Button>
+          )
+         } 
+ <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Form Approved ✅</DialogTitle>
+          </DialogHeader>
+          <div className="mt-2">
+            The form has been approved and the report has been generated.
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setIsOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>     
         </CardFooter>
       </form>
     </Card>
