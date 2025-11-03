@@ -96,6 +96,7 @@ const QualityForm = () => {
   const onSubmit = async(data) => {
     try{
       const res = axios.post("http://localhost:3000/form/modifyForm",{
+        formId: location.state?.data?._id,
         formData:data,
         filledBy:user.team,
         status: user.team === "Quality" ? "pending_prod" : "pending_quality",
@@ -111,7 +112,7 @@ const QualityForm = () => {
     
   };
  const handleApprove = async (id) => {
-  console.log("iddddddd",id)
+
     try {
       // Call the API to approve the form
       const response = await axios.post(
@@ -121,7 +122,7 @@ const QualityForm = () => {
       );
 
       console.log("Form approved:", response.data);
-      
+      navigate("/");
       // Open modal after approval
       setIsOpen(true);
     } catch (error) {

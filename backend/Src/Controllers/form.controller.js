@@ -2,26 +2,39 @@ import Form from "../Models/form.models.js";
 
 export const modifyForm = async (req, res) => {
   try {
-    const { formData, filledBy, status } = req.body;
+    const { formId, formData, filledBy, status } = req.body;
 
-    // Basic validation
     if (!formData) {
       return res.status(400).json({ message: "Form data is required" });
     }
 
-    // Create new form document
-    const newForm = new Form({
-      formData,
-      filledBy: filledBy || "quality",
-      status: status || "pending_prod",
-    });
+    let form;
 
-    // Save to DB
-    const savedForm = await newForm.save();
+    if (formId) {
+      // Update existing form
+      form = await Form.findByIdAndUpdate(
+        formId,
+        {
+          formData,
+          filledBy: filledBy || "Quality",
+          status: status || "pending_prod",
+          updatedAt: new Date(),
+        },
+        { new: true }
+      );
+    } else {
+      // Create new form
+      form = new Form({
+        formData,
+        filledBy: filledBy || "Quality",
+        status: status || "pending_prod",
+      });
+      await form.save();
+    }
 
     return res.status(201).json({
-      message: "Form submitted successfully",
-      form: savedForm,
+      message: formId ? "Form updated successfully" : "Form submitted successfully",
+      form,
     });
   } catch (error) {
     console.error("Error saving form:", error);
@@ -57,14 +70,14 @@ export const getAllForms = async (req, res) => {
 export const approveForm = async (req, res) => {
   try {
     const { formId } = req.body; 
-console.log("formId",formId);
+    console.log("formId",formId);
     // Find the form and update its status to "approved"
     const updatedForm = await Form.findByIdAndUpdate(
       formId,
       { status: "approved", updatedAt: new Date() },
       { new: true } // return the updated document
     );
-    console.log(updatedForm);
+//     console.log(updatedForm);
     if (!updatedForm) {
       return res.status(404).json({ message: "Form not found" });
     }
