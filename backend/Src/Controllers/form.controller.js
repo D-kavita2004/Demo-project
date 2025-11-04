@@ -2,7 +2,9 @@ import Form from "../Models/form.models.js";
 
 export const modifyForm = async (req, res) => {
   try {
+    console.log("modify function hit")
     const { formId, formData, filledBy, status } = req.body;
+    console.log(status)
 
     if (!formData) {
       return res.status(400).json({ message: "Form data is required" });
@@ -47,10 +49,10 @@ export const modifyForm = async (req, res) => {
 
 export const getAllForms = async (req, res) => {
   try {    
-      const forms = await Form.find({ status: { $ne: "approved" } });
+    const forms = await Form.find({ status: { $ne: "approved" } });
 
     if (!forms || forms.length === 0) {
-      return res.status(404).json({ message: "No forms found" });
+      return res.status(201).json({ message: "No forms found" });
     }
 
     res.status(200).json({

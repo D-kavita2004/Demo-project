@@ -9,9 +9,11 @@ import axios from "axios";
 import { useContext } from "react";
 import { UserContext } from "../Constants/userContext";
 import { useLocation } from "react-router-dom";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import myimg from "../Assets/image.png";
+// import { useEffect } from "react";
 
 const QualityForm = () => {
 
@@ -79,10 +81,11 @@ const QualityForm = () => {
       effectApproved: true,
     }
   const location = useLocation();
-   const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [preview, setPreview] = useState(myimg);
   const formFromState = location.state?.data?.formData; 
   const myDefaultData = formFromState || myData;
-  console.log(myDefaultData);
+  // console.log(myDefaultData);
   const {
     register,
     handleSubmit,
@@ -93,9 +96,11 @@ const QualityForm = () => {
 
   const {user} = useContext(UserContext);
   const navigate = useNavigate();
+
   const onSubmit = async(data) => {
+    console.log("calling modify form api");
     try{
-      const res = axios.post("http://localhost:3000/form/modifyForm",{
+      const res = await axios.post("http://localhost:3000/form/modifyForm",{
         formId: location.state?.data?._id,
         formData:data,
         filledBy:user.team,
@@ -111,7 +116,17 @@ const QualityForm = () => {
     }
     
   };
- const handleApprove = async (id) => {
+    // Handle image preview
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    console.log(file)
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setPreview(imageUrl);
+    }
+  };
+
+  const handleApprove = async (id) => {
 
     try {
       // Call the API to approve the form
@@ -129,6 +144,7 @@ const QualityForm = () => {
       console.error("Error approving form:", error.response?.data || error.message);
     } 
   };
+
   return (
     <Card className="max-w-5xl mx-auto mt-8 shadow-lg rounded-2xl">
       <CardHeader>
@@ -249,15 +265,21 @@ const QualityForm = () => {
               {/* Section / Supplier Name */}
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="supplierName">Section / Supplier Name</Label>
-                <Input
+                <select
                   id="supplierName"
-                  placeholder="Enter section or supplier name"
+                  className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   {...register("supplierName", { required: "Section/Supplier name is required" })}
-                />
+                >
+                  <option value="">Select Section/Supplier</option>
+                  <option value="Part Area">Part Area</option>
+                  <option value="Final Assembly">Final Assembly</option>
+                  <option value="Fit Area">Fit Area</option>
+                </select>
                 {errors.supplierName && (
                   <p className="text-sm text-red-500">{errors.supplierName.message}</p>
                 )}
               </div>
+
 
               {/* Group Name */}
               <div className="flex flex-col space-y-1.5">
@@ -455,11 +477,36 @@ const QualityForm = () => {
                   id="productImage"
                   type="file"
                   accept="image/*"
-                  {...register("productImage", { required: "Image is required" })}
+                  {...register("productImage")}
+                  onChange={handleImageChange} 
+                  
                 />
                 {errors.productImage && (
                   <p className="text-sm text-red-500">{errors.productImage.message}</p>
                 )}
+                  {/* 👇 Image Preview */}
+                {preview && (
+                  <div className="mt-3 flex justify-center">
+                  <a href={preview} target="_blank" rel="noopener noreferrer">
+                    <img
+                      src={preview}
+                      alt="Preview"
+                      className="
+                        max-w-full
+                        max-h-40
+                        object-contain
+                        rounded-md
+                        border
+                        border-gray-300
+                        shadow-sm hover:scale-105 transition-transform duration-200
+
+                      "
+                    />
+                    </a>
+                  </div>
+                )
+                }
+
               </div>
 
             </div>
@@ -865,17 +912,19 @@ const QualityForm = () => {
         </CardContent>
 
         <CardFooter className="flex justify-center py-6">
-          <Button type="submit" className="px-8 py-2 text-lg">
-            Submit
+          <Button type="submit" className="px-8 py-2 text-lg mx-3">
+            {
+              (location?.state?.data?.status === "pending_quality" && user.team === "Quality") ? "Reject":"Submit"
+            }
           </Button>
          {
           (location?.state?.data?.status === "pending_quality" && user.team === "Quality") && (
-            <Button className="px-8 py-2 text-lg" onClick={()=>{handleApprove(location.state?.data?._id)}}>
+            <Button  type="button" className="px-8 py-2 text-lg mx-3" onClick={()=>{handleApprove(location.state?.data?._id)}}>
              Approve
           </Button>
           )
          } 
- <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
             <DialogTitle>Form Approved ✅</DialogTitle>
