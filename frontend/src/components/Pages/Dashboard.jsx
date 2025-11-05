@@ -25,7 +25,7 @@ const Dashboard = () => {
   // Fetch all forms from backend
   const fetchAllForms = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/form/allForms", {
+      const res = await axios.post("http://localhost:3000/form/allForms",{Team:user.team}, {
         withCredentials: true,
       });
       setFormsList(res.data.forms || []);
@@ -99,6 +99,24 @@ const Dashboard = () => {
                   Status: {form.status}
                 </p>
               </div>
+              {
+                form.status === "approved" ?
+                <Button
+                onClick={() => {
+                        // find the clicked form from the list
+                        const selectedForm = formsList.find((f) => f._id === form._id);
+                        console.log(selectedForm);
+                        // navigate and pass form data as state
+                        navigate("/Quality-Form", { state: { data: selectedForm } });
+                  }}
+                className={`${
+                  form.status === "pending_prod"
+                    ? "bg-yellow-500 hover:bg-yellow-600"
+                    : "bg-green-600 hover:bg-green-700"
+                } text-white`}
+              >
+                Approved
+              </Button>:
               <Button
                 onClick={() => {
                         // find the clicked form from the list
@@ -115,6 +133,8 @@ const Dashboard = () => {
               >
                 {user.team === form.filledBy ? "Submitted" : "Preview"}
               </Button>
+              }
+              
             </div>
           ))
         )}

@@ -910,8 +910,9 @@ const QualityForm = () => {
           </section>
 
         </CardContent>
-
-        <CardFooter className="flex justify-center py-6">
+        {
+          location.state?.data?.status != "approved" && (
+            <CardFooter className="flex justify-center py-6">
           <Button type="submit" className="px-8 py-2 text-lg mx-3">
             {
               (location?.state?.data?.status === "pending_quality" && user.team === "Quality") ? "Reject":"Submit"
@@ -937,7 +938,10 @@ const QualityForm = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>     
-        </CardFooter>
+            </CardFooter>
+          )
+        }
+        
       </form>
     </Card>
   );

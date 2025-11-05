@@ -4,7 +4,7 @@ import { modifyForm, getAllForms,approveForm } from "../Controllers/form.control
 const router = express.Router();
 
 router.post("/modifyForm",modifyForm);
-router.get("/allForms",getAllForms);
+router.post("/allForms",getAllForms);
 router.post("/approveForm",approveForm);
 
 export default router;

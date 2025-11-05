@@ -49,7 +49,15 @@ export const modifyForm = async (req, res) => {
 
 export const getAllForms = async (req, res) => {
   try {    
-    const forms = await Form.find({ status: { $ne: "approved" } });
+    const {Team} = req.body;
+    let forms;
+
+    if(Team === "Quality"){
+      forms = await Form.find({});
+    }
+    else{
+      forms = await Form.find({ status: { $ne: "approved" } });
+    }
 
     if (!forms || forms.length === 0) {
       return res.status(201).json({ message: "No forms found" });
