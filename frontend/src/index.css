@@ -75,6 +75,14 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 }
+:root {
+  --chart-1: 210 100% 60%; /* Blue */
+  --chart-2: 150 100% 40%; /* Green */
+  --chart-3: 30 100% 55%;  /* Orange */
+  --chart-4: 0 85% 60%;    /* Red */
+  --chart-5: 270 80% 70%;  /* Purple */
+}
+
 
 .dark {
   --background: oklch(0.145 0 0);
