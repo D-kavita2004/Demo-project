@@ -12,8 +12,6 @@ import { useLocation } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-// import myimg from "../Assets/image.png";
-// import { useEffect } from "react";
 
 const QualityForm = () => {
 
@@ -85,8 +83,8 @@ const QualityForm = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
   const clickedForm = location.state?.data;
-  const [preview, setPreview] = useState(clickedForm.imageUrl);
-  const formFromState = clickedForm.formData; 
+  const [preview, setPreview] = useState(clickedForm?.imageUrl || "");
+  const formFromState = clickedForm?.formData; 
   const myDefaultData = formFromState || myData;
   // console.log(myDefaultData);
   const {
@@ -113,29 +111,27 @@ const uploadImage = async (file) => {
 };
 
 const onSubmit = async (data) => {
-  console.log("calling modify form api");
+  console.log("calling modify form api", data);
 
   try {
-    let imageUrl = "";
-
     // Step 1: Upload image first if it exists
-    if (data.productImage?.[0]) {
-      imageUrl = await uploadImage(data.productImage[0]);
-      console.log("Image uploaded, URL:", imageUrl);
+    let image = "";
+    if (data.productImage?.[0] && !clickedForm?.imageUrl) {
+      image = await uploadImage(data.productImage[0]);
+      console.log("Image Url:", image);
     }
 
-    // Step 2: Submit form with image URL
+    // Step 2: Submit form
     const res = await axios.post(`${apiUrl}/form/modifyForm`, {
       formId: location.state?.data?._id,
       formData: data,
-      imageUrl, // include uploaded image URL here
+      imageUrl: clickedForm?.imageUrl || image,
       filledBy: user.team,
       status: user.team === "Quality" ? "pending_prod" : "pending_quality",
     });
 
     console.log("Form submitted successfully:", res.data);
     navigate("/");
-    // reset();
   } catch (err) {
     console.error("Error submitting form:", err);
   }
@@ -149,7 +145,6 @@ const handleImageChange = (e) => {
     setPreview(imageUrl);
   }
 };
-
 
   const handleApprove = async (id) => {
 
