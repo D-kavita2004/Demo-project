@@ -83,14 +83,21 @@ const QualityForm = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
   const clickedForm = location.state?.data;
-  const [preview, setPreview] = useState(clickedForm?.imageUrl || "");
+  const [preview, setPreview] = useState(clickedForm?.formData?.productImage || "");
   const formFromState = clickedForm?.formData; 
   const myDefaultData = formFromState || myData;
+
+  const [isImageUploaded, setIsImageUploaded] = useState(false);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState("");
+  const [isImageSelected,setIsImageSelected] = useState(false);
+  const [imageMsg,setimageMsg] = useState("");
+
   // console.log(myDefaultData);
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
     reset,
   } = useForm({
     defaultValues:myDefaultData});
@@ -113,19 +120,23 @@ const uploadImage = async (file) => {
 const onSubmit = async (data) => {
   console.log("calling modify form api", data);
 
-  try {
-    // Step 1: Upload image first if it exists
-    let image = "";
-    if (data.productImage?.[0] && !clickedForm?.imageUrl) {
-      image = await uploadImage(data.productImage[0]);
-      console.log("Image Url:", image);
-    }
+  // Prevent submission if user selected image but didn’t upload it
+  if (data.productImage?.[0] && !isImageUploaded && isImageSelected) {
+    setimageMsg("Please upload the selected image before submitting the form.");
+    return;
+  }
 
-    // Step 2: Submit form
+  try {
+    // Step 1: Use the uploaded image URL
+    const image = uploadedImageUrl || clickedForm?.formData?.productImage || "";
+
+    // Step 2: Submit form data
     const res = await axios.post(`${apiUrl}/form/modifyForm`, {
       formId: location.state?.data?._id,
-      formData: data,
-      imageUrl: clickedForm?.imageUrl || image,
+      formData: {
+        ...data,
+        productImage: image, //store the URL inside formData
+      },
       filledBy: user.team,
       status: user.team === "Quality" ? "pending_prod" : "pending_quality",
     });
@@ -139,6 +150,7 @@ const onSubmit = async (data) => {
 
 // Image preview handler
 const handleImageChange = (e) => {
+  setIsImageSelected(true);
   const file = e.target.files[0];
   if (file) {
     const imageUrl = URL.createObjectURL(file);
@@ -493,41 +505,69 @@ const handleImageChange = (e) => {
               {/* Product Image */}
               <div className="flex flex-col space-y-1.5 md:col-span-2">
                 <Label htmlFor="productImage">Product Image</Label>
+
+                {/* Image Input */}
                 <Input
                   id="productImage"
                   type="file"
                   accept="image/*"
                   {...register("productImage")}
-                  onChange={handleImageChange} 
-                  
+                  onChange={(e) => {
+                    handleImageChange(e);
+                    setUploadedImageUrl(""); // Reset uploaded state when new image selected
+                    setIsImageUploaded(false);
+                  }}
                 />
-                {errors.productImage && (
-                  <p className="text-sm text-red-500">{errors.productImage.message}</p>
+                {imageMsg && (
+                  <p className="text-sm text-red-500">{imageMsg}</p>
                 )}
-                  {/* 👇 Image Preview */}
+                {/* Upload button */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={async () => {
+                    const file = watch("productImage")?.[0];
+                    if (!file) {
+                      setimageMsg("Please select an image before uploading.");
+                      return;
+                    }
+                    try {
+                      const url = await uploadImage(file);
+                      setUploadedImageUrl(url);
+                      setIsImageUploaded(true);
+                      setimageMsg("Image uploaded successfully!");
+                    } catch (error) {
+                      console.error("Image upload failed:", error);
+                      setimageMsg("Image upload failed. Please try again.");
+                    }
+  }}
+                >
+                  Upload Image
+                </Button>
+
+
+                {/* Image preview */}
                 {preview && (
                   <div className="mt-3 flex justify-center">
-                  <a href={preview} target="_blank" rel="noopener noreferrer">
-                    <img
-                      src={preview}
-                      alt="Preview"
-                      className="
-                        max-w-full
-                        max-h-40
-                        object-contain
-                        rounded-md
-                        border
-                        border-gray-300
-                        shadow-sm hover:scale-105 transition-transform duration-200
-
-                      "
-                    />
+                    <a href={uploadedImageUrl || preview} target="_blank" rel="noopener noreferrer">
+                      <img
+                        src={uploadedImageUrl || preview}
+                        alt="Preview"
+                        className="
+                          max-w-full
+                          max-h-40
+                          object-contain
+                          rounded-md
+                          border
+                          border-gray-300
+                          shadow-sm hover:scale-105 transition-transform duration-200
+                        "
+                      />
                     </a>
                   </div>
-                )
-                }
-
+                )}
               </div>
+
 
             </div>
           </section>
