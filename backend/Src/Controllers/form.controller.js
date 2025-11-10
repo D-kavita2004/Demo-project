@@ -2,9 +2,9 @@ import Form from "../Models/form.models.js";
 
 export const modifyForm = async (req, res) => {
   try {
-    console.log("modify function hit")
+    // console.log("modify function hit")
     const { formId, formData, filledBy, status, imageUrl, } = req.body;
-    console.log(imageUrl);
+    // console.log(imageUrl);
 
     if (!formData) {
       return res.status(400).json({ message: "Form data is required" });
@@ -35,7 +35,7 @@ export const modifyForm = async (req, res) => {
       });
       await form.save();
     }
-    
+
     return res.status(201).json({
       message: formId ? "Form updated successfully" : "Form submitted successfully",
       form,

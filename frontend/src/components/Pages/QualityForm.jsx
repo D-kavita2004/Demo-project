@@ -12,7 +12,7 @@ import { useLocation } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import myimg from "../Assets/image.png";
+// import myimg from "../Assets/image.png";
 // import { useEffect } from "react";
 
 const QualityForm = () => {
