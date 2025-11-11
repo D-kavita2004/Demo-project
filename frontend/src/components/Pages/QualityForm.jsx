@@ -139,7 +139,7 @@ const onSubmit = async (data) => {
       },
       filledBy: user.team,
       status: user.team === "Quality" ? "pending_prod" : "pending_quality",
-    });
+    },{withCredentials:true});
 
     console.log("Form submitted successfully:", res.data);
     navigate("/");

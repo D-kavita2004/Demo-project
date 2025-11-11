@@ -12,6 +12,7 @@ import { Button } from "../ui/button";
 import { UserContext } from "../Constants/userContext";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import generateQualityFormPDF from "./PdfFormData";
 
 const TableView = ({ data}) => {
 
@@ -19,7 +20,7 @@ const TableView = ({ data}) => {
   const navigate = useNavigate();
   const [pagination, setPagination] = React.useState({
   pageIndex: 0,
-  pageSize: 3, // define how many rows to show per page
+  pageSize: 5, // define how many rows to show per page
 });
 
   const columns = [
@@ -90,6 +91,21 @@ const TableView = ({ data}) => {
                   } text-white`}
             >
                   {row.original.status === "approved" ? "View Details" : "Preview"}
+            </Button>
+            )}
+            </div>
+      ),
+      },
+      {
+      header: "Info",
+      cell: ({ row }) => (
+            <div className="text-left">
+            {user.team !== row.original.filledBy && (
+            <Button
+                  className="text-white bg-amber-500"
+                  onClick={()=>{generateQualityFormPDF(row.original.formData)}}
+            >
+                  Download
             </Button>
             )}
             </div>

@@ -3,17 +3,9 @@ import { UserContext } from "../Constants/userContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
-import { WorkflowChart } from "../ReusableComponents/ChartComponent";
-import  DepartmentPieChart  from "../ReusableComponents/DepartmentPieChart";
-import FormsBarChart from "../ReusableComponents/FormsBarChart";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
+import { WorkflowChart } from "../ReusableComponents/Charts/ChartComponent";
+import  DepartmentPieChart  from "../ReusableComponents/Charts/DepartmentPieChart";
+import FormsBarChart from "../ReusableComponents/Charts/FormsBarChart";
 import { Input } from "../ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import TableView from "../ReusableComponents/TableView";

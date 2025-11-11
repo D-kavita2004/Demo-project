@@ -19,17 +19,18 @@ app.use(cors({
 
 app.use(cookieParser());
 app.use(express.json());
-app.use("/auth",authRoutes);
-app.use("/form",formRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({ status: "OK" });
 });
+
+app.use("/auth",authRoutes);
+app.use("/form",verifyToken,formRoutes);
+app.use("/image",verifyToken, imageRoutes)
+
 app.get("/verify-token",verifyToken,(req,res)=>{
   return res.status(200).send(req.user);
 });
-
-app.use("/image", imageRoutes)
 
 connectDB()
   .then(() => {
