@@ -16,6 +16,7 @@ import {
 } from "../ui/table";
 import { Input } from "../ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import TableView from "../ReusableComponents/TableView";
 
 const Dashboard = () => {
   const [formsList, setFormsList] = useState([]);
@@ -56,9 +57,17 @@ const Dashboard = () => {
     fetchAllForms();
   }, []);
 
-  const filteredForms = formsList.filter((form) =>
-    form.formData.partName?.toLowerCase().includes(searchTerm.toLowerCase())
+const filteredForms = formsList.filter((form) => {
+  const search = searchTerm.toLowerCase();
+
+  const partName = form.formData?.partName?.toLowerCase() || "";
+  const supplier = form.formData?.supplierName?.toLowerCase() || "";
+  const status = form.status?.toLowerCase() || "";
+
+  return (
+    partName.includes(search) || supplier.includes(search) || status.includes(search)
   );
+});
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6">
@@ -90,15 +99,9 @@ const Dashboard = () => {
             Welcome {user?.username || "User"} 👋
           </CardTitle>
         </CardHeader>
-        {/* <CardContent>
-          <p className="text-gray-600 dark:text-gray-400">
-            Here’s an overview of your submitted forms and their statuses.
-          </p>
-        </CardContent> */}
       </Card>
 
       {/* Chart Section */}
-
     <div className="my-7 flex flex-col gap-7">
       {/* Workflow chart full width */}
       <div className="w-full">
@@ -116,9 +119,8 @@ const Dashboard = () => {
       </div>
     </div>
 
-
       {/* Search Input */}
-      <div className="flex justify-between items-center mb-4">
+      {/* <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
           Forms
         </h2>
@@ -129,81 +131,27 @@ const Dashboard = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-sm bg-white dark:bg-gray-800"
         />
-      </div>
+      </div> */}
 
       {/* Forms Table */}
       <Card className="bg-white dark:bg-gray-800 shadow-lg">
-        <CardContent className="p-0">
-          {filteredForms.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">
-              No forms found matching your search.
-            </p>
-          ) : (
-            <div className="overflow-x-auto rounded-lg">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-left font-bold">Part Name</TableHead>
-                    <TableHead className="text-left font-bold">Supplier/Department Name</TableHead>
-                    <TableHead className="text-left font-bold">Last Updated</TableHead>
-                    <TableHead className="text-left font-bold">Status</TableHead>
-                    <TableHead className="text-right font-bold pr-7">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredForms.map((form) => (
-                    <TableRow
-                      key={form._id}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                    >
-                      <TableCell className="font-medium text-gray-800 dark:text-gray-100">
-                        {form.formData.partName || "Untitled"}
-                      </TableCell>
-                      <TableCell className="text-gray-700 dark:text-gray-300">
-                        {form.formData.supplierName}
-                      </TableCell>
-                      <TableCell className="text-gray-600 dark:text-gray-400">
-                        {new Date(form.createdAt).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={`px-3 py-1 text-sm font-medium rounded-full ${
-                            form.status === "approved"
-                              ? "bg-green-100 text-green-700"
-                              : form.status === "pending_prod"
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-blue-100 text-blue-700"
-                          }`}
-                        >
-                          {form.status === "pending_quality" && "Pending Quality Review"}
-                          {form.status === "pending_prod" && "Pending Production Review"}
-                          {form.status === "approved" && "Approved"}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {user.team !== form.filledBy && (
-                          <Button
-                            onClick={() =>
-                              navigate("/Quality-Form", { state: { data: form } })
-                            }
-                            className={`${
-                              form.status === "approved"
-                                ? "bg-green-600 hover:bg-green-700"
-                                : "bg-blue-600 hover:bg-blue-700"
-                            } text-white`}
-                          >
-                            {form.status === "approved" ? "View Details" : "Preview"}
-                          </Button>
-                        )}
+        <CardContent className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+              Forms
+            </h2>
+            <Input
+              type="text"
+              placeholder="Search by Part Name, Supplier, Status..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-sm bg-white dark:bg-gray-800"
+            />
+          </div>
 
-
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+          <TableView
+            data={filteredForms}
+          />
         </CardContent>
       </Card>
     </div>
