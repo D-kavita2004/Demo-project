@@ -3,23 +3,95 @@ import pdfFonts from "pdfmake/build/vfs_fonts";
 
 pdfMake.vfs = pdfFonts?.default?.vfs || pdfFonts.vfs;
 
-const generateQualityFormPDF = (formData) => {
+// Universal Image Converter
+// Converts any image (webp/jpg/jpeg/png) into a PNG Base64 that pdfMake supports.
+const getImageAsPngBase64 = async (imageUrl) => {
+  if (!imageUrl) return null;
+
+  try {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.src = imageUrl;
+
+    return new Promise((resolve, reject) => {
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+          const pngBase64 = canvas.toDataURL("image/png"); // Always output PNG
+          resolve(pngBase64);
+        } catch (error) {
+          console.error("Canvas conversion failed:", error);
+          reject(error);
+        }
+      };
+      img.onerror = (error) => {
+        console.error("Image failed to load:", error);
+        reject(error);
+      };
+    });
+  } catch (error) {
+    console.error("Error converting image:", error);
+    return null;
+  }
+};
+
+const generateQualityFormPDF = async (data) => {
+
+  const formData = data.formData;
+
+  // Convert product image to PNG Base64 (safe for pdfMake)
+  const productImageBase64 = await getImageAsPngBase64(formData.productImage);
+  console.log("Converted Image:", productImageBase64?.substring(0, 100));
+
   const docDefinition = {
     pageSize: "A4",
     pageMargins: [40, 60, 40, 60],
-
     content: [
-      // ===== Main Header =====
-      { text: "QUALITY CHECK FORM REPORT", style: "mainHeader" },
+      { text: "QUALITY CHECK STATUS", style: "mainHeader" },
       { text: "\n" },
 
-      // ===== 1️Issuing Section =====
-      { text: "1️ Issuing Section", style: "sectionHeader" ,bold: true,
-      color: '#000000',
-      fontSize: 16,
-      margin: [0, 9, 0, 5],},
-  //     { text: "Issued Details", style: "subHeader"
-  // },
+// ===== Status Section =====
+// {
+//   text: "Status",
+//   style: "sectionHeader",
+// },
+// {
+//   stack: [
+//     {
+//       text: data.status || "-",
+//       bold: true,
+//       fontSize: 12,
+//       color: "#004aad",
+//       fillColor: "#e6f2ff",
+//       margin: [0, 0, 0, 0],
+//       alignment: "center",
+//     },
+//     {
+//       canvas: [
+//         {
+//           type: "rect",
+//           x: 0,
+//           y: -4,
+//           w: 100,       // width of the tag
+//           h: 20,        // height of the tag
+//           r: 6,         // corner radius
+//           color: "#e6f2ff",
+//           lineWidth: 0, // no border
+//         },
+//       ],
+//     },
+//   ],
+//   margin: [0, 5, 0, 10],
+//   alignment: "center",
+// },
+
+
+      // ===== 1. Issuing Section =====
+      { text: "1️ Issuing Section", style: "sectionHeader" ,color:"#000000"},
       {
         table: {
           widths: ["35%", "65%"],
@@ -33,20 +105,15 @@ const generateQualityFormPDF = (formData) => {
             "Issued To": formData.issued,
           }).map(([key, value]) => [
             { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
-            { text: value || "-", margin: [2, 4, 2, 4] },
+            { text: value ?? "-", margin: [2, 4, 2, 4] },
           ]),
         },
-        layout: {
-          fillColor: (rowIndex) => (rowIndex % 2 === 0 ? "#f9f9f9" : null),
-          hLineWidth: () => 0.5,
-          vLineWidth: () => 0.5,
-        },
+        layout: "lightHorizontalLines",
       },
       { text: "\n" },
 
-      // ===== 2 Defectiveness Details =====
-      { text: "2️ Defectiveness Details", style: "sectionHeader",bold: true, color: '#000000', fontSize: 16, margin: [0, 9, 0, 5] },
-      // { text: "Defect & Process Info", style: "subHeader" },
+      // ===== 2. Defectiveness Details =====
+      { text: "2️ Defectiveness Details", style: "sectionHeader",color:"#000000" },
       {
         table: {
           widths: ["35%", "65%"],
@@ -65,20 +132,21 @@ const generateQualityFormPDF = (formData) => {
             "Used Quantity": formData.usedQuantity,
             "Residual Quantity": formData.residualQuantity,
             "Defect Rate (%)": formData.defectRate,
-            "Product Image": formData.productImage,
+            "Product Image": productImageBase64
+              ? { image: productImageBase64, width: 200, height: 150, alignment: "center" }
+              : "-",
             "Manager Instructions": formData.managerInstructions,
           }).map(([key, value]) => [
             { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
-            { text: value || "-", margin: [2, 4, 2, 4] },
+            typeof value === "object" && value.image ? value : { text: value ?? "-", margin: [2, 4, 2, 4] },
           ]),
         },
         layout: "lightHorizontalLines",
       },
       { text: "\n" },
 
-      // ===== 3 Quality Check Comments =====
-      { text: "3️ Quality Check Comments", style: "sectionHeader",bold: true, color: '#000000', fontSize: 16, margin: [0, 9, 0, 5] },
-      // { text: "QC Details", style: "subHeader" },
+      // ===== 3. Quality Check Comments =====
+      { text: "3️ Quality Check Comments", style: "sectionHeader",color:"#000000" },
       {
         table: {
           widths: ["35%", "65%"],
@@ -93,16 +161,15 @@ const generateQualityFormPDF = (formData) => {
             "Report Time Limit": formData.reportTimeLimit,
           }).map(([key, value]) => [
             { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
-            { text: value || "-", margin: [2, 4, 2, 4] },
+            { text: value ?? "-", margin: [2, 4, 2, 4] },
           ]),
         },
         layout: "lightHorizontalLines",
       },
       { text: "\n" },
 
-      // ===== 4️ Measures Report =====
-      { text: "4️ Measures Report", style: "sectionHeader",bold: true, color: '#000000', fontSize: 16, margin: [0, 9, 0, 5] },
-      // { text: "Corrective Actions & Measures", style: "subHeader" },
+      // ===== 4. Measures Report =====
+      { text: "4️ Measures Report", style: "sectionHeader" ,color:"#000000"},
       {
         table: {
           widths: ["35%", "65%"],
@@ -115,16 +182,15 @@ const generateQualityFormPDF = (formData) => {
             "Standardization": formData.standardization,
           }).map(([key, value]) => [
             { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
-            { text: value || "-", margin: [2, 4, 2, 4] },
+            { text: value ?? "-", margin: [2, 4, 2, 4] },
           ]),
         },
         layout: "lightHorizontalLines",
       },
       { text: "\n" },
 
-      // ===== 5️ Results of Measures =====
-      { text: "5️ Results of Measures", style: "sectionHeader" ,bold: true, color: '#000000', fontSize: 16, margin: [0, 9, 0, 5]},
-      // { text: "Outcome & Effectiveness", style: "subHeader" },
+      // ===== 5. Results of Measures =====
+      { text: "5️ Results of Measures", style: "sectionHeader",color:"#000000" },
       {
         table: {
           widths: ["35%", "65%"],
@@ -143,46 +209,35 @@ const generateQualityFormPDF = (formData) => {
             "Effect Approved": formData.effectApproved ? "Yes" : "No",
           }).map(([key, value]) => [
             { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
-            { text: value || "-", margin: [2, 4, 2, 4] },
+            { text: value ?? "-", margin: [2, 4, 2, 4] },
           ]),
         },
         layout: "lightHorizontalLines",
       },
       { text: "\n\n" },
-
-      // ===== Signature Section =====
-      // { text: "Signatures", style: "sectionHeader" },
-      // {
-      //   columns: [
-      //     { text: "Checked By:\n\n__________________", width: "33%" },
-      //     { text: "Approved By:\n\n__________________", width: "33%" },
-      //     { text: "Issued By:\n\n__________________", width: "33%" },
-      //   ],
-      // },
     ],
 
     styles: {
       mainHeader: {
-        fontSize: 18,
+        fontSize: 22,
         bold: true,
-        alignment: "center",
         color: "#004aad",
-        margin: [0, 0, 0, 15],
+        alignment: "center",
+        margin: [0, 0, 0, 20],
+        lineHeight: 1.4,
+        decoration: "underline",
+        decorationStyle: "solid",
+        decorationColor: "#004aad",
+        letterSpacing: 1,
       },
       sectionHeader: {
-        fontSize: 14,
+        fontSize: 16,
         bold: true,
         color: "#ffffff",
         fillColor: "#004aad",
         margin: [0, 10, 0, 6],
         alignment: "left",
         padding: [5, 5, 5, 5],
-      },
-      subHeader: {
-        fontSize: 12,
-        bold: true,
-        color: "#004aad",
-        margin: [0, 8, 0, 4],
       },
     },
 
@@ -198,9 +253,11 @@ const generateQualityFormPDF = (formData) => {
       margin: [0, 0, 0, 10],
     }),
   };
+  //Download the form data in pdf
+  pdfMake.createPdf(docDefinition).download(`${formData.partName || "Quality_Form"}_Report.pdf`);
 
-  // Open PDF in new tab for live preview
-  pdfMake.createPdf(docDefinition).open();
+  // Open the PDF in a new tab
+  // pdfMake.createPdf(docDefinition).open();
 };
 
 export default generateQualityFormPDF;

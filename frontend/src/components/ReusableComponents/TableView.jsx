@@ -103,7 +103,7 @@ const TableView = ({ data}) => {
             {user.team !== row.original.filledBy && (
             <Button
                   className="text-white bg-amber-500"
-                  onClick={()=>{generateQualityFormPDF(row.original.formData)}}
+                  onClick={()=>{generateQualityFormPDF(row.original)}}
             >
                   Download
             </Button>
