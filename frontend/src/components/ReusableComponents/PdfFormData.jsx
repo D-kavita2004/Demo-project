@@ -51,7 +51,7 @@ const generateQualityFormPDF = async (data) => {
     pageSize: "A4",
     pageMargins: [40, 60, 40, 60],
     content: [
-      { text: "QUALITY CHECK STATUS", style: "mainHeader" },
+      { text: "QUALITY CHECK REPORT", style: "mainHeader" },
       { text: "\n" },
 
 // ===== Status Section =====

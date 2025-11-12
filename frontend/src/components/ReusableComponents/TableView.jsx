@@ -12,120 +12,148 @@ import { Button } from "../ui/button";
 import { UserContext } from "../Constants/userContext";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import generateQualityFormPDF from "./PdfFormData";
+import generateQualityFormExcel from "./generateQualityFormExcel";
 
-const TableView = ({ data}) => {
-
+const TableView = ({ data }) => {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
-  const [pagination, setPagination] = React.useState({
-  pageIndex: 0,
-  pageSize: 5, // define how many rows to show per page
-});
 
-  const columns = [
-      {
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 5,
+  });
+
+  // Base columns
+  const baseColumns = [
+    {
       header: "Part Name",
       accessorKey: "formData.partName",
       cell: ({ row }) => (
-            <span className="font-medium text-gray-800 dark:text-gray-100">
-            {row.original.formData.partName || "Untitled"}
-            </span>
+        <span className="font-medium text-gray-800 dark:text-gray-100">
+          {row.original.formData.partName || "Untitled"}
+        </span>
       ),
-      },
-      {
+    },
+    {
       header: "Supplier/Department Name",
       accessorKey: "formData.supplierName",
       cell: ({ row }) => (
-            <span className="text-gray-700 dark:text-gray-300">
-            {row.original.formData.supplierName}
-            </span>
+        <span className="text-gray-700 dark:text-gray-300">
+          {row.original.formData.supplierName}
+        </span>
       ),
-      },
-      {
+    },
+    {
       header: "Created At",
       accessorKey: "createdAt",
       cell: ({ getValue }) => (
-            <span className="text-gray-600 dark:text-gray-400">
-            {new Date(getValue()).toLocaleDateString()}
-            </span>
+        <span className="text-gray-600 dark:text-gray-400">
+          {new Date(getValue()).toLocaleDateString()}
+        </span>
       ),
-      },
-      {
+    },
+    {
       header: "Status",
       accessorKey: "status",
       cell: ({ getValue }) => {
-            const status = getValue();
-            const color =
-            status === "approved"
+        const status = getValue();
+        const color =
+          status === "approved"
             ? "bg-green-100 text-green-700"
             : status === "pending_prod"
             ? "bg-yellow-100 text-yellow-700"
             : "bg-blue-100 text-blue-700";
-            const label =
-            status === "pending_quality"
+        const label =
+          status === "pending_quality"
             ? "Pending Quality Review"
             : status === "pending_prod"
             ? "Pending Production Review"
             : "Approved";
-            return (
-            <span className={`px-3 py-1 text-sm font-medium rounded-full ${color}`}>
+
+        return (
+          <span className={`px-3 py-1 text-sm font-medium rounded-full ${color}`}>
             {label}
-            </span>
-            );
+          </span>
+        );
       },
-      },
-      {
+    },
+    {
       header: "Action",
       cell: ({ row }) => (
-            <div className="text-left">
-            {user.team !== row.original.filledBy && (
+        <div className="text-left">
+          {user.team !== row.original.filledBy && (
             <Button
-                  onClick={() =>
-                  navigate("/Quality-Form", { state: { data: row.original } })
-                  }
-                  className={`${
-                  row.original.status === "approved"
+              onClick={() =>
+                navigate("/Quality-Form", { state: { data: row.original } })
+              }
+              className={`${
+                row.original.status === "approved"
                   ? "bg-green-600 hover:bg-green-700"
                   : "bg-blue-600 hover:bg-blue-700"
-                  } text-white`}
+              } text-white`}
             >
-                  {row.original.status === "approved" ? "View Details" : "Preview"}
+              {row.original.status === "approved" ? "View Details" : "Preview"}
             </Button>
-            )}
-            </div>
+          )}
+        </div>
       ),
-      },
-      {
-      header: "Info",
-      cell: ({ row }) => (
-            <div className="text-left">
-            {user.team !== row.original.filledBy && (
-            <Button
-                  className="text-white bg-amber-500"
-                  onClick={()=>{generateQualityFormPDF(row.original)}}
-            >
-                  Download
-            </Button>
-            )}
-            </div>
-      ),
-      },
-      ];
+    },
+  ];
 
-const table = useReactTable({
-  data,
-  columns,
-  state: {
-    pagination, // added pagination state
-  },
-  onPaginationChange: setPagination, //table updates pagination
-  getCoreRowModel: getCoreRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  getFilteredRowModel: getFilteredRowModel(),
-  getPaginationRowModel: getPaginationRowModel(),
-});
+  // Add Info column only if user.team === "quality"
+  const columns =
+    user?.team === "Quality"
+      ? [
+          ...baseColumns,
+          {
+            header: "Info",
+            cell: ({ row }) => (
+              <div className="text-left">
+                {
+                  row.original.status === "approved" &&
+                  // <Button
+                  // className="text-white bg-amber-500"
+                  // onClick={() => generateQualityFormPDF(row.original)}
+                  // >
+                  //   Download
+                  // </Button>
+                  <DropdownMenu>
+                      <DropdownMenuTrigger className="text-white bg-amber-500 p-2 rounded">Download</DropdownMenuTrigger>
+                      <DropdownMenuContent> 
+                        <DropdownMenuItem onClick={() => generateQualityFormPDF(row.original)}>export as Pdf</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={()=>{generateQualityFormExcel(row.original)}}>export as excel</DropdownMenuItem>
+                      </DropdownMenuContent>
+                  </DropdownMenu>
+                }
+                
+              </div>
+            ),
+          },
+        ]
+      : baseColumns;
 
+  const table = useReactTable({
+    data,
+    columns,
+    state: {
+      pagination,
+    },
+    onPaginationChange: setPagination,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
 
   return (
     <div className="space-y-4">
