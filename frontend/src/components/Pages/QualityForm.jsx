@@ -88,12 +88,8 @@ const QualityForm = () => {
   const formFromState = clickedForm?.formData; 
   const myDefaultData = formFromState || myData;
 
-  const [isImageUploaded, setIsImageUploaded] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
-  const [isImageSelected,setIsImageSelected] = useState(false);
-  const [imageMsg,setimageMsg] = useState("");
 
-  // console.log(myDefaultData);
   const {
     register,
     handleSubmit,
@@ -118,18 +114,17 @@ const uploadImage = async (file) => {
   return res.data.url; // backend returns file URL
 };
 
+
 const onSubmit = async (data) => {
   console.log("calling modify form api", data);
 
-  // Prevent submission if user selected image but didn’t upload it
-  if (data.productImage?.[0] && !isImageUploaded && isImageSelected) {
-    setimageMsg("Please upload the selected image before submitting the form.");
-    return;
-  }
-
   try {
+    let imageUrl;
+      if(uploadedImageUrl){
+         imageUrl = await uploadImage(data.productImage[0]);
+      }
     // Step 1: Use the uploaded image URL
-    const image = uploadedImageUrl || clickedForm?.formData?.productImage || "";
+    const image = imageUrl || clickedForm?.formData?.productImage || "";
 
     // Step 2: Submit form data
     const res = await axios.post(`${apiUrl}/form/modifyForm`, {
@@ -151,10 +146,10 @@ const onSubmit = async (data) => {
 
 // Image preview handler
 const handleImageChange = (e) => {
-  setIsImageSelected(true);
   const file = e.target.files[0];
   if (file) {
     const imageUrl = URL.createObjectURL(file);
+    setUploadedImageUrl(imageUrl);
     setPreview(imageUrl);
   }
 };
@@ -524,15 +519,13 @@ const handleImageChange = (e) => {
                         {...register("productImage")}
                         onChange={(e) => {
                           handleImageChange(e);
-                          setUploadedImageUrl(""); // Reset uploaded state when new image selected
-                          setIsImageUploaded(false);
                         }}
                       />
-                      {imageMsg && (
+                      {/* {imageMsg && (
                         <p className="text-sm text-red-500">{imageMsg}</p>
-                      )}
+                      )} */}
                       {/* Upload button */}
-                      <Button
+                      {/* <Button
                         type="button"
                         variant="outline"
                         onClick={async () => {
@@ -544,7 +537,6 @@ const handleImageChange = (e) => {
                           try {
                             const url = await uploadImage(file);
                             setUploadedImageUrl(url);
-                            setIsImageUploaded(true);
                             setimageMsg("Image uploaded successfully!");
                           } catch (error) {
                             console.error("Image upload failed:", error);
@@ -553,7 +545,7 @@ const handleImageChange = (e) => {
         }}
                       >
                         Upload Image
-                      </Button>
+                      </Button> */}
 
 
                       {/* Image preview */}
