@@ -1,13 +1,12 @@
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+import XLSX from "xlsx-js-style";
 
 const generateQualityFormExcel = (data) => {
   const formData = data.formData;
 
-  // Structure data section-wise, similar to your PDF
+  // Section structure
   const sections = [
     {
-      title: "1. Issuing Section",
+      title: "1. ISSUING SECTION",
       data: {
         "Receiving No": formData.receivingNo,
         "Reference No": formData.referenceNo,
@@ -19,7 +18,7 @@ const generateQualityFormExcel = (data) => {
       },
     },
     {
-      title: "2. Defectiveness Details",
+      title: "2. DEFECTIVENESS DETAILS",
       data: {
         "Supplier Name": formData.supplierName,
         "Group Name": formData.groupName,
@@ -40,7 +39,7 @@ const generateQualityFormExcel = (data) => {
       },
     },
     {
-      title: "3. Quality Check Comments",
+      title: "3. QUALITY CHECK COMMENTS",
       data: {
         "QC Comment": formData.qcComment,
         "Approval Status": formData.approvalStatus,
@@ -53,7 +52,7 @@ const generateQualityFormExcel = (data) => {
       },
     },
     {
-      title: "4. Measures Report",
+      title: "4. MEASURES REPORT",
       data: {
         "Measures Report": formData.measuresReport,
         "Responsible Section": formData.responsibleSection,
@@ -64,14 +63,14 @@ const generateQualityFormExcel = (data) => {
       },
     },
     {
-      title: "5. Results of Measures",
+      title: "5. RESULTS OF MEASURES",
       data: {
         "Enforcement Date (Result)": formData.enforcementDateResult,
         "Result": formData.enforcementResult,
         "Judgment": formData.enforcementJudgment,
         "Section In-Charge": formData.enforcementSecInCharge,
         "QC Section": formData.enforcementQCSection,
-        "Approved": formData.enforcementApproved ? "Yes" : "No",
+        Approved: formData.enforcementApproved ? "Yes" : "No",
         "Effect Date": formData.effectDate,
         "Effect Result": formData.effectResult,
         "Effect Judgment": formData.effectJudgment,
@@ -82,50 +81,88 @@ const generateQualityFormExcel = (data) => {
     },
   ];
 
-  const sheetData = [["QUALITY CHECK REPORT"], []];
-
-  // Fill data
+  // Prepare sheet data
+  const sheetData = [["QUALITY CHECK REPORT", ""]];
+  sheetData.push(["", ""]);
+  sheetData.push(["", ""]);
   sections.forEach((section) => {
-    sheetData.push([section.title]);
+    sheetData.push([section.title, ""]);
     Object.entries(section.data).forEach(([key, value]) => {
       sheetData.push([key, value ?? "-"]);
     });
-    sheetData.push([]);
+    sheetData.push(["", ""]); // spacing row
   });
 
-  const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Quality Form");
+  const ws = XLSX.utils.aoa_to_sheet(sheetData);
 
-  // 🔗 Add hyperlink for Product Image
-  if (formData.productImage) {
-    // Find the row index for "Product Image"
-    const imageRowIndex = sheetData.findIndex((row) => row[0] === "Product Image");
+  // Merge main title
+  ws["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
 
-    if (imageRowIndex !== -1) {
-      const cellRef = XLSX.utils.encode_cell({ r: imageRowIndex, c: 1 }); // Column B
-      const cell = worksheet[cellRef];
+  // Column widths
+  ws["!cols"] = [{ wch: 30 }, { wch: 50 }];
 
-      if (cell) {
-        // Add hyperlink metadata
-        cell.l = {
-          Target: formData.productImage,
-          Tooltip: "Click to open image in browser",
+  // Styling
+  sheetData.forEach((row, r) => {
+    row.forEach((cellValue, c) => {
+      const cellRef = XLSX.utils.encode_cell({ r, c });
+      const cell = ws[cellRef];
+      if (!cell) return;
+
+      // Main Title
+      if (r === 0) {
+        cell.s = {
+          font: { bold: true, sz: 18, color: { rgb: "004AAD" } },
+          alignment: { horizontal: "center" },
         };
       }
+      // Section Headers
+      else if (cellValue && Object.keys(sections.reduce((a, s) => ({ ...a, [s.title]: 1 }), {})).includes(cellValue)) {
+        cell.s = {
+          font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
+          fill: { fgColor: { rgb: "004AAD" } },
+          alignment: { horizontal: "left" },
+        };
+      }
+      // Keys
+      else if (c === 0 && cellValue !== "") {
+        cell.s = {
+          font: { bold: true },
+          fill: { fgColor: { rgb: "D9E1F2" } },
+          border: {
+            top: { style: "thin", color: { rgb: "000000" } },
+            bottom: { style: "thin", color: { rgb: "000000" } },
+            left: { style: "thin", color: { rgb: "000000" } },
+            right: { style: "thin", color: { rgb: "000000" } },
+          },
+        };
+      }
+      // Values
+      else if (c === 1) {
+        cell.s = {
+          border: {
+            top: { style: "thin", color: { rgb: "999999" } },
+            bottom: { style: "thin", color: { rgb: "999999" } },
+            left: { style: "thin", color: { rgb: "999999" } },
+            right: { style: "thin", color: { rgb: "999999" } },
+          },
+        };
+      }
+    });
+  });
+
+  // Hyperlink for Product Image
+  if (formData.productImage) {
+    const row = sheetData.findIndex((r) => r[0] === "Product Image");
+    if (row !== -1) {
+      const ref = XLSX.utils.encode_cell({ r: row, c: 1 });
+      ws[ref].l = { Target: formData.productImage, Tooltip: "Click to open image" };
     }
   }
 
-  // Auto-fit columns
-  const maxWidths = sheetData[0].map((_, colIndex) =>
-    Math.max(...sheetData.map((row) => (row[colIndex] ? row[colIndex].toString().length : 0)))
-  );
-  worksheet["!cols"] = maxWidths.map((w) => ({ wch: w + 4 }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Quality Form");
 
-  // Export Excel file
-  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-  const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
-  saveAs(blob, `${formData.partName || "Quality_Form"}_Report.xlsx`);
+  XLSX.writeFile(wb, `${formData.partName || "Quality_Form"}_Report.xlsx`);
 };
 
 export default generateQualityFormExcel;

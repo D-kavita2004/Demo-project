@@ -16,12 +16,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import generateQualityFormPDF from "./PdfFormData";
+// import generateQualityFormPDF from "./PdfFormData";
 import generateQualityFormExcel from "./generateQualityFormExcel";
+import DownLoadAllRecords from "./DownLoadAllRecords";
 
 const TableView = ({ data }) => {
   const { user } = useContext(UserContext);
@@ -129,7 +129,7 @@ const TableView = ({ data }) => {
                   <DropdownMenu>
                       <DropdownMenuTrigger className="text-white bg-amber-500 p-2 rounded">Download</DropdownMenuTrigger>
                       <DropdownMenuContent> 
-                        <DropdownMenuItem onClick={() => generateQualityFormPDF(row.original)}>export as Pdf</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => DownLoadAllRecords([row.original.formData])}>export as Pdf</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={()=>{generateQualityFormExcel(row.original)}}>export as excel</DropdownMenuItem>
                       </DropdownMenuContent>

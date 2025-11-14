@@ -9,6 +9,7 @@ import FormsBarChart from "../ReusableComponents/Charts/FormsBarChart";
 import { Input } from "../ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import TableView from "../ReusableComponents/TableView";
+import DownloadAllRecords from "../ReusableComponents/DownLoadAllRecords";
 
 const Dashboard = () => {
   const [formsList, setFormsList] = useState([]);
@@ -132,6 +133,13 @@ const Dashboard = () => {
               className="max-w-full sm:max-w-sm bg-white dark:bg-gray-800"
             />
           </div>
+          <Button className="mb-5" onClick={()=>
+            {
+              const list = formsList.map((obj)=> obj.formData);
+              console.log(list);
+              DownloadAllRecords(list);
+            }
+            }>Download All Records</Button>
 
           <TableView data={filteredForms} />
         </CardContent>
