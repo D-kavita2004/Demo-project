@@ -330,7 +330,7 @@ const handleImageChange = (e) => {
                         <p className="text-sm text-red-500">{errors.groupName.message}</p>
                       )}
                     </div>
-
+                    
                     {/* State of Process */}
                     <div className="flex flex-col space-y-1.5">
                       <Label htmlFor="stateOfProcess">State of Process</Label>
@@ -1009,5 +1009,4 @@ const handleImageChange = (e) => {
     </div>
   );
 };
-
 export default QualityForm;
