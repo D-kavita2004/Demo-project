@@ -1,9 +1,8 @@
-import axios from "axios";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import User from "../Models/users.models.js";
-
+import logger from "../../Config/logger.js";
 dotenv.config();
 
 // ------------------ LOGIN ------------------
@@ -18,7 +17,7 @@ export const handleLogin = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
       return res.status(401).json({ message: "Invalid credentials" });
-    const payload = { username: user.username, id: user._id, team:user.team }
+    const payload = { username: user.username, id: user._id, team:user.team };
     const token = jwt.sign(payload, process.env.SECRET);
  
     res.cookie("token", token, {
@@ -30,8 +29,8 @@ export const handleLogin = async (req, res) => {
 
     res.status(200).json({ 
       message: "Login successful",
-      user:payload
-     });
+      user:payload,
+    });
   } catch (err) {
     logger.error("Login Error:", err);
     res.status(500).json({ message: "Login failed" });

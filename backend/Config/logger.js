@@ -4,7 +4,7 @@ import "winston-daily-rotate-file";
 // Log format
 const logFormat = winston.format.combine(
   winston.format.timestamp({ format: "DD-MM-YYYY HH:mm:ss" }),
-  winston.format.printf(({ level, message, timestamp }) => `[${timestamp}] ${level.toUpperCase()}: ${message}`)
+  winston.format.printf(({ level, message, timestamp }) => `[${timestamp}] ${level.toUpperCase()}: ${message}`),
 );
 
 // Daily rotate transport for errors

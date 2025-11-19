@@ -1,9 +1,10 @@
 import Form from "../Models/form.models.js";
+import logger from "../../Config/logger.js";
 
 export const modifyForm = async (req, res) => {
   try {
     // console.log("modify function hit")
-    const { formId, formData, filledBy, status, imageUrl, } = req.body;
+    const { formId, formData, filledBy, status, imageUrl } = req.body;
     // console.log(imageUrl);
 
     if (!formData) {
@@ -23,7 +24,7 @@ export const modifyForm = async (req, res) => {
           status: status || "pending_prod",
           updatedAt: new Date(),
         },
-        { new: true }
+        { new: true },
       );
     } else {
       // Create new form
@@ -87,9 +88,9 @@ export const approveForm = async (req, res) => {
     const updatedForm = await Form.findByIdAndUpdate(
       formId,
       { status: "approved", updatedAt: new Date() },
-      { new: true } // return the updated document
+      { new: true }, // return the updated document
     );
-//     console.log(updatedForm);
+    //     console.log(updatedForm);
     if (!updatedForm) {
       return res.status(404).json({ message: "Form not found" });
     }
@@ -99,7 +100,7 @@ export const approveForm = async (req, res) => {
       form: updatedForm,
     });
   } catch (error) {
-    loggers.error("Error approving form:", error);
+    logger.error("Error approving form:", error);
     res.status(500).json({
       message: "Failed to approve form",
       error: error.message,

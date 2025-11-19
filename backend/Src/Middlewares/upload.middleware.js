@@ -3,31 +3,31 @@ import multerS3 from "multer-s3";
 import { S3Client } from "@aws-sdk/client-s3";
 import path from "path";
 import fs from "fs";
-import { fileURLToPath } from "url";
+// import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import logger from "../../Config/logger.js";
 
 dotenv.config();
 // Get current directory for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 //  Initialize S3 with logging
 const s3 =
   process.env.NODE_ENV === "production"
     ? (() => {
-        logger.info("Initializing AWS S3 client", {
-          region: process.env.AWS_REGION,
-          bucket: process.env.S3_BUCKET_NAME,
-        });
-        return new S3Client({
-          credentials: {
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-          },
-          region: process.env.AWS_REGION,
-        });
-      })()
+      logger.info("Initializing AWS S3 client", {
+        region: process.env.AWS_REGION,
+        bucket: process.env.S3_BUCKET_NAME,
+      });
+      return new S3Client({
+        credentials: {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        },
+        region: process.env.AWS_REGION,
+      });
+    })()
     : null;
 
 // Disk storage for development
@@ -107,7 +107,7 @@ export const upload = multer({
 });
 
 //  Enhanced image upload middleware with logging
-export const imageUpload = (req, res, next) => {
+export const imageUpload = (req, res) => {
   if (!req.file) {
     logger.warn("Image upload failed - no file provided", {
       userId: req.user?.userId,

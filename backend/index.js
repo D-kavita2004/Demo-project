@@ -16,7 +16,7 @@ import connectDB from "./Config/db.js";
 import express from "express";
 import authRoutes from "./Src/Routes/authentication.routes.js";
 import verifyToken from "./Src/Middlewares/verifyToken.middleware.js";
-import formRoutes from "./Src/Routes/form.routes.js"
+import formRoutes from "./Src/Routes/form.routes.js";
 import imageRoutes from "./Src/Routes/imageRoutes.js";
 
 dotenv.config();
@@ -25,7 +25,7 @@ const app = express();
 
 app.use(cors({
   origin: process.env.FRONTEND_URL, // frontend URL
-  credentials: true
+  credentials: true,
 }));
 
 app.use(cookieParser());
@@ -37,7 +37,7 @@ app.get("/", (req, res) => {
 
 app.use("/auth",authRoutes);
 app.use("/form",verifyToken,formRoutes);
-app.use("/image",verifyToken, imageRoutes)
+app.use("/image",verifyToken, imageRoutes);
 
 app.get("/verify-token",verifyToken,(req,res)=>{
   return res.status(200).send(req.user);

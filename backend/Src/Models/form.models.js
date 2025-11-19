@@ -8,10 +8,10 @@ const formSchema = new mongoose.Schema(
     status: { 
       type: String, 
       enum: ["pending_prod", "pending_quality", "approved"],
-      default: "pending_prod" 
-    }
+      default: "pending_prod", 
+    },
   },
-  { timestamps: true } // automatically adds createdAt and updatedAt
+  { timestamps: true }, // automatically adds createdAt and updatedAt
 );
 
 const Form = mongoose.model("Form", formSchema);
