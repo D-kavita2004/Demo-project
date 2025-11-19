@@ -1,3 +1,14 @@
+import logger from "./Config/logger.js";
+
+process.on("uncaughtException", (err) => {
+  logger.error(`Uncaught Exception: ${err.message}`);
+  logger.error(err.stack);
+});
+
+process.on("unhandledRejection", (reason) => {
+  logger.error(`Unhandled Rejection: ${reason}`);
+});
+
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -35,12 +46,12 @@ app.get("/verify-token",verifyToken,(req,res)=>{
 connectDB()
   .then(() => {
     app.listen(process.env.PORT,"0.0.0.0", () => {
-      console.log(`Server is running on http://0.0.0.0:${process.env.PORT}`);
+      logger.info(`Server is running on http://0.0.0.0:${process.env.PORT}`);
     });
 
-    console.log("Database connected successfully.");
+    logger.info("Database connected successfully.");
   })
   .catch((err) => {
-    console.error("Failed to connect to DB:", err);
+    logger.error("Failed to connect to DB:", err);
     process.exit(1); // Exit process if DB fails
   });

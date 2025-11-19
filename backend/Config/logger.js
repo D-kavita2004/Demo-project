@@ -9,7 +9,7 @@ const logFormat = winston.format.combine(
 
 // Daily rotate transport for errors
 const errorTransport = new winston.transports.DailyRotateFile({
-  filename: "logs/error-%DATE%.log", // %DATE% replaced daily
+  filename: "logs/Error-Logs/error-%DATE%.log", // %DATE% replaced daily
   datePattern: "YYYY-MM-DD", // log file pattern
   level: "error", // only error level logs
   zippedArchive: true, // compress old logs
@@ -19,7 +19,7 @@ const errorTransport = new winston.transports.DailyRotateFile({
 
 // Daily rotate transport for all logs
 const combinedTransport = new winston.transports.DailyRotateFile({
-  filename: "logs/combined-%DATE%.log",
+  filename: "logs/Combined-Logs/combined-%DATE%.log",
   datePattern: "YYYY-MM-DD",
   zippedArchive: true,
   maxSize: "10m",

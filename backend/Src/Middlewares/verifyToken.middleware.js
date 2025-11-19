@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import logger from "../../Config/logger.js";
 
 const verifyToken = (req, res, next) => {
   try {
@@ -16,7 +17,7 @@ const verifyToken = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    console.error("Token verification failed:", error.message);
+    logger.error("Token verification failed:", error.message);
     return res.status(403).json({ message: "Invalid or expired token." });
   }
 };

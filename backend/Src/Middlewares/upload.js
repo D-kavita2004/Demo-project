@@ -5,6 +5,7 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
+import logger from "../../Config/logger.js";
 
 dotenv.config();
 // Get current directory for ES modules
@@ -15,7 +16,7 @@ const __dirname = path.dirname(__filename);
 const s3 =
   process.env.NODE_ENV === "production"
     ? (() => {
-        console.log("Initializing AWS S3 client", {
+        logger.info("Initializing AWS S3 client", {
           region: process.env.AWS_REGION,
           bucket: process.env.S3_BUCKET_NAME,
         });
@@ -36,7 +37,7 @@ const diskStorage = multer.diskStorage({
 
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
-      console.log("Created upload directory", { path: uploadPath });
+      logger.info("Created upload directory", { path: uploadPath });
     }
 
     cb(null, uploadPath);
@@ -44,7 +45,7 @@ const diskStorage = multer.diskStorage({
   filename: function (req, file, cb) {
     const ext = path.extname(file.originalname);
     const uniqueName = Date.now() + ext;
-    console.log("File saved to disk", {
+    logger.info("File saved to disk", {
       originalName: file.originalname,
       savedAs: uniqueName,
     });
@@ -68,7 +69,7 @@ const s3Storage = multerS3({
     const key = `uploads/${Date.now()}${ext}`;
 
     //  Log S3 upload attempt
-    console.log("Starting S3 upload", {
+    logger.info("Starting S3 upload", {
       originalName: file.originalname,
       key: key,
       bucket: process.env.S3_BUCKET_NAME,
@@ -88,14 +89,14 @@ export const upload = multer({
   },
   fileFilter: function (req, file, cb) {
     if (file.mimetype.startsWith("image/")) {
-      console.log("File passed validation", {
+      logger.info("File passed validation", {
         filename: file.originalname,
         mimetype: file.mimetype,
         size: file.size,
       });
       cb(null, true);
     } else {
-      console.warn("Invalid file type attempted for upload", {
+      logger.warn("Invalid file type attempted for upload", {
         filename: file.originalname,
         mimetype: file.mimetype,
         userId: req.user?.userId,
@@ -108,7 +109,7 @@ export const upload = multer({
 //  Enhanced image upload middleware with logging
 export const imageUpload = (req, res, next) => {
   if (!req.file) {
-    console.warn("Image upload failed - no file provided", {
+    logger.warn("Image upload failed - no file provided", {
       userId: req.user?.userId,
     });
     return res.status(400).json({
@@ -124,7 +125,7 @@ export const imageUpload = (req, res, next) => {
     fileUrl = req.file.location;
 
     //  Log successful S3 upload
-    console.log("Image uploaded to S3 successfully", {
+    logger.info("Image uploaded to S3 successfully", {
       url: fileUrl,
       key: req.file.key,
       bucket: req.file.bucket,
@@ -138,7 +139,7 @@ export const imageUpload = (req, res, next) => {
     const host = req.get("host");
     fileUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
 
-    console.log("Image uploaded to local disk successfully", {
+    logger.info("Image uploaded to local disk successfully", {
       url: fileUrl,
       filename: req.file.filename,
       path: req.file.path,
@@ -160,7 +161,7 @@ export const imageUpload = (req, res, next) => {
 //  Error handling middleware for multer errors
 export const handleUploadError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
-    console.error("Multer upload error", {
+    logger.error("Multer upload error", {
       error: err.message,
       code: err.code,
       field: err.field,
@@ -181,7 +182,7 @@ export const handleUploadError = (err, req, res, next) => {
   }
 
   if (err) {
-    console.error("Upload error", {
+    logger.error("Upload error", {
       error: err.message,
       userId: req.user?.userId,
     });

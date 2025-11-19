@@ -41,7 +41,7 @@ export const modifyForm = async (req, res) => {
       form,
     });
   } catch (error) {
-    console.error("Error saving form:", error);
+    logger.error("Error saving form:", error);
     res.status(500).json({
       message: "Failed to submit form",
       error: error.message,
@@ -71,7 +71,7 @@ export const getAllForms = async (req, res) => {
       forms,
     });
   } catch (error) {
-    console.error("Error fetching forms:", error);
+    logger.error("Error fetching forms:", error);
     res.status(500).json({
       message: "Failed to fetch forms",
       error: error.message,
@@ -82,7 +82,7 @@ export const getAllForms = async (req, res) => {
 export const approveForm = async (req, res) => {
   try {
     const { formId } = req.body; 
-    console.log("formId",formId);
+    // console.log("formId",formId);
     // Find the form and update its status to "approved"
     const updatedForm = await Form.findByIdAndUpdate(
       formId,
@@ -99,7 +99,7 @@ export const approveForm = async (req, res) => {
       form: updatedForm,
     });
   } catch (error) {
-    console.error("Error approving form:", error);
+    loggers.error("Error approving form:", error);
     res.status(500).json({
       message: "Failed to approve form",
       error: error.message,

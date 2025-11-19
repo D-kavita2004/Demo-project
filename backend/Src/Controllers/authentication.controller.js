@@ -33,7 +33,7 @@ export const handleLogin = async (req, res) => {
       user:payload
      });
   } catch (err) {
-    console.error("Login Error:", err);
+    logger.error("Login Error:", err);
     res.status(500).json({ message: "Login failed" });
   }
 };
@@ -53,7 +53,7 @@ export const handleSignUp = async (req, res) => {
 
     res.status(200).json({ message: "User registered successfully" });
   } catch (err) {
-    console.error("Register Error:", err);
+    logger.error("Register Error:", err);
     res.status(500).json({ message: "Error registering user" });
   }
 };
@@ -69,7 +69,7 @@ export const handleLogout = (req, res) => {
     });
     res.status(200).json({ message: "Logout successful" });
   } catch (err) {
-    console.error("Logout Failed:", err);
+    logger.error("Logout Failed:", err);
     res.status(500).json({ message: "Logout failed" });
   }
 };
