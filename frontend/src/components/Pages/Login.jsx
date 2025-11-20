@@ -27,16 +27,15 @@ const Login = () => {
     setErrorMsg({});
     setFinalMsg("");
 
-    // const result = validateInput(loginUserSchema, data);
-    // if (!result.success) {
-    //   console.log("Validation errors:", result?.errors);
-    //   setErrorMsg(result?.errors);
-    //   setLoading(false);
-    //   return;
-    // }
-    // // If validation passed
-    // const validData = result.data; 
-    const validData=data;
+    const result = validateInput(loginUserSchema, data);
+    if (!result.success) {
+      console.log("Validation errors:", result?.errors);
+      setErrorMsg(result?.errors);
+      setLoading(false);
+      return;
+    }
+    // If validation passed
+    const validData = result.data; 
     try {
       const response = await axios.post(`${apiUrl}/auth/login`,validData,{withCredentials:true});
       setUser(response?.data?.user);
@@ -102,8 +101,8 @@ const Login = () => {
 
             {/* Final Message */}
             {finalMsg && (
-              <div className="flex items-center gap-2 bg-yellow-300 text-sm p-2 rounded-md">
-                <AlertCircle size={16} />
+              <div className="flex items-center gap-2 bg-yellow-300 text-sm p-2 rounded-md text-center">
+                {/* <AlertCircle size={16} /> */}
                 <span>{finalMsg}</span>
               </div>
             )}

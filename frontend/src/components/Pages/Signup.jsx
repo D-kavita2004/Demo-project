@@ -138,9 +138,10 @@ const Signup = () => {
               </div>
             )} */}
 
-            {/* Success Message */}
+            {/* Final Message */}
             {finalMsg && (
-              <div className="flex items-center gap-2 text-green-600 text-sm bg-green-50 p-2 rounded-md">
+              <div className="flex items-center gap-2 bg-yellow-300 text-sm p-2 rounded-md text-center">
+                {/* <AlertCircle size={16} /> */}
                 <span>{finalMsg}</span>
               </div>
             )}
