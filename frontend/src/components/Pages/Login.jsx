@@ -9,47 +9,55 @@ import axios from "axios";
 import { UserContext } from "../Constants/userContext";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { validateInput } from "../ValidateSchema/validateInput";
+import { loginUserSchema } from "../ValidateSchema/authInputValidationShema";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState({});
+  const [finalMsg, setFinalMsg] = useState("");
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
   const {setUser} = useContext(UserContext);
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit } = useForm();
 
-const onSubmit = async (data) => {
-  setLoading(true);
-  setErrorMsg("");
+  const onSubmit = async (data) => {
 
-  try {
-    const response = await axios.post(
-      `${apiUrl}/auth/login`,
-      data,
-      {
-        withCredentials: true, //allows cookies to be sent and received
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    setLoading(true);
+    setErrorMsg({});
+    setFinalMsg("");
 
-    console.log("Login Successful:", response.data);
-     setUser(response.data.user);
-    // You can redirect or store tokens here
-    navigate("/");
+    // const result = validateInput(loginUserSchema, data);
+    // if (!result.success) {
+    //   console.log("Validation errors:", result?.errors);
+    //   setErrorMsg(result?.errors);
+    //   setLoading(false);
+    //   return;
+    // }
+    // // If validation passed
+    // const validData = result.data; 
+    const validData=data;
+    try {
+      const response = await axios.post(`${apiUrl}/auth/login`,validData,{withCredentials:true});
+      setUser(response?.data?.user);
+      setFinalMsg(response?.data?.message || "User Logged in Successfully");
 
-  } catch (err) {
-    console.error("Login Error:", err);
-    if (err.response && err.response.data) {
-      setErrorMsg(err.response.data.message);
-    } else {
-      setErrorMsg("Something went wrong");
+      setTimeout(()=>{
+        navigate("/");
+      },1500)
+
+    } catch (err) {
+        if(err?.response?.status === 400 ){
+            setErrorMsg(err?.response?.data?.errors || "Something Went Wrong");
+          }
+        else{
+            setFinalMsg(err?.response?.data?.message || "Something Went Wrong");
+        }
+        
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 p-4">
@@ -67,40 +75,36 @@ const onSubmit = async (data) => {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Email */}
             <div>
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username" className="my-1">Username</Label>
               <Input
                 id="username"
-                type="username"
                 placeholder="you@example.com"
-                {...register("username", { required: "username is required" })}
+                {...register("username")}
               />
-              {errors.username && (
-                <p className="text-sm text-red-500 mt-1">{errors.username.message}</p>
+              {errorMsg.username && (
+                <p className="text-sm text-red-500 mt-1">{errorMsg.username}</p>
               )}
             </div>
 
             {/* Password */}
             <div>
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="my-1">Password</Label>
               <Input
                 id="password"
                 type="password"
                 placeholder="••••••••"
-                {...register("password", {
-                  required: "Password is required",
-                  minLength: { value: 6, message: "Minimum 6 characters" },
-                })}
+                {...register("password")}
               />
-              {errors.password && (
-                <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
+              {errorMsg.password && (
+                <p className="text-sm text-red-500 mt-1">{errorMsg.password}</p>
               )}
             </div>
 
-            {/* Error Message */}
-            {errorMsg && (
-              <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 p-2 rounded-md">
+            {/* Final Message */}
+            {finalMsg && (
+              <div className="flex items-center gap-2 bg-yellow-300 text-sm p-2 rounded-md">
                 <AlertCircle size={16} />
-                <span>{errorMsg}</span>
+                <span>{finalMsg}</span>
               </div>
             )}
 

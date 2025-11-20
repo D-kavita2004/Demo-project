@@ -4,40 +4,55 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { validateInput } from "../ValidateSchema/validateInput";
+import { registerUserSchema } from "../ValidateSchema/authInputValidationShema";
+import axios from "axios";
 
 const Signup = () => {
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-  const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  const [successMsg, setSuccessMsg] = useState("");
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm();
-  const password = watch("password");
   const navigate = useNavigate();
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState({}); // to show validation related errors
+  const [finalMsg, setFinalMsg] = useState(""); //final msg whether the registration failed or passed
+
+  const { register, handleSubmit } = useForm();
+  
   const onSubmit = async (data) => {
+
     setLoading(true);
-    setErrorMsg("");
-    setSuccessMsg("");
+    setErrorMsg({});
+    setFinalMsg("");
 
+    const result = validateInput(registerUserSchema, data);
+    if (!result.success) {
+      console.log("Validation errors:", result?.errors);
+      setErrorMsg(result?.errors);
+      setLoading(false);
+      return;
+    }
+
+    // If validation passed
+    const validData = result.data; 
     try {
-      const response = await fetch(`${apiUrl}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      const response = await axios.post(`${apiUrl}/auth/register`,validData);
 
-      const result = await response.json();
-      console.log(result);
-      if (!response.ok) {
-        throw new Error(result.message || "Signup failed");
-      }
-      navigate("/login");
-      setSuccessMsg("Account created successfully! Redirecting...");
+      setFinalMsg(response?.data?.message || "Account created successfully! Redirecting...");
+
+      setTimeout(()=>{
+        navigate("/login");
+      },1500)
+
     } catch (err) {
-      console.log(err);
-      setErrorMsg(err.message);
+        if(err?.response?.status === 400 ){
+            setErrorMsg(err?.response?.data?.errors || "Something Went Wrong");
+          }
+        else{
+            setFinalMsg(err?.response?.data?.message || "Something Went Wrong");
+        }
+        
     } finally {
       setLoading(false);
     }
@@ -56,83 +71,77 @@ const Signup = () => {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Name */}
             <div>
-              <Label htmlFor="username">username</Label>
+              <Label htmlFor="username" className="my-1">username</Label>
               <Input
                 id="username"
+                type="email"
                 placeholder="adam@gmail.com"
-                {...register("username", { required: "Username is required" })}
+                {...register("username")}
               />
-              {errors.username && (
-                <p className="text-sm text-red-500 mt-1">{errors.username.message}</p>
+              {errorMsg?.username && (
+                <p className="text-sm text-red-500 mt-1">{errorMsg?.username}</p>
               )}
             </div>
 
             {/* Team Selection */}
             <div>
-              <Label htmlFor="team">Team</Label>
+              <Label htmlFor="team" className="my-1">Team</Label>
               <select
                 id="team"
-                {...register("team", { required: "Please select a team" })}
+                {...register("team")}
                 className="w-full px-3 py-2 border rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
               >
                 <option value="">Select your team</option>
                 <option value="Quality">Quality</option>
                 <option value="Production">Production</option>
               </select>
-              {errors.team && (
-                <p className="text-sm text-red-500 mt-1">{errors.team.message}</p>
+              {errorMsg?.team && (
+                <p className="text-sm text-red-500 mt-1">{errorMsg?.team}</p>
               )}
             </div>
 
             {/* Password */}
             <div>
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="my-1">Password</Label>
               <Input
                 id="password"
                 type="password"
                 placeholder="••••••••"
-                {...register("password", {
-                  required: "Password is required",
-                  minLength: { value: 6, message: "Minimum 6 characters" },
-                })}
+                {...register("password")}
               />
-              {errors.password && (
-                <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
+              {errorMsg?.password && (
+                <p className="text-sm text-red-500 mt-1">{errorMsg?.password}</p>
               )}
             </div>
 
             {/* Confirm Password */}
             <div>
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="my-1">Confirm Password</Label>
               <Input
                 id="confirmPassword"
                 type="password"
                 placeholder="••••••••"
-                {...register("confirmPassword", {
-                  required: "Please confirm your password",
-                  validate: (value) =>
-                    value === password || "Passwords do not match",
-                })}
+                {...register("confirmPassword")}
               />
-              {errors.confirmPassword && (
+              {errorMsg.confirmPassword && (
                 <p className="text-sm text-red-500 mt-1">
-                  {errors.confirmPassword.message}
+                  {errorMsg.confirmPassword}
                 </p>
               )}
             </div>
 
             {/* Error Message */}
-            {errorMsg && (
+            {/* {errorMsg && (
               <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 p-2 rounded-md">
                 <AlertCircle size={16} />
                 <span>{errorMsg}</span>
               </div>
-            )}
+            )} */}
 
             {/* Success Message */}
-            {successMsg && (
+            {finalMsg && (
               <div className="flex items-center gap-2 text-green-600 text-sm bg-green-50 p-2 rounded-md">
-                <span>{successMsg}</span>
+                <span>{finalMsg}</span>
               </div>
             )}
 

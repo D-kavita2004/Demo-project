@@ -12,11 +12,11 @@ export const handleLogin = async (req, res) => {
   try {
     const user = await User.findOne({ username });
     if (!user)
-      return res.status(400).json({ message: "User not found" });
+      return res.status(404).json({ message: "User not found" });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: "Invalid Password" });
     const payload = { username: user.username, id: user._id, team:user.team };
     const token = jwt.sign(payload, process.env.SECRET);
  
@@ -44,16 +44,17 @@ export const handleSignUp = async (req, res) => {
   try {
     const existingUser = await User.findOne({ username });
     if (existingUser)
-      return res.status(409).json({ message: "Username already exists" });
+      return res.status(409).json({success: false, message: "Username already exists" });
 
     const hashed = await bcrypt.hash(password, 10);
     const newUser = new User({ username, password: hashed,team });
     await newUser.save();
 
-    res.status(200).json({ message: "User registered successfully" });
+    res.status(200).json({success:true , message: "User registered successfully" });
+
   } catch (err) {
     logger.error("Register Error:", err);
-    res.status(500).json({ message: "Error registering user" });
+    res.status(500).json({success: false, message: "Error registering user" });
   }
 };
 
