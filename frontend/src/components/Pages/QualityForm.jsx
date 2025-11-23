@@ -13,6 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { formDataSchema } from "../ValidateSchema/formDataValidationSchema";
 
 const QualityForm = () => {
 
@@ -81,6 +83,7 @@ const QualityForm = () => {
     }
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  // const [errors,seterrors] = useState({});
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
   const clickedForm = location.state?.data;
@@ -93,11 +96,12 @@ const QualityForm = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
-    watch,
-    reset,
-  } = useForm({
-    defaultValues:myDefaultData});
+    formState:{errors},
+  } = useForm(
+    {
+      defaultValues:myDefaultData,
+      resolver:zodResolver(formDataSchema)
+    });
 
   const {user} = useContext(UserContext);
   const navigate = useNavigate();
@@ -120,7 +124,7 @@ const onSubmit = async (data) => {
 
   try {
     let imageUrl;
-      if(uploadedImageUrl){
+      if(uploadedImageUrl){                             //check if user uploaded something new
          imageUrl = await uploadImage(data.productImage[0]);
       }
     // Step 1: Use the uploaded image URL
@@ -169,7 +173,7 @@ const handleImageChange = (e) => {
       // Open modal after approval
       setIsOpen(true);
     } catch (error) {
-      console.error("Error approving form:", error.response?.data || error.message);
+      console.error("Error approving form:", error.response?.data || error);
     } 
   };
 
@@ -205,7 +209,7 @@ const handleImageChange = (e) => {
                       <Input
                         id="receivingNo"
                         placeholder="Enter receiving number"
-                        {...register("receivingNo", { required: "Receiving no. is required" })}
+                        {...register("receivingNo")}
                       />
                       {errors.receivingNo && (
                         <p className="text-sm text-red-500">{errors.receivingNo.message}</p>
@@ -218,7 +222,7 @@ const handleImageChange = (e) => {
                       <Input
                         id="referenceNo"
                         placeholder="Enter reference number"
-                        {...register("referenceNo", { required: "Reference no. is required" })}
+                        {...register("referenceNo")}
                       />
                       {errors.referenceNo && (
                         <p className="text-sm text-red-500">{errors.referenceNo.message}</p>
@@ -231,7 +235,7 @@ const handleImageChange = (e) => {
                       <Input
                         id="partName"
                         placeholder="Enter part name"
-                        {...register("partName", { required: "Part Name is required" })}
+                        {...register("partName")}
                       />
                       {errors.partName && (
                         <p className="text-sm text-red-500">{errors.partName.message}</p>
@@ -244,7 +248,7 @@ const handleImageChange = (e) => {
                       <Input
                         id="subjectMatter"
                         placeholder="Enter subject matter"
-                        {...register("subjectMatter", { required: "Subject Matter is required" })}
+                        {...register("subjectMatter")}
                       />
                       {errors.subjectMatter && (
                         <p className="text-sm text-red-500">{errors.subjectMatter.message}</p>
@@ -257,7 +261,7 @@ const handleImageChange = (e) => {
                       <Input
                         id="approved"
                         placeholder="Enter approver name"
-                        {...register("approved", { required: "Approved by is required" })}
+                        {...register("approved")}
                       />
                       {errors.approved && (
                         <p className="text-sm text-red-500">{errors.approved.message}</p>
@@ -270,7 +274,7 @@ const handleImageChange = (e) => {
                       <Input
                         id="checked"
                         placeholder="Enter checker name"
-                        {...register("checked", { required: "Checked by is required" })}
+                        {...register("checked")}
                       />
                       {errors.checked && (
                         <p className="text-sm text-red-500">{errors.checked.message}</p>
@@ -283,7 +287,7 @@ const handleImageChange = (e) => {
                       <Input
                         id="issued"
                         placeholder="Enter receiver name"
-                        {...register("issued", { required: "Issued to is required" })}
+                        {...register("issued")}
                       />
                       {errors.issued && (
                         <p className="text-sm text-red-500">{errors.issued.message}</p>
@@ -305,7 +309,7 @@ const handleImageChange = (e) => {
                       <select
                         id="supplierName"
                         className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        {...register("supplierName", { required: "Section/Supplier name is required" })}
+                        {...register("supplierName")}
                       >
                         <option value="">Select Section/Supplier</option>
                         <option value="Part Area">Part Area</option>
@@ -324,7 +328,7 @@ const handleImageChange = (e) => {
                       <Input
                         id="groupName"
                         placeholder="Enter group name"
-                        {...register("groupName", { required: "Group name is required" })}
+                        {...register("groupName")}
                       />
                       {errors.groupName && (
                         <p className="text-sm text-red-500">{errors.groupName.message}</p>
@@ -337,7 +341,7 @@ const handleImageChange = (e) => {
                       <Input
                         id="stateOfProcess"
                         placeholder="Enter state of process"
-                        {...register("stateOfProcess", { required: "State of process is required" })}
+                        {...register("stateOfProcess" )}
                       />
                       {errors.stateOfProcess && (
                         <p className="text-sm text-red-500">{errors.stateOfProcess.message}</p>
@@ -350,7 +354,7 @@ const handleImageChange = (e) => {
                       <Input
                         id="associatedLotNo"
                         placeholder="Enter associated lot number"
-                        {...register("associatedLotNo", { required: "Associated Lot No. is required" })}
+                        {...register("associatedLotNo" )}
                       />
                       {errors.associatedLotNo && (
                         <p className="text-sm text-red-500">{errors.associatedLotNo.message}</p>
@@ -363,7 +367,7 @@ const handleImageChange = (e) => {
                       <Input
                         id="discoveredDate"
                         type="date"
-                        {...register("discoveredDate", { required: "Discovered date is required" })}
+                        {...register("discoveredDate" )}
                       />
                       {errors.discoveredDate && (
                         <p className="text-sm text-red-500">{errors.discoveredDate.message}</p>
@@ -376,7 +380,7 @@ const handleImageChange = (e) => {
                       <Input
                         id="issueDate"
                         type="date"
-                        {...register("issueDate", { required: "Issue date is required" })}
+                        {...register("issueDate" )}
                       />
                       {errors.issueDate && (
                         <p className="text-sm text-red-500">{errors.issueDate.message}</p>
@@ -389,7 +393,7 @@ const handleImageChange = (e) => {
                       <Input
                         id="orderNo"
                         placeholder="Enter order or lot number"
-                        {...register("orderNo", { required: "Order No. / Lot No. is required" })}
+                        {...register("orderNo" )}
                       />
                       {errors.orderNo && (
                         <p className="text-sm text-red-500">{errors.orderNo.message}</p>
@@ -402,7 +406,7 @@ const handleImageChange = (e) => {
                       <Input
                         id="drawingNo"
                         placeholder="Enter drawing number"
-                        {...register("drawingNo", { required: "Drawing number is required" })}
+                        {...register("drawingNo" )}
                       />
                       {errors.drawingNo && (
                         <p className="text-sm text-red-500">{errors.drawingNo.message}</p>
@@ -415,7 +419,7 @@ const handleImageChange = (e) => {
                       <Input
                         id="processName"
                         placeholder="Enter process name"
-                        {...register("processName", { required: "Process name is required" })}
+                        {...register("processName" )}
                       />
                       {errors.processName && (
                         <p className="text-sm text-red-500">{errors.processName.message}</p>
@@ -428,7 +432,7 @@ const handleImageChange = (e) => {
                       <Input
                         id="machineName"
                         placeholder="Enter machine name"
-                        {...register("machineName", { required: "Machine name is required" })}
+                        {...register("machineName" )}
                       />
                       {errors.machineName && (
                         <p className="text-sm text-red-500">{errors.machineName.message}</p>
@@ -442,7 +446,7 @@ const handleImageChange = (e) => {
                         id="totalQuantity"
                         type="number"
                         placeholder="Enter total quantity"
-                        {...register("totalQuantity", { required: "Total quantity is required" })}
+                        {...register("totalQuantity" )}
                       />
                       {errors.totalQuantity && (
                         <p className="text-sm text-red-500">{errors.totalQuantity.message}</p>
@@ -456,7 +460,7 @@ const handleImageChange = (e) => {
                         id="usedQuantity"
                         type="number"
                         placeholder="Enter used quantity"
-                        {...register("usedQuantity", { required: "Used quantity is required" })}
+                        {...register("usedQuantity" )}
                       />
                       {errors.usedQuantity && (
                         <p className="text-sm text-red-500">{errors.usedQuantity.message}</p>
@@ -470,7 +474,7 @@ const handleImageChange = (e) => {
                         id="residualQuantity"
                         type="number"
                         placeholder="Enter residual quantity"
-                        {...register("residualQuantity", { required: "Residual quantity is required" })}
+                        {...register("residualQuantity" )}
                       />
                       {errors.residualQuantity && (
                         <p className="text-sm text-red-500">{errors.residualQuantity.message}</p>
@@ -485,7 +489,7 @@ const handleImageChange = (e) => {
                         type="number"
                         step="0.01"
                         placeholder="Enter defect rate"
-                        {...register("defectRate", { required: "Defect rate is required" })}
+                        {...register("defectRate" )}
                       />
                       {errors.defectRate && (
                         <p className="text-sm text-red-500">{errors.defectRate.message}</p>
@@ -500,7 +504,7 @@ const handleImageChange = (e) => {
                       <Textarea
                         id="managerInstructions"
                         placeholder="Enter temporary treatment and manager instructions..."
-                        {...register("managerInstructions", { required: "Instructions are required" })}
+                        {...register("managerInstructions" )}
                       />
                       {errors.managerInstructions && (
                         <p className="text-sm text-red-500">{errors.managerInstructions.message}</p>
@@ -521,6 +525,9 @@ const handleImageChange = (e) => {
                           handleImageChange(e);
                         }}
                       />
+                      {errors.productImage && (
+                        <p className="text-sm text-red-500">{errors.productImage.message}</p>
+                      )}
                       {/* {imageMsg && (
                         <p className="text-sm text-red-500">{imageMsg}</p>
                       )} */}
@@ -585,9 +592,7 @@ const handleImageChange = (e) => {
                             <Textarea
                               id="qcComment"
                               placeholder="Enter QC comment..."
-                              {...register("qcComment", {
-                                required: "QC comment is required",
-                              })}
+                              {...register("qcComment" )}
                             />
                             {errors.qcComment && (
                               <p className="text-sm text-red-500">{errors.qcComment.message}</p>
@@ -601,7 +606,7 @@ const handleImageChange = (e) => {
                               <select
                                 id="approvalStatus"
                                 className="border rounded-md p-2 bg-background"
-                                {...register("approvalStatus", { required: "Approval status is required" })}
+                                {...register("approvalStatus" )}
                               >
                                 <option value="">Select status</option>
                                 <option value="approved">Approved</option>
@@ -625,7 +630,7 @@ const handleImageChange = (e) => {
                               <Input
                                 id="checkedByQC"
                                 placeholder="e.g., Varun / Ravi"
-                                {...register("checkedByQC", { required: "This field is required" })}
+                                {...register("checkedByQC" )}
                               />
                               {errors.checkedByQC && (
                                 <p className="text-sm text-red-500">{errors.checkedByQC.message}</p>
@@ -639,7 +644,7 @@ const handleImageChange = (e) => {
                             <Textarea
                               id="qcInstructions"
                               placeholder="e.g., First need 100% sorting, then use if OK..."
-                              {...register("qcInstructions", { required: "Instructions are required" })}
+                              {...register("qcInstructions" )}
                             />
                             {errors.qcInstructions && (
                               <p className="text-sm text-red-500">{errors.qcInstructions.message}</p>
@@ -655,7 +660,7 @@ const handleImageChange = (e) => {
                                 type="number"
                                 step="0.01"
                                 placeholder="Enter cost"
-                                {...register("defectCost", { required: "Cost is required" })}
+                                {...register("defectCost" )}
                               />
                               {errors.defectCost && (
                                 <p className="text-sm text-red-500">{errors.defectCost.message}</p>
@@ -667,7 +672,7 @@ const handleImageChange = (e) => {
                               <Input
                                 id="unit"
                                 placeholder="Enter unit (e.g., kg or piece)"
-                                {...register("unit", { required: "Unit is required" })}
+                                {...register("unit" )}
                               />
                               {errors.unit && (
                                 <p className="text-sm text-red-500">{errors.unit.message}</p>
@@ -681,7 +686,7 @@ const handleImageChange = (e) => {
                             <Input
                               id="occurrenceSection"
                               placeholder="e.g., Assy Area"
-                              {...register("occurrenceSection", { required: "Occurrence section is required" })}
+                              {...register("occurrenceSection" )}
                             />
                             {errors.occurrenceSection && (
                               <p className="text-sm text-red-500">{errors.occurrenceSection.message}</p>
@@ -694,7 +699,7 @@ const handleImageChange = (e) => {
                             <select
                               id="importanceLevel"
                               className="border rounded-md p-2 bg-background"
-                              {...register("importanceLevel", { required: "Importance level is required" })}
+                              {...register("importanceLevel" )}
                             >
                               <option value="">Select level</option>
                               <option value="AA">AA</option>
@@ -713,7 +718,7 @@ const handleImageChange = (e) => {
                             <Input
                               id="reportTimeLimit"
                               type="date"
-                              {...register("reportTimeLimit", { required: "Report time limit is required" })}
+                              {...register("reportTimeLimit" )}
                             />
                             {errors.reportTimeLimit && (
                               <p className="text-sm text-red-500">{errors.reportTimeLimit.message}</p>
@@ -734,7 +739,7 @@ const handleImageChange = (e) => {
                             <Textarea
                               id="measuresReport"
                               placeholder="Enter details of the measures taken..."
-                              {...register("measuresReport", { required: "Measures report is required" })}
+                              {...register("measuresReport" )}
                             />
                             {errors.measuresReport && (
                               <p className="text-sm text-red-500">{errors.measuresReport.message}</p>
@@ -747,9 +752,7 @@ const handleImageChange = (e) => {
                             <Input
                               id="responsibleSection"
                               placeholder="Enter responsible section or group"
-                              {...register("responsibleSection", {
-                                required: "Responsible section is required",
-                              })}
+                              {...register("responsibleSection" )}
                             />
                             {errors.responsibleSection && (
                               <p className="text-sm text-red-500">{errors.responsibleSection.message}</p>
@@ -764,7 +767,7 @@ const handleImageChange = (e) => {
                             <Textarea
                               id="causeDetails"
                               placeholder="Describe causes of occurrence and causes of outflow..."
-                              {...register("causeDetails", { required: "Cause details are required" })}
+                              {...register("causeDetails" )}
                             />
                             {errors.causeDetails && (
                               <p className="text-sm text-red-500">{errors.causeDetails.message}</p>
@@ -779,7 +782,7 @@ const handleImageChange = (e) => {
                             <Textarea
                               id="countermeasures"
                               placeholder="Describe temporary and permanent countermeasures..."
-                              {...register("countermeasures", { required: "Countermeasures are required" })}
+                              {...register("countermeasures" )}
                             />
                             {errors.countermeasures && (
                               <p className="text-sm text-red-500">{errors.countermeasures.message}</p>
@@ -792,7 +795,7 @@ const handleImageChange = (e) => {
                             <Input
                               id="enforcementDate"
                               type="date"
-                              {...register("enforcementDate", { required: "Enforcement date is required" })}
+                              {...register("enforcementDate" )}
                             />
                             {errors.enforcementDate && (
                               <p className="text-sm text-red-500">{errors.enforcementDate.message}</p>
@@ -807,9 +810,7 @@ const handleImageChange = (e) => {
                             <Textarea
                               id="standardization"
                               placeholder="Describe how measures are standardized or deployed widely..."
-                              {...register("standardization", {
-                                required: "Standardization details are required",
-                              })}
+                              {...register("standardization" )}
                             />
                             {errors.standardization && (
                               <p className="text-sm text-red-500">{errors.standardization.message}</p>
@@ -829,13 +830,11 @@ const handleImageChange = (e) => {
                                 <Input
                                   id="enforcementDateResult"
                                   type="date"
-                                  {...register("enforcementDateResult", {
-                                    required: "Date of enforcement result is required",
-                                  })}
+                                  {...register("enforcementDateResult" )}
                                 />
                                 {errors.enforcementDateResult && (
                                   <p className="text-sm text-red-500">
-                                    {errors.enforcementDateResult.message}
+                                    {errors.enforcementDateResult}
                                   </p>
                                 )}
                               </div>
@@ -847,9 +846,7 @@ const handleImageChange = (e) => {
                                 <Textarea
                                   id="enforcementResult"
                                   placeholder="Describe result of measures enforcement..."
-                                  {...register("enforcementResult", {
-                                    required: "Enforcement result is required",
-                                  })}
+                                  {...register("enforcementResult" )}
                                 />
                                 {errors.enforcementResult && (
                                   <p className="text-sm text-red-500">{errors.enforcementResult.message}</p>
@@ -906,7 +903,7 @@ const handleImageChange = (e) => {
                                 <Input
                                   id="effectDate"
                                   type="date"
-                                  {...register("effectDate", { required: "Date of effect is required" })}
+                                  {...register("effectDate" )}
                                 />
                                 {errors.effectDate && (
                                   <p className="text-sm text-red-500">{errors.effectDate.message}</p>
@@ -920,9 +917,7 @@ const handleImageChange = (e) => {
                                 <Textarea
                                   id="effectResult"
                                   placeholder="Describe result of measures effect..."
-                                  {...register("effectResult", {
-                                    required: "Effect result is required",
-                                  })}
+                                  {...register("effectResult" )}
                                 />
                                 {errors.effectResult && (
                                   <p className="text-sm text-red-500">{errors.effectResult.message}</p>

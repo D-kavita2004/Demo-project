@@ -3,7 +3,7 @@ import { ZodError } from "zod"; // needed to type-check errors if desired
 export const validateInput = (schema) => (req, res, next) => {
   try {
     const parsed = schema.parse(req.body); // throws ZodError if invalid
-    req.body = parsed; // overwrite with lowercase email
+    req.body = parsed; 
 
     next();
   } catch (err) {

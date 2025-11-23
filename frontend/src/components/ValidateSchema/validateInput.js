@@ -14,6 +14,7 @@ export const validateInput = (schema, data) => {
       }, {});
       return { success: false, errors }; // clearly indicate failure
     }
+    console.log(err);
     return { success: false, errors: { general: "Validation failed" } };
   }
 };

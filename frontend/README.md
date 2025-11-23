@@ -1,166 +1,274 @@
-import XLSX from "xlsx-js-style";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import axios from "axios";
+import { useContext } from "react";
+import { UserContext } from "../Constants/userContext";
+import { useLocation } from "react-router-dom";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { formDataSchema } from "../ValidateSchema/formDataValidationSchema";
 
-const generateQualityFormExcel = (data) => {
-  const formData = data.formData;
+const QualityForm = () => {
 
-  // Section structure
-  const sections = [
-    {
-      title: "1. ISSUING SECTION",
-      data: {
-        "Receiving No": formData.receivingNo,
-        "Reference No": formData.referenceNo,
-        "Part Name": formData.partName,
-        "Subject Matter": formData.subjectMatter,
-        "Approved By": formData.approved,
-        "Checked By": formData.checked,
-        "Issued To": formData.issued,
-      },
-    },
-    {
-      title: "2. DEFECTIVENESS DETAILS",
-      data: {
-        "Supplier Name": formData.supplierName,
-        "Group Name": formData.groupName,
-        "State of Process": formData.stateOfProcess,
-        "Associated Lot No": formData.associatedLotNo,
-        "Discovered Date": formData.discoveredDate,
-        "Issue Date": formData.issueDate,
-        "Order No": formData.orderNo,
-        "Drawing No": formData.drawingNo,
-        "Process Name": formData.processName,
-        "Machine Name": formData.machineName,
-        "Total Quantity": formData.totalQuantity,
-        "Used Quantity": formData.usedQuantity,
-        "Residual Quantity": formData.residualQuantity,
-        "Defect Rate (%)": formData.defectRate,
-        "Product Image": formData.productImage ? "Click to View Image" : "-",
-        "Manager Instructions": formData.managerInstructions,
-      },
-    },
-    {
-      title: "3. QUALITY CHECK COMMENTS",
-      data: {
-        "QC Comment": formData.qcComment,
-        "Approval Status": formData.approvalStatus,
-        "Checked By QC": formData.checkedByQC,
-        "QC Instructions": formData.qcInstructions,
-        "Defect Cost": `${formData.defectCost} / ${formData.unit}`,
-        "Occurrence Section": formData.occurrenceSection,
-        "Importance Level": formData.importanceLevel,
-        "Report Time Limit": formData.reportTimeLimit,
-      },
-    },
-    {
-      title: "4. MEASURES REPORT",
-      data: {
-        "Measures Report": formData.measuresReport,
-        "Responsible Section": formData.responsibleSection,
-        "Cause Details": formData.causeDetails,
-        "Countermeasures": formData.countermeasures,
-        "Enforcement Date": formData.enforcementDate,
-        "Standardization": formData.standardization,
-      },
-    },
-    {
-      title: "5. RESULTS OF MEASURES",
-      data: {
-        "Enforcement Date (Result)": formData.enforcementDateResult,
-        "Result": formData.enforcementResult,
-        "Judgment": formData.enforcementJudgment,
-        "Section In-Charge": formData.enforcementSecInCharge,
-        "QC Section": formData.enforcementQCSection,
-        Approved: formData.enforcementApproved ? "Yes" : "No",
-        "Effect Date": formData.effectDate,
-        "Effect Result": formData.effectResult,
-        "Effect Judgment": formData.effectJudgment,
-        "Effect Section In-Charge": formData.effectSecInCharge,
-        "Effect QC Section": formData.effectQCSection,
-        "Effect Approved": formData.effectApproved ? "Yes" : "No",
-      },
-    },
-  ];
+ 
+  const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
-  // Prepare sheet data
-  const sheetData = [["QUALITY CHECK REPORT", ""]];
-  sections.forEach((section) => {
-    sheetData.push([section.title, ""]);
-    Object.entries(section.data).forEach(([key, value]) => {
-      sheetData.push([key, value ?? "-"]);
-    });
-    sheetData.push(["", ""]); // spacing row
+  const clickedForm = location.state?.data;
+  const [preview, setPreview] = useState(clickedForm?.formData?.productImage || "");
+  const formFromState = clickedForm?.formData; 
+  const myDefaultData = formFromState || myData;
+
+  const [uploadedImageUrl, setUploadedImageUrl] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    formState:{errors},
+  } = useForm({
+    defaultValues:myDefaultData,
+  resolver:zodResolver(formDataSchema)});
+
+  const {user} = useContext(UserContext);
+  const navigate = useNavigate();
+
+const uploadImage = async (file) => {
+  const formData = new FormData();
+  formData.append("productImage", file);
+
+  const res = await axios.post(`${apiUrl}/image/productImage`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    withCredentials: true,
   });
-
-  const ws = XLSX.utils.aoa_to_sheet(sheetData);
-
-  // Merge main title
-  ws["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
-
-  // Column widths
-  ws["!cols"] = [{ wch: 30 }, { wch: 50 }];
-
-  // Styling
-  sheetData.forEach((row, r) => {
-    row.forEach((cellValue, c) => {
-      const cellRef = XLSX.utils.encode_cell({ r, c });
-      const cell = ws[cellRef];
-      if (!cell) return;
-
-      // Main Title
-      if (r === 0) {
-        cell.s = {
-          font: { bold: true, sz: 18, color: { rgb: "004AAD" } },
-          alignment: { horizontal: "center" },
-        };
-      }
-      // Section Headers
-      else if (cellValue && Object.keys(sections.reduce((a, s) => ({ ...a, [s.title]: 1 }), {})).includes(cellValue)) {
-        cell.s = {
-          font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
-          fill: { fgColor: { rgb: "004AAD" } },
-          alignment: { horizontal: "left" },
-        };
-      }
-      // Keys
-      else if (c === 0 && cellValue !== "") {
-        cell.s = {
-          font: { bold: true },
-          fill: { fgColor: { rgb: "D9E1F2" } },
-          border: {
-            top: { style: "thin", color: { rgb: "000000" } },
-            bottom: { style: "thin", color: { rgb: "000000" } },
-            left: { style: "thin", color: { rgb: "000000" } },
-            right: { style: "thin", color: { rgb: "000000" } },
-          },
-        };
-      }
-      // Values
-      else if (c === 1) {
-        cell.s = {
-          border: {
-            top: { style: "thin", color: { rgb: "999999" } },
-            bottom: { style: "thin", color: { rgb: "999999" } },
-            left: { style: "thin", color: { rgb: "999999" } },
-            right: { style: "thin", color: { rgb: "999999" } },
-          },
-        };
-      }
-    });
-  });
-
-  // Hyperlink for Product Image
-  if (formData.productImage) {
-    const row = sheetData.findIndex((r) => r[0] === "Product Image");
-    if (row !== -1) {
-      const ref = XLSX.utils.encode_cell({ r: row, c: 1 });
-      ws[ref].l = { Target: formData.productImage, Tooltip: "Click to open image" };
-    }
-  }
-
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Quality Form");
-
-  XLSX.writeFile(wb, `${formData.partName || "Quality_Form"}_Report.xlsx`);
+  console.log("Response",res);
+  return res.data.url; // backend returns file URL
 };
 
-export default generateQualityFormExcel;
+
+const onSubmit = async (data) => {
+  console.log("calling modify form api", data);
+
+  try {
+    let imageUrl;
+      if(uploadedImageUrl){                             //check if user uploaded something new
+         imageUrl = await uploadImage(data.productImage[0]);
+      }
+    // Step 1: Use the uploaded image URL
+    const image = imageUrl || clickedForm?.formData?.productImage || "";
+
+    // Step 2: Submit form data
+    const res = await axios.post(`${apiUrl}/form/modifyForm`, {
+      formId: location.state?.data?._id,
+      formData: {
+        ...data,
+        productImage: image, //store the URL inside formData
+      },
+      filledBy: user.team,
+      status: user.team === "Quality" ? "pending_prod" : "pending_quality",
+    },{withCredentials:true});
+
+    console.log("Form submitted successfully:", res.data);
+    navigate("/");
+  } catch (err) {
+    console.error("Error submitting form:", err);
+  }
+};
+
+// Image preview handler
+const handleImageChange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const imageUrl = URL.createObjectURL(file);
+    setUploadedImageUrl(imageUrl);
+    setPreview(imageUrl);
+  }
+};
+
+  const handleApprove = async (id) => {
+
+    try {
+      // Call the API to approve the form
+      const response = await axios.post(
+        `${apiUrl}/form/approveForm`,
+        {formId:id},
+        { withCredentials: true } // if your backend uses cookies
+      );
+
+      console.log("Form approved:", response.data);
+      navigate("/");
+      // Open modal after approval
+      setIsOpen(true);
+    } catch (error) {
+      console.error("Error approving form:", error.response?.data || error);
+    } 
+  };
+
+  return (
+    <div className="flex flex-col">
+      <Button
+        variant="outline"
+        className="w-fit ml-5 mt-5 flex items-center gap-2 text-sm font-medium border-gray-300 hover:bg-gray-100 transition-all"
+        onClick={() => navigate("/")}
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to Dashboard
+      </Button>
+        <Card className="max-w-5xl mx-auto mt-8 shadow-lg rounded-2xl">
+            <CardHeader>
+              <CardTitle className="text-3xl font-semibold text-center">
+                Product Review Form
+              </CardTitle>
+            </CardHeader>
+
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <CardContent className="flex flex-col gap-10 my-6">
+
+                {/* ====================== ISSUING SECTION ====================== */}
+                <section className="space-y-6">
+                  <h2 className="text-2xl font-semibold border-b pb-2">Issuing Section</h2>
+
+                  <div className="grid gap-6 md:grid-cols-2 p-4 rounded-lg border bg-card text-card-foreground shadow-sm border-blue-500">
+
+                    {/* Receiving No. */}
+                    <div className="flex flex-col space-y-1.5">
+                      <Label htmlFor="receivingNo">Receiving No.</Label>
+                      <Input
+                        id="receivingNo"
+                        placeholder="Enter receiving number"
+                        {...register("receivingNo")}
+                      />
+                      {errors.receivingNo && (
+                        <p className="text-sm text-red-500">{errors.receivingNo.message}</p>
+                      )}
+                    </div>
+
+                    {/* Reference No. */}
+                    <div className="flex flex-col space-y-1.5">
+                      <Label htmlFor="referenceNo">Reference No.</Label>
+                      <Input
+                        id="referenceNo"
+                        placeholder="Enter reference number"
+                        {...register("referenceNo")}
+                      />
+                      {errors.referenceNo && (
+                        <p className="text-sm text-red-500">{errors.referenceNo.message}</p>
+                      )}
+                    </div>
+
+                    {/* Part Name */}
+                    <div className="flex flex-col space-y-1.5">
+                      <Label htmlFor="partName">Part Name</Label>
+                      <Input
+                        id="partName"
+                        placeholder="Enter part name"
+                        {...register("partName")}
+                      />
+                      {errors.partName && (
+                        <p className="text-sm text-red-500">{errors.partName.message}</p>
+                      )}
+                    </div>
+
+                    {/* Subject Matter */}
+                    <div className="flex flex-col space-y-1.5">
+                      <Label htmlFor="subjectMatter">Subject Matter</Label>
+                      <Input
+                        id="subjectMatter"
+                        placeholder="Enter subject matter"
+                        {...register("subjectMatter")}
+                      />
+                      {errors.subjectMatter && (
+                        <p className="text-sm text-red-500">{errors.subjectMatter.message}</p>
+                      )}
+                    </div>
+
+                    {/* Approved */}
+                    <div className="flex flex-col space-y-1.5">
+                      <Label htmlFor="approved">Approved By</Label>
+                      <Input
+                        id="approved"
+                        placeholder="Enter approver name"
+                        {...register("approved")}
+                      />
+                      {errors.approved && (
+                        <p className="text-sm text-red-500">{errors.approved.message}</p>
+                      )}
+                    </div>
+
+                    {/* Checked */}
+                    <div className="flex flex-col space-y-1.5">
+                      <Label htmlFor="checked">Checked By</Label>
+                      <Input
+                        id="checked"
+                        placeholder="Enter checker name"
+                        {...register("checked")}
+                      />
+                      {errors.checked && (
+                        <p className="text-sm text-red-500">{errors.checked.message}</p>
+                      )}
+                    </div>
+
+                    {/* Issued */}
+                    <div className="flex flex-col space-y-1.5">
+                      <Label htmlFor="issued">Issued To</Label>
+                      <Input
+                        id="issued"
+                        placeholder="Enter receiver name"
+                        {...register("issued")}
+                      />
+                      {errors.issued && (
+                        <p className="text-sm text-red-500">{errors.issued.message}</p>
+                      )}
+                    </div>
+
+                  </div>
+                </section>
+
+
+              </CardContent>
+              {
+                location.state?.data?.status != "approved" && (
+                  <CardFooter className="flex justify-center py-6">
+                <Button type="submit" className="px-8 py-2 text-lg mx-3">
+                  {
+                    (location?.state?.data?.status === "pending_quality" && user.team === "Quality") ? "Reject":"Submit"
+                  }
+                </Button>
+              {
+                (location?.state?.data?.status === "pending_quality" && user.team === "Quality") && (
+                  <Button  type="button" className="px-8 py-2 text-lg mx-3" onClick={()=>{handleApprove(location.state?.data?._id)}}>
+                  Approve
+                </Button>
+                )
+              } 
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+              <DialogContent className="sm:max-w-[400px]">
+                <DialogHeader>
+                  <DialogTitle>Form Approved ✅</DialogTitle>
+                </DialogHeader>
+                <div className="mt-2">
+                  The form has been approved and the report has been generated.
+                </div>
+                <DialogFooter>
+                  <Button onClick={() => setIsOpen(false)}>Close</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>     
+                  </CardFooter>
+                )
+              }
+              
+            </form>
+        </Card>
+    </div>
+  );
+};
+export default QualityForm;

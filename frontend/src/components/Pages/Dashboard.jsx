@@ -12,11 +12,14 @@ import TableView from "../ReusableComponents/TableView";
 import DownloadAllRecords from "../ReusableComponents/DownLoadAllRecords";
 
 const Dashboard = () => {
+
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const navigate = useNavigate();
+  
   const [formsList, setFormsList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  
   const { setUser, user } = useContext(UserContext);
-  const navigate = useNavigate();
 
   // Logout handler
   const handleLogout = async () => {
