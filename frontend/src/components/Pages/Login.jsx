@@ -9,50 +9,51 @@ import axios from "axios";
 import { UserContext } from "../Constants/userContext";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { validateInput } from "../ValidateSchema/validateInput";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { loginUserSchema } from "../ValidateSchema/authInputValidationShema";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState({});
   const [finalMsg, setFinalMsg] = useState("");
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
   const {setUser} = useContext(UserContext);
-  const { register, handleSubmit } = useForm();
+  
+  const { register, handleSubmit, setError, formState:{errors}} = useForm({
+    resolver:zodResolver(loginUserSchema),
+    defaultValues: {
+        username: "",
+        password: "",
+    }
+  });
 
   const onSubmit = async (data) => {
 
     setLoading(true);
-    setErrorMsg({});
     setFinalMsg("");
 
-    const result = validateInput(loginUserSchema, data);
-    if (!result.success) {
-      console.log("Validation errors:", result?.errors);
-      setErrorMsg(result?.errors);
-      setLoading(false);
-      return;
-    }
-    // If validation passed
-    const validData = result.data; 
     try {
-      const response = await axios.post(`${apiUrl}/auth/login`,validData,{withCredentials:true});
+      const response = await axios.post(`${apiUrl}/auth/login`,data,{withCredentials:true});
       setUser(response?.data?.user);
       setFinalMsg(response?.data?.message || "User Logged in Successfully");
 
       setTimeout(()=>{
         navigate("/");
-      },1500)
+      },1000)
 
     } catch (err) {
-        if(err?.response?.status === 400 ){
-            setErrorMsg(err?.response?.data?.errors || "Something Went Wrong");
-          }
-        else{
-            setFinalMsg(err?.response?.data?.message || "Something Went Wrong");
-        }
-        
+       if (err?.response?.status === 400) {
+            const backendErrors = err?.response?.data?.errors;
+
+            if (backendErrors) {
+              Object.keys(backendErrors).forEach((field) => {
+                setError(field, { message: backendErrors[field] });
+              });
+            }
+            
+            return;
+        }  
+        setFinalMsg(err?.response?.data?.message || "SignUp Falied");
     } finally {
       setLoading(false);
     }
@@ -80,8 +81,8 @@ const Login = () => {
                 placeholder="you@example.com"
                 {...register("username")}
               />
-              {errorMsg.username && (
-                <p className="text-sm text-red-500 mt-1">{errorMsg.username}</p>
+              {errors.username && (
+                <p className="text-sm text-red-500 mt-1">{errors.username.message}</p>
               )}
             </div>
 
@@ -94,8 +95,8 @@ const Login = () => {
                 placeholder="••••••••"
                 {...register("password")}
               />
-              {errorMsg.password && (
-                <p className="text-sm text-red-500 mt-1">{errorMsg.password}</p>
+              {errors.password && (
+                <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
               )}
             </div>
 

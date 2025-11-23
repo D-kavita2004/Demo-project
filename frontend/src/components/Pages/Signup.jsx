@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
-import { validateInput } from "../ValidateSchema/validateInput";
 import { registerUserSchema } from "../ValidateSchema/authInputValidationShema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 
 const Signup = () => {
@@ -15,43 +15,44 @@ const Signup = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState({}); // to show validation related errors
   const [finalMsg, setFinalMsg] = useState(""); //final msg whether the registration failed or passed
 
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, setError, formState:{errors} } = useForm({
+    resolver:zodResolver(registerUserSchema),
+    defaultValues:{
+      username:"",
+      team:"",
+      password:"",
+      confirmPassword:""
+    }
+  });
   
   const onSubmit = async (data) => {
 
     setLoading(true);
-    setErrorMsg({});
     setFinalMsg("");
 
-    const result = validateInput(registerUserSchema, data);
-    if (!result.success) {
-      console.log("Validation errors:", result?.errors);
-      setErrorMsg(result?.errors);
-      setLoading(false);
-      return;
-    }
-
-    // If validation passed
-    const validData = result.data; 
     try {
-      const response = await axios.post(`${apiUrl}/auth/register`,validData);
-
+      const response = await axios.post(`${apiUrl}/auth/register`,data);
       setFinalMsg(response?.data?.message || "Account created successfully! Redirecting...");
 
       setTimeout(()=>{
         navigate("/login");
-      },1500)
+      },1000)
 
     } catch (err) {
-        if(err?.response?.status === 400 ){
-            setErrorMsg(err?.response?.data?.errors || "Something Went Wrong");
-          }
-        else{
-            setFinalMsg(err?.response?.data?.message || "Something Went Wrong");
+        if (err?.response?.status === 400) {
+            const backendErrors = err?.response?.data?.errors;
+
+            if (backendErrors) {
+              Object.keys(backendErrors).forEach((field) => {
+                setError(field, { message: backendErrors[field] });
+              });
+            }
+            
+            return;
         }
+        setFinalMsg(err?.response?.data?.message || "SignUp Falied");
         
     } finally {
       setLoading(false);
@@ -78,8 +79,8 @@ const Signup = () => {
                 placeholder="adam@gmail.com"
                 {...register("username")}
               />
-              {errorMsg?.username && (
-                <p className="text-sm text-red-500 mt-1">{errorMsg?.username}</p>
+              {errors?.username && (
+                <p className="text-sm text-red-500 mt-1">{errors?.username?.message}</p>
               )}
             </div>
 
@@ -95,8 +96,8 @@ const Signup = () => {
                 <option value="Quality">Quality</option>
                 <option value="Production">Production</option>
               </select>
-              {errorMsg?.team && (
-                <p className="text-sm text-red-500 mt-1">{errorMsg?.team}</p>
+              {errors?.team && (
+                <p className="text-sm text-red-500 mt-1">{errors?.team?.message}</p>
               )}
             </div>
 
@@ -109,8 +110,8 @@ const Signup = () => {
                 placeholder="••••••••"
                 {...register("password")}
               />
-              {errorMsg?.password && (
-                <p className="text-sm text-red-500 mt-1">{errorMsg?.password}</p>
+              {errors?.password && (
+                <p className="text-sm text-red-500 mt-1">{errors?.password?.message}</p>
               )}
             </div>
 
@@ -123,18 +124,18 @@ const Signup = () => {
                 placeholder="••••••••"
                 {...register("confirmPassword")}
               />
-              {errorMsg.confirmPassword && (
+              {errors.confirmPassword && (
                 <p className="text-sm text-red-500 mt-1">
-                  {errorMsg.confirmPassword}
+                  {errors?.confirmPassword?.message}
                 </p>
               )}
             </div>
 
             {/* Error Message */}
-            {/* {errorMsg && (
+            {/* {errors && (
               <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 p-2 rounded-md">
                 <AlertCircle size={16} />
-                <span>{errorMsg}</span>
+                <span>{errors}</span>
               </div>
             )} */}
 
