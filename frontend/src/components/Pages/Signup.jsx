@@ -52,7 +52,7 @@ const Signup = () => {
             
             return;
         }
-        setFinalMsg(err?.response?.data?.message || "SignUp Falied");
+        setFinalMsg(err?.response?.data?.message || "SignUp Failed");
         
     } finally {
       setLoading(false);

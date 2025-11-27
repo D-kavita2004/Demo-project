@@ -11,14 +11,8 @@ const nonEmpty = z.string().trim().min(1, "This field cannot be empty");
 export const formDataSchema = z
   .object({
     // ========== Issuing Section ==========
-    receivingNo: nonEmpty.regex(
-      /^[A-Z0-9-]+$/,
-      "Only uppercase letters, numbers and hyphens allowed"
-    ),
-    referenceNo: nonEmpty.regex(
-      /^[A-Z0-9-]+$/,
-      "Only uppercase letters, numbers and hyphens allowed"
-    ),
+    receivingNo: nonEmpty.regex(/^[A-Z0-9-]+$/, "Only uppercase letters, numbers and hyphens allowed"),
+    referenceNo: nonEmpty.regex(/^[A-Z0-9-]+$/, "Only uppercase letters, numbers and hyphens allowed"),
     partName: nonEmpty,
     subjectMatter: nonEmpty,
     approved: nonEmpty,
@@ -29,20 +23,11 @@ export const formDataSchema = z
     supplierName: nonEmpty,
     groupName: nonEmpty,
     stateOfProcess: nonEmpty,
-    associatedLotNo: nonEmpty.regex(
-      /^[A-Z0-9-]+$/,
-      "Only uppercase letters, numbers and hyphens allowed"
-    ),
+    associatedLotNo: nonEmpty.regex(/^[A-Z0-9-]+$/, "Only uppercase letters, numbers and hyphens allowed"),
     discoveredDate: dateString,
     issueDate: dateString,
-    orderNo: nonEmpty.regex(
-      /^[A-Z0-9-]+$/,
-      "Only uppercase letters, numbers and hyphens allowed"
-    ),
-    drawingNo: nonEmpty.regex(
-      /^[A-Z0-9-]+$/,
-      "Only uppercase letters, numbers and hyphens allowed"
-    ),
+    orderNo: nonEmpty.regex(/^[A-Z0-9-]+$/, "Only uppercase letters, numbers and hyphens allowed"),
+    drawingNo: nonEmpty.regex(/^[A-Z0-9-]+$/, "Only uppercase letters, numbers and hyphens allowed"),
     processName: nonEmpty,
     machineName: nonEmpty,
 
@@ -63,7 +48,7 @@ export const formDataSchema = z
     defectCost: z.coerce.number().min(0),
     unit: nonEmpty,
     occurrenceSection: nonEmpty,
-    importanceLevel: z.enum(["AA","A", "B", "C"]), // common rating scale
+    importanceLevel: z.enum(["AA", "A", "B", "C"]),
     reportTimeLimit: dateString,
 
     // ========== Measures Report ==========
@@ -91,24 +76,33 @@ export const formDataSchema = z
   })
 
   // ========== Cross-field validations ==========
-  .refine(
-    (data) => data.usedQuantity <= data.totalQuantity,
-    "Used quantity cannot exceed total quantity"
-  )
-  .refine(
-    (data) => data.residualQuantity === data.totalQuantity - data.usedQuantity,
-    "Residual quantity should be totalQuantity - usedQuantity"
-  )
-  .refine(
-    (data) => new Date(data.discoveredDate) <= new Date(data.issueDate),
-    "Issue date cannot be earlier than discovered date"
-  )
-  .refine(
-    (data) =>
-      new Date(data.enforcementDate) <= new Date(data.enforcementDateResult),
-    "Measure result date must be on or after enforcement date"
-  )
-  .refine(
-    (data) => new Date(data.enforcementDateResult) <= new Date(data.effectDate),
-    "Effect date cannot be earlier than enforcement result date"
-  );
+
+  // Used quantity should not exceed totalQuantity
+  .refine((data) => data.usedQuantity <= data.totalQuantity, {
+    message: "Used quantity cannot exceed total quantity",
+    path: ["usedQuantity"], // 👈 FIELD LEVEL ERROR
+  })
+
+  // Residual = total - used
+  .refine((data) => data.residualQuantity === data.totalQuantity - data.usedQuantity, {
+    message: "Residual quantity should be totalQuantity - usedQuantity",
+    path: ["residualQuantity"], // 👈 FIELD LEVEL ERROR
+  })
+
+  // Issue date ≥ discovered date
+  .refine((data) => new Date(data.discoveredDate) <= new Date(data.issueDate), {
+    message: "Issue date cannot be earlier than discovered date",
+    path: ["issueDate"], // 👈 FIELD LEVEL ERROR
+  })
+
+  // enforcementDateResult ≥ enforcementDate
+  .refine((data) => new Date(data.enforcementDate) <= new Date(data.enforcementDateResult), {
+    message: "Measure result date must be on or after enforcement date",
+    path: ["enforcementDateResult"], // 👈 FIELD LEVEL ERROR
+  })
+
+  // effectDate ≥ enforcementDateResult
+  .refine((data) => new Date(data.enforcementDateResult) <= new Date(data.effectDate), {
+    message: "Effect date cannot be earlier than enforcement result date",
+    path: ["effectDate"], // 👈 FIELD LEVEL ERROR
+  });

@@ -53,7 +53,7 @@ const Login = () => {
             
             return;
         }  
-        setFinalMsg(err?.response?.data?.message || "SignUp Falied");
+        setFinalMsg(err?.response?.data?.message || "Login Failed");
     } finally {
       setLoading(false);
     }
