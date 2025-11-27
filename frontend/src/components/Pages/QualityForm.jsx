@@ -80,10 +80,9 @@ const QualityForm = () => {
       effectSecInCharge: "Production",
       effectQCSection: "QC Section A",
       effectApproved: true,
-    }
+  }
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  // const [errors,seterrors] = useState({});
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
   const clickedForm = location.state?.data;
