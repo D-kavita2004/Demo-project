@@ -57,54 +57,8 @@ const cards = [
     color: "from-pink-500 to-pink-600",
     stat: null,
   },
-    {
-    id: 4,
-    title: "Notifications",
-    icon: <BellIcon className="w-6 h-6 text-white" />,
-    route: "/notifications",
-    color: "from-yellow-400 to-yellow-500",
-    stat: 5,
-  },
-  {
-    id: 5,
-    title: "Settings",
-    icon: <SettingsIcon className="w-6 h-6 text-white" />,
-    route: "/settings",
-    color: "from-pink-500 to-pink-600",
-    stat: null,
-  },
-    {
-    id: 4,
-    title: "Notifications",
-    icon: <BellIcon className="w-6 h-6 text-white" />,
-    route: "/notifications",
-    color: "from-yellow-400 to-yellow-500",
-    stat: 5,
-  },
-  {
-    id: 5,
-    title: "Settings",
-    icon: <SettingsIcon className="w-6 h-6 text-white" />,
-    route: "/settings",
-    color: "from-pink-500 to-pink-600",
-    stat: null,
-  },
-    {
-    id: 4,
-    title: "Notifications",
-    icon: <BellIcon className="w-6 h-6 text-white" />,
-    route: "/notifications",
-    color: "from-yellow-400 to-yellow-500",
-    stat: 5,
-  },
-  {
-    id: 5,
-    title: "Settings",
-    icon: <SettingsIcon className="w-6 h-6 text-white" />,
-    route: "/settings",
-    color: "from-pink-500 to-pink-600",
-    stat: null,
-  },
+
+
 ];
 
 const AdminDashboard = () => {

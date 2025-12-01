@@ -8,6 +8,12 @@ import ResetPassword from "./components/Pages/ResetPassword";
 import ForgotPassword from "./components/Pages/ForgotPassword";
 import ErrorPage from "./components/Pages/ErrorPage";
 import Reports from "./components/Pages/Reports";
+import AdminDashboard from "./components/Pages/AdminDashboard";
+import UsersManagement from "./components/Pages/UsersManagement";
+import Suppliers from "./components/Pages/Suppliers";
+import PartNames from "./components/Pages/PartNames";
+import ProcessNames from "./components/Pages/ProcessNames";
+import MachineNames from "./components/Pages/MachineNames";
 
 function App() {
   return (
@@ -20,22 +26,36 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword/>} />
 
         {/* Protected route */}
-        <Route
-          path="/"
-          element={
+
+        <Route path="/" element={
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/Reports"
-          element={
+          path="/Reports" element={
             <ProtectedRoute>
               <Reports/>
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/Admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        >
+          {/* Use relative paths, no leading slash */}
+          <Route path="Users" element={<ProtectedRoute><UsersManagement /></ProtectedRoute>} />
+          <Route path="Suppliers" element={<ProtectedRoute><Suppliers/></ProtectedRoute>} />
+          <Route path="Parts" element={<ProtectedRoute><PartNames/></ProtectedRoute>} />
+          <Route path="Processes" element={<ProtectedRoute><ProcessNames/></ProtectedRoute>} />
+          <Route path="Machines" element={<ProtectedRoute><MachineNames/></ProtectedRoute>} />
+        </Route>
+
         <Route
           path="/Quality-Form"
           element={

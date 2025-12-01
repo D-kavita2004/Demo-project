@@ -15,7 +15,7 @@ import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formDataSchema } from "../ValidateSchema/formDataValidationSchema";
-import myData from "../Constants/DefaultData";
+import {myData} from "../Constants/DefaultData";
 
 const QualityForm = () => {
 

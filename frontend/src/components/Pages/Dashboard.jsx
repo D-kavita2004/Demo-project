@@ -91,11 +91,11 @@ const Dashboard = () => {
             </div>
 
             <div className="flex gap-2 justify-evenly">
-              <Button variant="outline" className="border-2 text-md">
+              <Button variant="outline" onClick={()=>navigate("/Admin")} className="border-2 text-md">
                 Admin Panel
               </Button>
 
-              <Button variant="outline" className="border-2 text-md">
+              <Button variant="outline" onClick={()=>navigate("/Reports")} className="border-2 text-md">
                 Reports
               </Button>
 
