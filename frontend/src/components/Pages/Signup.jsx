@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { registerUserSchema } from "../ValidateSchema/authInputValidationShema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const Signup = () => {
 
@@ -157,12 +158,12 @@ const Signup = () => {
         <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Already have an account?{" "}
-            <a
-              href="/login"
+            <Link
+              to="/login"
               className="font-medium text-blue-600 hover:underline"
             >
               Login
-            </a>
+            </Link>
           </p>
         </CardFooter>
       </Card>

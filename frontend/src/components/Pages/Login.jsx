@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,15 +10,15 @@ import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginUserSchema } from "../ValidateSchema/authInputValidationShema";
+import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 const Login = () => {
-  const [loading, setLoading] = useState(false);
-  const [finalMsg, setFinalMsg] = useState("");
-  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
   const navigate = useNavigate();
   const {setUser} = useContext(UserContext);
   
-  const { register, handleSubmit, setError, formState:{errors}} = useForm({
+  const { register, handleSubmit, setError, formState:{ errors, isSubmitting }} = useForm({
     resolver:zodResolver(loginUserSchema),
     defaultValues: {
         username: "",
@@ -28,14 +27,10 @@ const Login = () => {
   });
 
   const onSubmit = async (data) => {
-
-    setLoading(true);
-    setFinalMsg("");
-
     try {
-      const response = await axios.post(`${apiUrl}/auth/login`,data,{withCredentials:true});
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`,data,{withCredentials:true});
       setUser(response?.data?.user);
-      setFinalMsg(response?.data?.message || "User Logged in Successfully");
+      toast.success(response?.data?.message || "User Logged in Successfully");
 
       setTimeout(()=>{
         navigate("/");
@@ -53,10 +48,8 @@ const Login = () => {
             
             return;
         }  
-        setFinalMsg(err?.response?.data?.message || "Login Failed");
-    } finally {
-      setLoading(false);
-    }
+        toast.error(err?.response?.data?.message || err?.response?.statusText || "Oops! Login Failed");
+    } 
   };
 
   return (
@@ -100,34 +93,35 @@ const Login = () => {
               )}
             </div>
 
-            {/* Final Message */}
-            {finalMsg && (
-              <div className="flex items-center gap-2 bg-yellow-300 text-sm p-2 rounded-md text-center">
-                {/* <AlertCircle size={16} /> */}
-                <span>{finalMsg}</span>
-              </div>
-            )}
-
             {/* Submit Button */}
             <Button
               type="submit"
               className="w-full"
-              disabled={loading}
+              disabled={isSubmitting}
             >
-              {loading ? "Logging in..." : "Login"}
+              {isSubmitting? "Logging in..." : "Login"}
             </Button>
           </form>
         </CardContent>
 
-        <CardFooter className="flex justify-center">
+        <CardFooter className="flex flex-col justify-center gap-2">
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Don’t have an account?{" "}
-            <a
-              href="/signup"
+            <Link
+              to="/signup"
               className="font-medium text-blue-600 hover:underline"
             >
               Sign up
-            </a>
+            </Link>
+          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Did not remember Password ?
+            <Link
+              to="/forgot-password"
+              className="font-medium text-blue-600 hover:underline"
+            >
+             Forgot Password
+            </Link>
           </p>
         </CardFooter>
       </Card>

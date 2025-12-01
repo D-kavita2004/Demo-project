@@ -10,6 +10,7 @@ import { Input } from "../ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import TableView from "../ReusableComponents/TableView";
 import DownloadAllRecords from "../ReusableComponents/DownLoadAllRecords";
+import { toast } from "sonner";
 
 const Dashboard = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -27,6 +28,7 @@ const Dashboard = () => {
         withCredentials: true,
       });
       setUser(null);
+      toast.success("User Logged Out Successfully");
       navigate("/login");
     } catch (err) {
       console.error("Logout failed:", err.response?.data || err.message);

@@ -80,29 +80,29 @@ export const formDataSchema = z
   // Used quantity should not exceed totalQuantity
   .refine((data) => data.usedQuantity <= data.totalQuantity, {
     message: "Used quantity cannot exceed total quantity",
-    path: ["usedQuantity"], // 👈 FIELD LEVEL ERROR
+    path: ["usedQuantity"], // FIELD LEVEL ERROR
   })
 
   // Residual = total - used
   .refine((data) => data.residualQuantity === data.totalQuantity - data.usedQuantity, {
     message: "Residual quantity should be totalQuantity - usedQuantity",
-    path: ["residualQuantity"], // 👈 FIELD LEVEL ERROR
+    path: ["residualQuantity"], // FIELD LEVEL ERROR
   })
 
   // Issue date ≥ discovered date
   .refine((data) => new Date(data.discoveredDate) <= new Date(data.issueDate), {
     message: "Issue date cannot be earlier than discovered date",
-    path: ["issueDate"], // 👈 FIELD LEVEL ERROR
+    path: ["issueDate"], // FIELD LEVEL ERROR
   })
 
   // enforcementDateResult ≥ enforcementDate
   .refine((data) => new Date(data.enforcementDate) <= new Date(data.enforcementDateResult), {
     message: "Measure result date must be on or after enforcement date",
-    path: ["enforcementDateResult"], // 👈 FIELD LEVEL ERROR
+    path: ["enforcementDateResult"], // FIELD LEVEL ERROR
   })
 
   // effectDate ≥ enforcementDateResult
   .refine((data) => new Date(data.enforcementDateResult) <= new Date(data.effectDate), {
     message: "Effect date cannot be earlier than enforcement result date",
-    path: ["effectDate"], // 👈 FIELD LEVEL ERROR
+    path: ["effectDate"], // FIELD LEVEL ERROR
   });
