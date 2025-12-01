@@ -3,9 +3,7 @@ import { UserContext } from "../Constants/userContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
-import { WorkflowChart } from "../ReusableComponents/Charts/ChartComponent";
-import DepartmentPieChart from "../ReusableComponents/Charts/DepartmentPieChart";
-import FormsBarChart from "../ReusableComponents/Charts/FormsBarChart";
+
 import { Input } from "../ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import TableView from "../ReusableComponents/TableView";
@@ -115,24 +113,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Charts Section */}
-      <div className="my-7 flex flex-col gap-7 w-full">
-
-        {/* Workflow Chart */}
-        <div className="w-full overflow-x-auto">
-          <WorkflowChart />
-        </div>
-
-        {/* Side-by-Side Charts */}
-        <div className="w-full flex flex-col md:flex-row gap-6">
-          <div className="w-full md:w-1/2 overflow-x-auto">
-            <DepartmentPieChart />
-          </div>
-          <div className="w-full md:w-1/2 overflow-x-auto">
-            <FormsBarChart />
-          </div>
-        </div>
-      </div>
 
       {/* Forms Table */}
       <Card className="bg-white dark:bg-gray-800 shadow-lg w-full">
