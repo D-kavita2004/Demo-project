@@ -91,15 +91,19 @@ const Dashboard = () => {
             </div>
 
             <div className="flex gap-2 justify-evenly">
-              <Button variant="outline" onClick={()=>navigate("/Admin")} className="border-2 text-md">
-                Admin Panel
-              </Button>
+             {
+              user && user?.role === "admin" && (
+                 <Button variant="outline" onClick={()=>navigate("/Admin")} className="border-2 text-md">
+                    Admin Panel
+                 </Button>
+              )
+             }
 
               <Button variant="outline" onClick={()=>navigate("/Reports")} className="border-2 text-md">
                 Reports
               </Button>
 
-              {user?.team === "Quality" && (
+              {user && (user?.team === "QA" || user?.role === "admin") && (
                 <Button
                   onClick={() => navigate("/Quality-Form")}
                   variant="outline"

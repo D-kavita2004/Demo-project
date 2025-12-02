@@ -10,17 +10,21 @@ dotenv.config();
 // ------------------ LOGIN ------------------
 export const handleLogin = async (req, res) => {
   const { username, password } = req.body;
-
+  
   try {
     const user = await User.findOne({ username });
+
     if (!user)
       return res.status(404).json({ message: "User not found" });
 
     const isMatch = await bcrypt.compare(password, user.password);
+
     if (!isMatch)
       return res.status(401).json({ message: "Invalid Password" });
-    const payload = { username: user.username, id: user._id, team:user.team };
-    const token = jwt.sign(payload, process.env.SECRET);
+
+    const { password: _, _id, ...userPayload } = user.toObject(); 
+    logger.info("3. PAYLOAD",userPayload);
+    const token = jwt.sign(userPayload, process.env.SECRET);
  
     res.cookie("token", token, {
       httpOnly: true,
@@ -31,7 +35,7 @@ export const handleLogin = async (req, res) => {
 
     res.status(200).json({ 
       message: "Login successful",
-      user:payload,
+      user:userPayload,
     });
   } catch (err) {
     logger.error("Login Error:", err);
@@ -41,7 +45,7 @@ export const handleLogin = async (req, res) => {
 
 // ------------------ SIGNUP ------------------
 export const handleSignUp = async (req, res) => {
-  const { username, password, team } = req.body;
+  const { username, email, firstName, lastName, password, role, team } = req.body;
 
   try {
     const existingUser = await User.findOne({ username });
@@ -49,7 +53,7 @@ export const handleSignUp = async (req, res) => {
       return res.status(409).json({success: false, message: "Username already exists" });
 
     const hashed = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, password: hashed,team });
+    const newUser = new User({ username, email, firstName, lastName, role: role || undefined, password: hashed,team });
     await newUser.save();
 
     res.status(200).json({success:true , message: "User registered successfully" });

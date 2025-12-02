@@ -75,7 +75,7 @@ const onSubmit = async (data) => {
         productImage: image, //store the URL inside formData
       },
       filledBy: user.team,
-      status: user.team === "Quality" ? "pending_prod" : "pending_quality",
+      status: user.team === "QA" ? "pending_prod" : "pending_quality",
     },{withCredentials:true});
 
     console.log("Form submitted successfully:", res.data);
@@ -909,11 +909,11 @@ const handleImageChange = (e) => {
                   <CardFooter className="flex justify-center py-6">
                 <Button type="submit" className="px-8 py-2 text-lg mx-3">
                   {
-                    (location?.state?.data?.status === "pending_quality" && user.team === "Quality") ? "Reject":"Submit"
+                    (location?.state?.data?.status === "pending_quality" && user.team === "QA") ? "Reject":"Submit"
                   }
                 </Button>
               {
-                (location?.state?.data?.status === "pending_quality" && user.team === "Quality") && (
+                (location?.state?.data?.status === "pending_quality" && user.team === "QA") && (
                   <Button  type="button" className="px-8 py-2 text-lg mx-3" onClick={()=>{handleApprove(location.state?.data?._id)}}>
                   Approve
                 </Button>

@@ -120,12 +120,6 @@ const TableView = ({ data }) => {
               <div className="text-left">
                 {
                   row.original.status === "approved" &&
-                  // <Button
-                  // className="text-white bg-amber-500"
-                  // onClick={() => generateQualityFormPDF(row.original)}
-                  // >
-                  //   Download
-                  // </Button>
                   <DropdownMenu>
                       <DropdownMenuTrigger className="text-white bg-amber-500 p-2 rounded">Download</DropdownMenuTrigger>
                       <DropdownMenuContent> 
