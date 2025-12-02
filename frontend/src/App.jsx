@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import QualityForm from "./components/Pages/QualityForm";
 import Login from "./components/Pages/Login";
-import Signup from "./components/Pages/Signup";
+// import Signup from "./components/Pages/Signup";
 import ProtectedRoute from "./components/ReusableComponents/ProtectedRoute";
 import Dashboard from "./components/Pages/Dashboard";
 import ResetPassword from "./components/Pages/ResetPassword";
@@ -26,7 +26,7 @@ function App() {
       <Routes>
         {/* Public Routes*/}
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        {/* <Route path="/signup" element={<Signup />} /> */}
         <Route path="/reset-password/:token" element={<ResetPassword/>} />
         <Route path="/forgot-password" element={<ForgotPassword/>} />
 
