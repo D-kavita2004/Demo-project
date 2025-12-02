@@ -1,5 +1,4 @@
  import { UsersIcon, TruckIcon, PackageIcon, ActivityIcon, CpuIcon } from "lucide-react";
- 
  export const myData =  {
       // ========== Issuing Section ==========
       receivingNo: "RCV-2025-001",
@@ -63,12 +62,63 @@
       effectQCSection: "QC Section A",
       effectApproved: true,
   }
+ export const navcards = [
+    {
+    id: 1,
+    title: "Overview",
+    icon: <UsersIcon className="w-6 h-6 text-white" />,
+    route: "",
+    color: "from-blue-500 to-blue-600",
+    message: "Manage all users, roles, and permissions.",
+  },
+  {
+    id: 2,
+    title: "Users Management",
+    icon: <UsersIcon className="w-6 h-6 text-white" />,
+    route: "Users",
+    color: "from-blue-500 to-blue-600",
+    message: "Manage all users, roles, and permissions.",
+  },
+  {
+    id: 3,
+    title: "Suppliers",
+    icon: <TruckIcon className="w-6 h-6 text-white" />,
+    route: "Suppliers",
+    color: "from-green-500 to-green-600",
+    message: "View, add, or edit supplier details.",
+  },
+  {
+    id: 4,
+    title: "Parts",
+    icon: <PackageIcon className="w-6 h-6 text-white" />,
+    route: "parts",
+    color: "from-purple-500 to-purple-600",
+    message: "Manage all part names and related information.",
+  },
+  {
+    id: 5,
+    title: "Processes",
+    icon: <ActivityIcon className="w-6 h-6 text-white" />,
+    route: "processes",
+    color: "from-yellow-400 to-yellow-500",
+    message: "Define and edit process names and workflows.",
+  },
+  {
+    id: 6,
+    title: "Machines",
+    icon: <CpuIcon className="w-6 h-6 text-white" />,
+    route: "machines",
+    color: "from-pink-500 to-pink-600",
+    message: "Manage machine details and configurations.",
+  },
+];
  export const cards = [
+
   {
     id: 1,
     title: "Users Management",
     icon: <UsersIcon className="w-6 h-6 text-white" />,
-    route: "users",
+    route: "Users",
     color: "from-blue-500 to-blue-600",
     message: "Manage all users, roles, and permissions.",
   },
@@ -76,13 +126,13 @@
     id: 2,
     title: "Suppliers",
     icon: <TruckIcon className="w-6 h-6 text-white" />,
-    route: "suppliers",
+    route: "Suppliers",
     color: "from-green-500 to-green-600",
     message: "View, add, or edit supplier details.",
   },
   {
     id: 3,
-    title: "Part Names",
+    title: "Parts",
     icon: <PackageIcon className="w-6 h-6 text-white" />,
     route: "parts",
     color: "from-purple-500 to-purple-600",
@@ -90,7 +140,7 @@
   },
   {
     id: 4,
-    title: "Process Names",
+    title: "Processes",
     icon: <ActivityIcon className="w-6 h-6 text-white" />,
     route: "processes",
     color: "from-yellow-400 to-yellow-500",
@@ -98,7 +148,7 @@
   },
   {
     id: 5,
-    title: "Machine Names",
+    title: "Machines",
     icon: <CpuIcon className="w-6 h-6 text-white" />,
     route: "machines",
     color: "from-pink-500 to-pink-600",

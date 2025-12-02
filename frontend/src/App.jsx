@@ -14,6 +14,7 @@ import Suppliers from "./components/Pages/Suppliers";
 import PartNames from "./components/Pages/PartNames";
 import ProcessNames from "./components/Pages/ProcessNames";
 import MachineNames from "./components/Pages/MachineNames";
+import AdminFeaturesOverview from "./components/Pages/AdminFeaturesOverview";
 
 function App() {
   return (
@@ -49,6 +50,8 @@ function App() {
           }
         >
           {/* Use relative paths, no leading slash */}
+          <Route path="" element={<ProtectedRoute><AdminFeaturesOverview/></ProtectedRoute>} />
+          {/* <Route path="Overview" element={<ProtectedRoute><AdminFeaturesOverview/></ProtectedRoute>} /> */}
           <Route path="Users" element={<ProtectedRoute><UsersManagement /></ProtectedRoute>} />
           <Route path="Suppliers" element={<ProtectedRoute><Suppliers/></ProtectedRoute>} />
           <Route path="Parts" element={<ProtectedRoute><PartNames/></ProtectedRoute>} />

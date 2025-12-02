@@ -1,69 +1,25 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
-import {
-  UsersIcon,
-  FileTextIcon,
-  SettingsIcon,
-  BarChartIcon,
-  BellIcon,
   LogOutIcon,
   MenuIcon,
 } from "lucide-react";
-
-const cards = [
-  {
-    id: 1,
-    title: "Users",
-    icon: <UsersIcon className="w-6 h-6 text-white" />,
-    route: "/users",
-    color: "from-blue-500 to-blue-600",
-    stat: 120,
-  },
-  {
-    id: 2,
-    title: "Documents",
-    icon: <FileTextIcon className="w-6 h-6 text-white" />,
-    route: "/documents",
-    color: "from-green-500 to-green-600",
-    stat: 340,
-  },
-  {
-    id: 3,
-    title: "Reports",
-    icon: <BarChartIcon className="w-6 h-6 text-white" />,
-    route: "/reports",
-    color: "from-purple-500 to-purple-600",
-    stat: 24,
-  },
-  {
-    id: 4,
-    title: "Notifications",
-    icon: <BellIcon className="w-6 h-6 text-white" />,
-    route: "/notifications",
-    color: "from-yellow-400 to-yellow-500",
-    stat: 5,
-  },
-  {
-    id: 5,
-    title: "Settings",
-    icon: <SettingsIcon className="w-6 h-6 text-white" />,
-    route: "/settings",
-    color: "from-pink-500 to-pink-600",
-    stat: null,
-  },
-
-
-];
+import { navcards as cards} from "../Constants/DefaultData";
+import { Outlet } from "react-router-dom";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setSidebarOpen(window.innerWidth > 1024);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -155,40 +111,7 @@ const AdminDashboard = () => {
 
         {/* Cards Grid */}
         <main className="p-6 sm:p-8 flex-1 overflow-y-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            {cards.map((card) => (
-              <Card
-                key={card.id}
-                className="cursor-pointer transform hover:scale-[1.03] transition-all duration-300 shadow-sm hover:shadow-xl backdrop-blur-sm"
-                onClick={() => navigate(card.route)}
-              >
-                <CardHeader className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`p-4 rounded-full bg-gradient-to-br ${card.color} shadow-md`}
-                    >
-                      {card.icon}
-                    </div>
-                    <CardTitle className="text-lg sm:text-xl font-semibold">
-                      {card.title}
-                    </CardTitle>
-                  </div>
-
-                  {card.stat !== null && (
-                    <span className="bg-gray-200 text-gray-700 text-sm font-medium px-3 py-1 rounded-full">
-                      {card.stat}
-                    </span>
-                  )}
-                </CardHeader>
-
-                <CardContent>
-                  <p className="text-gray-600 text-sm">
-                    Click to manage {card.title.toLowerCase()} efficiently.
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <Outlet/>
         </main>
       </div>
     </div>
