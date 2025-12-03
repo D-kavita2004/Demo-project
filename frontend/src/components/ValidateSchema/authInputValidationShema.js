@@ -31,12 +31,6 @@ const teamSchema = z.enum(["QA", "Part", "Fit", "Assembly", "IT"], {
   }),
 });
 
-// ------------------ ROLE ENUM ------------------
-const roleSchema = z.enum(["admin", "user"], {
-  errorMap: () => ({
-    message: "Role must be either admin or user",
-  }),
-});
 
 // ------------------ NAME REGEX ------------------
 // Allows letters, spaces, hyphens, apostrophes (e.g., Anne-Marie, O'Connor)
@@ -64,28 +58,8 @@ export const registerUserSchema = z
         strongPasswordRegex,
         "Password must contain at least one uppercase, one lowercase, one number, one special character, and be 6–128 characters long"
       ),
-    team: teamSchema,
-    role: roleSchema.optional().default("user"),
+      team: teamSchema
   })
-  .superRefine((data, ctx) => {
-    // Admin users must be in IT
-    if (data.role === "admin" && data.team !== "IT") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Admin users must belong to IT team",
-        path: ["team"],
-      });
-    }
-
-    // Normal users cannot belong to IT
-    if (data.role === "user" && data.team === "IT") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Only admin can belong to IT team",
-        path: ["team"],
-      });
-    }
-  });
 
 // ------------------ LOGIN SCHEMA ------------------
 export const loginUserSchema = z.object({

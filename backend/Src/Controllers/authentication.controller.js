@@ -23,7 +23,6 @@ export const handleLogin = async (req, res) => {
       return res.status(401).json({ message: "Invalid Password" });
 
     const { password: _, _id, ...userPayload } = user.toObject(); 
-    logger.info("3. PAYLOAD",userPayload);
     const token = jwt.sign(userPayload, process.env.SECRET);
  
     res.cookie("token", token, {
@@ -45,12 +44,28 @@ export const handleLogin = async (req, res) => {
 
 // ------------------ SIGNUP ------------------
 export const handleSignUp = async (req, res) => {
+  logger.info("hitting signup api");
   const { username, email, firstName, lastName, password, role, team } = req.body;
 
   try {
-    const existingUser = await User.findOne({ username });
-    if (existingUser)
-      return res.status(409).json({success: false, message: "Username already exists" });
+    // Check if username or email already exists
+    const existingUser = await User.findOne({
+      $or: [{ username }, { email }],
+    });
+
+    if (existingUser) {
+      // Determine which field is duplicate
+      let message = "User already exists";
+      if (existingUser.username === username && existingUser.email === email) {
+        message = "Username and Email already exist";
+      } else if (existingUser.username === username) {
+        message = "Username already exists";
+      } else if (existingUser.email === email) {
+        message = "Email already exists";
+      }
+
+      return res.status(409).json({ success: false, message });
+    }
 
     const hashed = await bcrypt.hash(password, 10);
     const newUser = new User({ username, email, firstName, lastName, role: role || undefined, password: hashed,team });

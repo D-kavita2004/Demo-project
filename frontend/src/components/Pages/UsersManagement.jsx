@@ -2,22 +2,16 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input";
 import CreateUserForm from "./CreateUserForm";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SearchIcon, CheckCircleIcon, XCircleIcon } from "lucide-react";
+import { useState } from "react";
 
-const users = [
-  { id: 1, name: "John Doe", email: "john@example.com", status: "Active" },
-  { id: 2, name: "Kavita Sharma", email: "kavita@example.com", status: "Inactive" },
-  { id: 3, name: "Amit Verma", email: "amit@example.com", status: "Active" },
-];
 
 const UsersManagement = () => {
+  const [isDialogOpen,setIsDialogOpen] = useState(false);
   return (
     <div className="p-4 md:p-6 lg:p-2 space-y-6 max-w-full h-fullflex flex-col">
       
@@ -39,18 +33,16 @@ const UsersManagement = () => {
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
           </div>
 
-          <Dialog>
+          <Dialog  modal open={isDialogOpen} onOpenChange={setIsDialogOpen} className="max-h-[50%] overflow-auto">
             <DialogTrigger asChild>
               <Button className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-all duration-200 w-full sm:w-auto">
                 + Create New User
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg w-full">
-              <DialogHeader>
-                <DialogTitle>Create New User</DialogTitle>
-              </DialogHeader>
               {/* Form can go here */}
-              <CreateUserForm/>
+              <CreateUserForm closeDialog={()=>{setIsDialogOpen(false)}}/>
+        
             </DialogContent>
           </Dialog>
         </div>
