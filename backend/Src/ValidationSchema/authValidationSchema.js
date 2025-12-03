@@ -21,7 +21,7 @@ const usernameSchema = z
   .max(30, "Username must not exceed 30 characters")
   .regex(
     /^[a-zA-Z0-9_-]+$/,
-    "Username can contain letters, numbers, underscores, and hyphens"
+    "Username can contain letters, numbers, underscores, and hyphens",
   );
 
 // ------------------ TEAM ENUM ------------------
@@ -62,7 +62,7 @@ export const registerUserSchema = z
       .trim()
       .regex(
         strongPasswordRegex,
-        "Password must contain at least one uppercase, one lowercase, one number, one special character, and be 6–128 characters long"
+        "Password must contain at least one uppercase, one lowercase, one number, one special character, and be 6–128 characters long",
       ),
     team: teamSchema,
     role: roleSchema.optional().default("user"),

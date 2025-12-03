@@ -31,6 +31,7 @@ const CreateUserForm = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     reset,
     formState: { errors, isSubmitting },
   } = useForm({
@@ -179,55 +180,53 @@ const CreateUserForm = () => {
 
                     <div className="border-t" />
 
-<AlertDialogFooter>
-  <div className="w-full flex justify-between items-center gap-3">
+                  <AlertDialogFooter>
+                    <div className="w-full flex justify-between items-center gap-3">
 
-    {/* CANCEL BUTTON */}
-    <AlertDialogCancel
-      type="button"
-      className="
-        w-[48%]
-        py-3
-        rounded-xl
-        font-medium
-        border border-gray-300
-        bg-white 
-        text-gray-800 
-        shadow-sm 
-        hover:bg-gray-100 
-        hover:shadow-md
-        active:scale-[0.98]
-        transition-all
-      "
-    >
-      Cancel
-    </AlertDialogCancel>
+                      {/* CANCEL BUTTON */}
+                      <AlertDialogCancel
+                        type="button"
+                        className="
+                          w-[48%]
+                          py-3
+                          rounded-xl
+                          font-medium
+                          border border-gray-300
+                          bg-white 
+                          text-gray-800 
+                          shadow-sm 
+                          hover:bg-gray-100 
+                          hover:shadow-md
+                          active:scale-[0.98]
+                          transition-all
+                        "
+                      >
+                        Cancel
+                      </AlertDialogCancel>
 
-    {/* SUBMIT BUTTON */}
-    <Button
-      type="submit"
-      disabled={isSubmitting}
-      className="
-        w-[48%]
-        py-3
-        rounded-xl
-        font-semibold
-        bg-blue-600 
-        text-white 
-        shadow-sm 
-        hover:bg-blue-700 
-        hover:shadow-md
-        active:scale-[0.98]
-        transition-all
-      "
-    >
-      {isSubmitting ? "Creating..." : "Create User"}
-    </Button>
+                      {/* SUBMIT BUTTON */}
+                      <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="
+                          w-[48%]
+                          py-3
+                          rounded-xl
+                          font-semibold
+                          bg-blue-600 
+                          text-white 
+                          shadow-sm 
+                          hover:bg-blue-700 
+                          hover:shadow-md
+                          active:scale-[0.98]
+                          transition-all
+                        "
+                      >
+                        {isSubmitting ? "Creating..." : "Create User"}
+                      </Button>
 
-  </div>
-</AlertDialogFooter>
-
-
+                    </div>
+                  </AlertDialogFooter>
                     
                 </form>
             </AlertDialogContent>

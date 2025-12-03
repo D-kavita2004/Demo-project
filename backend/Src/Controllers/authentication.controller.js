@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import User from "../Models/users.models.js";
 import logger from "../../Config/logger.js";
-import nodemailer from "nodemailer";
+import { forgetPasswordEmailConfig,shareCredentialEmailConfig } from "../../Config/emailconfig.js";
 
 dotenv.config();
 
@@ -44,38 +44,61 @@ export const handleLogin = async (req, res) => {
 
 // ------------------ SIGNUP ------------------
 export const handleSignUp = async (req, res) => {
-  logger.info("hitting signup api");
   const { username, email, firstName, lastName, password, role, team } = req.body;
 
   try {
-    // Check if username or email already exists
     const existingUser = await User.findOne({
       $or: [{ username }, { email }],
     });
 
     if (existingUser) {
-      // Determine which field is duplicate
       let message = "User already exists";
-      if (existingUser.username === username && existingUser.email === email) {
+
+      if (existingUser.username === username && existingUser.email === email)
         message = "Username and Email already exist";
-      } else if (existingUser.username === username) {
+      else if (existingUser.username === username)
         message = "Username already exists";
-      } else if (existingUser.email === email) {
+      else if (existingUser.email === email)
         message = "Email already exists";
-      }
 
       return res.status(409).json({ success: false, message });
     }
 
     const hashed = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, email, firstName, lastName, role: role || undefined, password: hashed,team });
+
+    const newUser = new User({
+      username,
+      email,
+      firstName,
+      lastName,
+      role: role || undefined,
+      password: hashed,
+      team,
+    });
+
     await newUser.save();
 
-    res.status(200).json({success:true , message: "User registered successfully" });
+    // send email to share credentials
+    const emailSent = await shareCredentialEmailConfig(username, email, password);
+
+    if (emailSent) {
+      return res.status(200).json({
+        success: true,
+        message: "User registered successfully and credentials sent",
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: "User registered but credentials email could not be sent",
+      });
+    }
 
   } catch (err) {
     logger.error("Register Error:", err);
-    res.status(500).json({success: false, message: "Error registering user" });
+    return res.status(500).json({
+      success: false,
+      message: "Error registering user",
+    });
   }
 };
 
@@ -95,94 +118,106 @@ export const handleLogout = (req, res) => {
   }
 };
 
-export const forgotPassword = async(req,res,next)=>{
-  try{
-    const {email} = req.body;
+export const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
 
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({
-        success:false,
-        message:"Email is not valid",
-      });                   
-    }
-
-    const userData = await User.findOne({username:email});
-    logger.info(userData);
-    if(userData){
-      const token = jwt.sign({userId:userData._id},process.env.RESET_PASSWORD_TOKEN,{expiresIn:process.env.RESET_LINK_EXPIRY});
-
-      //Email server configuration
-      var transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: process.env.APP_EMAIL,
-          pass: process.env.PASSWORD_APP_EMAIL,
-        },
-      });
-      const mailOptions = {
-        from:process.env.APP_EMAIL,
-        to:email,
-        subject:"Reset password link",
-        html:`<h1>RESET PASSWORD LINK</h1>
-                        <p>Please click on the below link to reset your password</p>
-                        <p><a href="${process.env.FRONTEND_URL}/reset-password/${token}">Click Here to Change Password</a></p>
-                        <p>The link will expire in 10 minutes.</p>
-                        <p>If you didn't request a password reset, please ignore this email.</p>`,
-                        
-      };
-
-      await transporter.sendMail(mailOptions,(err,info)=>{
-        if(err){
-          return res.status(500).json({ success:false,message:"Could not send email"});
-        }
-        return res.status(200).json({success:true,message:"Reset Link Sent"});
+        success: false,
+        message: "Email is not valid",
       });
     }
-    else{
+
+    const userData = await User.findOne({ email });
+
+    if (!userData) {
       return res.status(404).json({
-        success:false,
-        message:"Cannot find user with this email",
+        success: false,
+        message: "Cannot find user with this email",
       });
     }
-  }
-  catch(error){
+
+    const token = jwt.sign(
+      { userId: userData._id },
+      process.env.RESET_PASSWORD_TOKEN,
+      { expiresIn: process.env.RESET_LINK_EXPIRY }
+    );
+
+    const sent = await forgetPasswordEmailConfig(email, token);
+
+    if (sent) {
+      return res.status(200).json({
+        success: true,
+        message: "Reset Link Sent",
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: "Could not send email",
+      });
+    }
+
+  } catch (error) {
     next(error);
   }
 };
 
-export const resetPassword = async(req,res,next)=>{
-  try{
-    const {jwtToken,updatedPassword} = req.body;
-    let id;
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { jwtToken, updatedPassword } = req.body;
 
-    const decodedData = jwt.verify(jwtToken,process.env.RESET_PASSWORD_TOKEN);
-
-    if(decodedData){
-      id = decodedData.userId;
-
-      const salt = await bcrypt.genSalt(10);
-      const hashedpassword = await bcrypt.hash(updatedPassword,salt);
-
-      const user = await User.findOneAndUpdate({_id:id},{password:hashedpassword});
-      if(!user){
-        return res.status(404).json({
-          success:false,
-          message:"Colud not found the user",
-        });
-      }
-      return res.status(200).json({
-        success:true,
-        message:"Password updated successfully",
+    // Validate input
+    if (!jwtToken || !updatedPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Token and new password are required",
       });
     }
-    else{
+
+    if (updatedPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters long",
+      });
+    }
+
+    // Verify JWT token
+    let decoded;
+    try {
+      decoded = jwt.verify(jwtToken, process.env.RESET_PASSWORD_TOKEN);
+    } catch (err) {
       return res.status(401).json({
-        success:false,
-        message:"Link has been expired",
+        success: false,
+        message: "Reset link has expired or is invalid",
       });
     }
-  }
-  catch(error){
+
+    const userId = decoded.userId;
+
+    // Find User
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Hash new password
+    const hashed = await bcrypt.hash(updatedPassword, 10);
+
+    user.password = hashed;
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    });
+
+  } catch (error) {
     next(error);
   }
 };
