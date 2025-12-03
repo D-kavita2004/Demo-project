@@ -20,9 +20,9 @@ const usernameSchema = z
   .min(3, "Username must be at least 3 characters long")
   .max(30, "Username must not exceed 30 characters")
   .regex(
-    /^[a-zA-Z0-9_-]+$/,
-    "Username can contain letters, numbers, underscores, and hyphens"
-  );
+      /^[a-zA-Z][a-zA-Z0-9_-]*$/,
+      "Username must start with a letter and can contain letters, numbers, underscores, and hyphens"
+    );
 
 // ------------------ TEAM ENUM ------------------
 const teamSchema = z.enum(["QA", "Part", "Fit", "Assembly", "IT"], {
