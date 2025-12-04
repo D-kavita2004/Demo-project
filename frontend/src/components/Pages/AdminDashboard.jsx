@@ -110,7 +110,7 @@ const AdminDashboard = () => {
         </header>
 
         {/* Cards Grid */}
-        <main className="p-6 sm:p-8 flex-1 overflow-y-auto">
+        <main className="p-6 sm:p-8 flex-1 overflow-y-auto max-w-screen items-center ">
           <Outlet/>
         </main>
       </div>

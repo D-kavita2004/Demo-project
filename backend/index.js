@@ -19,6 +19,7 @@ import verifyToken from "./Src/Middlewares/verifyToken.middleware.js";
 import formRoutes from "./Src/Routes/form.routes.js";
 import imageRoutes from "./Src/Routes/imageRoutes.js";
 import userRoutes from "./Src/Routes/users.routes.js";
+import { checkAdmin } from "./Src/Middlewares/checkAdmin.middleware.js";
 
 dotenv.config();
 
@@ -37,7 +38,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/auth",authRoutes);
-app.use("/user",userRoutes);
+app.use("/user", verifyToken, checkAdmin, userRoutes);
 app.use("/form",verifyToken,formRoutes);
 app.use("/image",verifyToken, imageRoutes);
 

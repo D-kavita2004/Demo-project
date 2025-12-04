@@ -1,57 +1,73 @@
 import { Input } from "@/components/ui/input";
 import CreateUserForm from "./CreateUserForm";
-import { SearchIcon, CheckCircleIcon, XCircleIcon, Users } from "lucide-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import TanstackTable from "../ReusableComponents/TanstackTable";
+import { usersColumns } from "../Constants/usersColumns";
 
 const UsersManagement = () => {
-  const [usersList,setUsersList] = useState([]);
+  const [usersList, setUsersList] = useState([]);
 
-  const fetchAllUsers = async()=>{
-    try{
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/user/allUsers`,{withCredentials:true});
-      console.log(res?.data?.data);
+  const fetchAllUsers = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/user/allUsers`,
+        { withCredentials: true }
+      );
+
       setUsersList(res?.data?.data);
       toast.success(res?.data?.message);
-    }
-    catch(err){
-      console.log(err);
-      toast.error(err?.response?.data?.message || err?.response?.statusText || "Users could be fetched");
+    } catch (err) {
+      toast.error(
+        err?.response?.data?.message ||
+          err?.response?.statusText ||
+          "Something went wrong while fetching users"
+      );
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchAllUsers();
-  },[])
+  }, []);
 
   return (
-    <div className="p-4 md:p-6 lg:p-2 space-y-6 max-w-full h-fullflex flex-col">
-      
-      {/* Heading */}
-      <h1 className="text-3xl md:text-4xl font-bold text-center text-gray-900 dark:text-gray-100 mx-auto">
-        Users Management
-      </h1> 
+    <div className="p-2 md:p-6 lg:p-10 w-full min-h-screen bg-background flex justify-center">
+      <div className="w-full max-w-7xl flex flex-col gap-6">
+        
+        {/* === Header Row === */}
+        <div className="
+          w-full flex flex-col sm:flex-row 
+          justify-between items-center 
+          gap-4
+        ">
+          {/* Heading */}
+          <h1 className="
+            text-3xl md:text-4xl font-bold 
+            text-gray-900 dark:text-gray-100
+            text-center sm:text-left
+          ">
+            Users Management
+          </h1>
 
-      {/* Page Card */}
-      <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 space-y-6 w-full">
-
-        {/* Search + Create */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="relative w-full sm:w-1/2">
-            <Input
-              placeholder="Search users..."
-              className="rounded-lg border-gray-300 dark:border-gray-700 pl-10 shadow-sm focus:ring-2 focus:ring-blue-500 w-full"
-            />
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
+          {/* Create Button */}
+          <div className="w-full sm:w-auto flex justify-center sm:justify-end">
+            <CreateUserForm />
           </div>
-
-          <CreateUserForm/>
         </div>
 
+        {/* === Main Card === */}
+        <div className="
+          w-full bg-white dark:bg-neutral-900 
+          rounded-2xl shadow-xl 
+          border border-gray-200 dark:border-neutral-800
+        ">
+          <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-neutral-800 shadow-sm p-3">
+            <TanstackTable data={usersList} columns={usersColumns} />
+          </div>
+        </div>
 
       </div>
-
     </div>
   );
 };

@@ -41,7 +41,7 @@ const CreateUserForm = () => {
   const onSubmit = async (data) => {
     try {
 
-      const res = await axios.post(`${apiUrl}/auth/register`, data, {
+      const res = await axios.post(`${apiUrl}/user/register`, data, {
         withCredentials: true,
       });
         toast.success(res?.data?.message || "User created successfully");
