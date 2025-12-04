@@ -14,7 +14,7 @@ var transporter = nodemailer.createTransport({
 
 transporter.verify((error) => {
   if (error) logger.error("Email config error:", error);
-  else logger.error("Email server ready");
+  else logger.info("Email server ready");
 });
 
 export const forgetPasswordEmailConfig = async (email, token) => {

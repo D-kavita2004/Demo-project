@@ -36,6 +36,7 @@ export default function ResetPassword() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(resetSchema),
@@ -43,17 +44,19 @@ export default function ResetPassword() {
 
   const onSubmit = async (data) => {
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/reset-password`, {
-        jwtToken:token,
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/reset-password/${token}`, {
         updatedPassword: data.password,
       });
       toast.success(res?.data?.message);
       setTimeout(() => {
          navigate("/login");
-      }, 1000);
-    } catch (error) {
-      console.log(error);
-      toast.error(error?.response?.data?.message || error?.response?.statusText || "Sorry Password is not updated");
+      }, 700);
+    } catch (err) {
+       if (err?.response?.status === 400) {
+            setError("password",{message:err?.response?.data?.errors.updatedPassword})
+            return;
+        }  
+        toast.error(err?.response?.data?.message || err?.response?.statusText || "Oops! Password cannot be changed");
     }
   };
 

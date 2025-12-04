@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import QualityForm from "./components/Pages/QualityForm";
 import Login from "./components/Pages/Login";
-// import Signup from "./components/Pages/Signup";
 import ProtectedRoute from "./components/ReusableComponents/ProtectedRoute";
 import Dashboard from "./components/Pages/Dashboard";
 import ResetPassword from "./components/Pages/ResetPassword";
@@ -56,7 +55,6 @@ function App() {
               </ProtectedRoute>
             }
           >
-            {/* Use relative paths, no leading slash */}
             <Route path="" element={<ProtectedRoute><AdminFeaturesOverview/></ProtectedRoute>} />
             <Route path="Users" element={<ProtectedRoute><UsersManagement /></ProtectedRoute>} />
             <Route path="Suppliers" element={<ProtectedRoute><Suppliers/></ProtectedRoute>} />
@@ -66,6 +64,7 @@ function App() {
             </Route>
           )
         }
+
         <Route
           path="/Quality-Form"
           element={

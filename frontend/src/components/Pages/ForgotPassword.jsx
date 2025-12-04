@@ -20,6 +20,7 @@ export default function ForgotPassword() {
     register,
     handleSubmit,
     reset,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(forgotSchema),
@@ -33,10 +34,13 @@ export default function ForgotPassword() {
 
       toast.success(res?.data?.message);
       reset();
-    } catch (error) {
-      console.log(error);
-      toast.error(error?.response?.data?.message || error?.response?.statusText || "Oops! Could not send the email");
-    }
+    } catch (err) {
+       if (err?.response?.status === 400) {
+            setError("email",{message:err?.response?.data?.errors.email})
+            return;
+        }  
+        toast.error(err?.response?.data?.message || err?.response?.statusText || "Oops! Could not send email");
+    } 
   };
 
   return (

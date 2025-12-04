@@ -8,7 +8,7 @@ export const modifyForm = async (req, res) => {
     // console.log(imageUrl);
 
     if (!formData) {
-      return res.status(400).json({ message: "Form data is required" });
+      return res.status(404).json({ message: "Form data is required" });
     }
 
     let form;

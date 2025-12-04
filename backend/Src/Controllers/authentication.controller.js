@@ -122,13 +122,6 @@ export const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return res.status(400).json({
-        success: false,
-        message: "Email is not valid",
-      });
-    }
-
     const userData = await User.findOne({ email });
 
     if (!userData) {
@@ -141,7 +134,7 @@ export const forgotPassword = async (req, res, next) => {
     const token = jwt.sign(
       { userId: userData._id },
       process.env.RESET_PASSWORD_TOKEN,
-      { expiresIn: process.env.RESET_LINK_EXPIRY }
+      { expiresIn: process.env.RESET_LINK_EXPIRY },
     );
 
     const sent = await forgetPasswordEmailConfig(email, token);
@@ -165,20 +158,15 @@ export const forgotPassword = async (req, res, next) => {
 
 export const resetPassword = async (req, res, next) => {
   try {
-    const { jwtToken, updatedPassword } = req.body;
-
+    const jwtToken = req.params.token;
+    const { updatedPassword } = req.body;
+    logger.info(jwtToken);
+    logger.info(updatedPassword);
     // Validate input
     if (!jwtToken || !updatedPassword) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: "Token and new password are required",
-      });
-    }
-
-    if (updatedPassword.length < 6) {
-      return res.status(400).json({
-        success: false,
-        message: "Password must be at least 6 characters long",
       });
     }
 
@@ -187,6 +175,7 @@ export const resetPassword = async (req, res, next) => {
     try {
       decoded = jwt.verify(jwtToken, process.env.RESET_PASSWORD_TOKEN);
     } catch (err) {
+      logger.error(err);
       return res.status(401).json({
         success: false,
         message: "Reset link has expired or is invalid",

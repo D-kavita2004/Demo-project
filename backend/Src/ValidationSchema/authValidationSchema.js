@@ -92,3 +92,17 @@ export const loginUserSchema = z.object({
   username: usernameSchema,
   password: z.string().trim().min(1, "Password is required"),
 });
+
+export const resetPasswordSchema = z.object({
+  updatedPassword: z
+    .string()
+    .trim()
+    .regex(
+      strongPasswordRegex,
+      "Password must contain at least one uppercase, one lowercase, one number, one special character, and be 6–128 characters long",
+    ),
+});
+
+export const forgetPasswordSchema = z.object({
+  email:emailSchema,
+});
