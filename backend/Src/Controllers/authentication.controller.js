@@ -160,8 +160,7 @@ export const resetPassword = async (req, res, next) => {
   try {
     const jwtToken = req.params.token;
     const { updatedPassword } = req.body;
-    logger.info(jwtToken);
-    logger.info(updatedPassword);
+
     // Validate input
     if (!jwtToken || !updatedPassword) {
       return res.status(404).json({

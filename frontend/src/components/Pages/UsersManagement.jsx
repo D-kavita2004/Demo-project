@@ -1,11 +1,29 @@
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import CreateUserForm from "./CreateUserForm";
-import { SearchIcon, CheckCircleIcon, XCircleIcon } from "lucide-react";
-import { useState } from "react";
-
+import { SearchIcon, CheckCircleIcon, XCircleIcon, Users } from "lucide-react";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const UsersManagement = () => {
+  const [usersList,setUsersList] = useState([]);
+
+  const fetchAllUsers = async()=>{
+    try{
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/user/allUsers`,{withCredentials:true});
+      console.log(res?.data?.data);
+      setUsersList(res?.data?.data);
+      toast.success(res?.data?.message);
+    }
+    catch(err){
+      console.log(err);
+      toast.error(err?.response?.data?.message || err?.response?.statusText || "Users could be fetched");
+    }
+  };
+
+  useEffect(()=>{
+    fetchAllUsers();
+  },[])
 
   return (
     <div className="p-4 md:p-6 lg:p-2 space-y-6 max-w-full h-fullflex flex-col">

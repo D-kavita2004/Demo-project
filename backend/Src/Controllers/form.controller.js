@@ -56,7 +56,7 @@ export const getAllForms = async (req, res) => {
     let forms;
 
     if(Team === "Quality"){
-      forms = await Form.find({});
+      forms = await Form.find({}).lean();
     }
     else{
       forms = await Form.find({ status: { $ne: "approved" } });

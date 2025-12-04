@@ -1,0 +1,1 @@
+toast.error(err?.response?.data?.message || err?.response?.statusText || "Oops! Could not send email");
