@@ -5,10 +5,29 @@ import TanstackTable from "../ReusableComponents/TanstackTable";
 import CreateUserForm from "./CreateUserForm";
 import { UserContext } from "../Constants/userContext";
 import { usersColumns } from "../Constants/usersColumns";
+import EditUserDialog from "../ReusableComponents/EditUserDialog";
 
 const UsersManagement = () => {
   const [usersList, setUsersList] = useState([]);
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
+  const openEditDialog = (user) => {
+    setSelectedUser(user);
+    setEditOpen(true);
+  };
+
+  const updateUser = async (username, updatedData) => {
+    try {
+      const res = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/user/update/${username}`,
+        updatedData,
+        { withCredentials: true }
+      );
+
+    } catch (err) {
+      console.log("Update user error:", err);
+    }
+  };
   const fetchAllUsers = async () => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/user/allUsers`, { withCredentials: true });
@@ -61,7 +80,13 @@ const UsersManagement = () => {
 
         {/* Table */}
         <div className="w-full bg-white dark:bg-neutral-900 rounded-2xl shadow-xl border border-gray-200 dark:border-neutral-800 overflow-x-auto p-3">
-          <TanstackTable data={usersList} columns={usersColumns(toggleUserStatus)} />
+          <TanstackTable data={usersList} columns={usersColumns(toggleUserStatus, openEditDialog)} />
+          <EditUserDialog
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        userData={selectedUser}
+        onUpdate={updateUser}
+      />
         </div>
       </div>
     </div>

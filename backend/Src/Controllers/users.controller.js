@@ -129,3 +129,27 @@ export const changeUserStatus = async (req, res) => {
     });
   }
 };
+
+export const updateUser = async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    const updatedUser = await User.findOneAndUpdate(
+      { username },
+      { $set: req.body },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: updatedUser,
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "Server error" });
+  }
+};

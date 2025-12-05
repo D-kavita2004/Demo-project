@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export const usersColumns = (toggleUserStatus) => [
+export const usersColumns = (toggleUserStatus,openEditDialog) => [
   {
     accessorKey: "username",
     header: () => <div className="font-semibold">Username</div>,
@@ -79,7 +79,7 @@ export const usersColumns = (toggleUserStatus) => [
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => alert("Edit " + user.username)}>
+              <DropdownMenuItem onClick={() => openEditDialog?.(user)}>
                 Edit User
               </DropdownMenuItem>
 
