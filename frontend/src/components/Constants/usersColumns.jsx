@@ -69,6 +69,26 @@ export const usersColumns = [
     header: () => <div className="font-semibold">Role</div>,
     cell: ({ row }) => <span>{row.getValue("role")}</span>,
   },
+    {
+    accessorKey: "role",
+    header: () => <div className="font-semibold">Role</div>,
+    cell: ({ row }) => <span>{row.getValue("role")}</span>,
+  },
+    {
+    accessorKey: "role",
+    header: () => <div className="font-semibold">Role</div>,
+    cell: ({ row }) => <span>{row.getValue("role")}</span>,
+  },
+    {
+    accessorKey: "role",
+    header: () => <div className="font-semibold">Role</div>,
+    cell: ({ row }) => <span>{row.getValue("role")}</span>,
+  },
+    {
+    accessorKey: "role",
+    header: () => <div className="font-semibold">Role</div>,
+    cell: ({ row }) => <span>{row.getValue("role")}</span>,
+  },
   // ⭐ Actions Column
   {
     id: "actions",

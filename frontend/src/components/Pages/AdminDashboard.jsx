@@ -34,7 +34,7 @@ const AdminDashboard = () => {
 
       {/* Sidebar */}
       <aside
-        className={`lg:static fixed top-0 lg:w-64 z-30 bg-white shadow-lg h-screen transition-all duration-300 
+        className={`lg:static shrink-0 fixed top-0 lg:w-64 z-30 bg-white shadow-lg h-screen transition-all duration-300 
         ${sidebarOpen ? "w-64" : "w-0"} overflow-y-scroll`}
       >
         {/* Sidebar Header */}
