@@ -17,6 +17,10 @@ export const handleLogin = async (req, res) => {
     if (!user)
       return res.status(404).json({ message: "User not found" });
 
+    if(!user.enabled){
+      return res.status(403).json({ message: "User is disabled" });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch)
@@ -41,7 +45,6 @@ export const handleLogin = async (req, res) => {
     res.status(500).json({ message: "Login failed" });
   }
 };
-
 
 // ------------------ LOGOUT ------------------
 export const handleLogout = (req, res) => {

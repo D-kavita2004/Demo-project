@@ -1,4 +1,4 @@
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -7,23 +7,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// FULL JSX VERSION COLUMNS
-export const usersColumns = [
+export const usersColumns = (toggleUserStatus) => [
   {
     accessorKey: "username",
     header: () => <div className="font-semibold">Username</div>,
-    cell: ({ row }) => (
-      <span className="font-medium">{row.getValue("username")}</span>
-    ),
+    cell: ({ row }) => <span className="font-medium">{row.getValue("username")}</span>,
   },
   {
     accessorKey: "email",
     header: () => <div className="font-semibold">Email</div>,
-    cell: ({ row }) => (
-      <span className="text-gray-600 dark:text-gray-300">
-        {row.getValue("email")}
-      </span>
-    ),
+    cell: ({ row }) => <span className="text-gray-600 dark:text-gray-300">{row.getValue("email")}</span>,
   },
   {
     accessorKey: "firstName",
@@ -40,70 +33,47 @@ export const usersColumns = [
     header: () => <div className="font-semibold">Team</div>,
     cell: ({ row }) => {
       const team = row.getValue("team");
-
       const teamColors = {
         QA: "bg-purple-100 text-purple-700",
         Part: "bg-blue-100 text-blue-700",
         Fit: "bg-green-100 text-green-700",
         Assembly: "bg-orange-100 text-orange-700",
       };
-
       return (
-        <span
-          className={`px-2 py-1 rounded-md text-xs font-medium ${
-            teamColors[team] || "bg-gray-200 text-gray-700"
-          }`}
-        >
+        <span className={`px-2 py-1 rounded-md text-xs font-medium ${teamColors[team] || "bg-gray-200 text-gray-700"}`}>
           {team}
         </span>
       );
     },
   },
-    {
-    accessorKey: "firstName",
-    header: () => <div className="font-semibold">First Name</div>,
-    cell: ({ row }) => <span>{row.getValue("firstName")}</span>,
+  {
+    accessorKey: "enabled",
+    header: () => <div className="font-semibold">Status</div>,
+    cell: ({ row }) => {
+      const isEnabled = row.getValue("enabled");
+      return (
+        <div className={`flex items-center gap-2 px-2 py-1 w-fit rounded-md text-xs font-semibold ${isEnabled ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+          {isEnabled ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+          {isEnabled ? "Enabled" : "Disabled"}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "role",
     header: () => <div className="font-semibold">Role</div>,
     cell: ({ row }) => <span>{row.getValue("role")}</span>,
   },
-    {
-    accessorKey: "role",
-    header: () => <div className="font-semibold">Role</div>,
-    cell: ({ row }) => <span>{row.getValue("role")}</span>,
-  },
-    {
-    accessorKey: "role",
-    header: () => <div className="font-semibold">Role</div>,
-    cell: ({ row }) => <span>{row.getValue("role")}</span>,
-  },
-    {
-    accessorKey: "role",
-    header: () => <div className="font-semibold">Role</div>,
-    cell: ({ row }) => <span>{row.getValue("role")}</span>,
-  },
-    {
-    accessorKey: "role",
-    header: () => <div className="font-semibold">Role</div>,
-    cell: ({ row }) => <span>{row.getValue("role")}</span>,
-  },
-  // ⭐ Actions Column
   {
     id: "actions",
     header: () => <div className="font-semibold text-right">Actions</div>,
     cell: ({ row }) => {
       const user = row.original;
-
       return (
         <div className="flex justify-end">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="h-8 w-8 p-0 hover:bg-muted"
-              >
+              <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-muted">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -114,10 +84,10 @@ export const usersColumns = [
               </DropdownMenuItem>
 
               <DropdownMenuItem
-                onClick={() => alert("Delete " + user.username)}
                 className="text-red-600 focus:text-red-600"
+                onClick={() => toggleUserStatus(user.username, user.enabled)}
               >
-                Delete User
+                {user.enabled ? "Disable" : "Enable"}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

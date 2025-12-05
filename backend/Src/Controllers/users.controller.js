@@ -84,3 +84,48 @@ export const handleSignUp = async (req, res) => {
     });
   }
 };
+
+//Enable or disble the user status
+export const changeUserStatus = async (req, res) => {
+  try {
+    const { username } = req.body;
+
+    // Find the user first
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    if(user.role === "admin"){
+      return res.status(403).json({
+        success: false,
+        message: "Admin status cannot be changed",
+      });
+    }
+
+    // Toggle status
+    const newStatus = !user.enabled;
+
+    // Update and return updated user
+    const updatedUser = await User.findOneAndUpdate(
+      { username },
+      { enabled: newStatus },
+      { new: true, runValidators: true },
+    );
+
+    return res.status(200).json({
+      success: true,
+      newStatus: newStatus,
+      message: `User status changed to ${newStatus ? "Enabled" : "Disabled"}`,
+    });
+  } catch (err) {
+    logger.error(err);
+    return res.status(500).json({
+      success: false,
+      message: "User status could not be changed",
+    });
+  }
+};
