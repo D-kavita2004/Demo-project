@@ -66,3 +66,20 @@ export const loginUserSchema = z.object({
   username: usernameSchema,
   password: z.string().trim().min(1, "Password is required"),
 });
+
+
+// ------------------ EDIT USER SCHEMA ------------------
+export const editUserSchema = z.object({
+  email: emailSchema,
+  firstName: z
+      .string()
+      .trim()
+      .min(1, "First name is required")
+      .regex(nameRegex, "First name can contain only alphabets, spaces, hyphens or apostrophes"),
+  lastName: z
+      .string()
+      .trim()
+      .min(1, "Last name is required")
+      .regex(nameRegex, "Last name can contain only alphabets, spaces, hyphens or apostrophes"),
+  team: teamSchema,
+});

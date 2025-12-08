@@ -16,10 +16,10 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+
     password: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
     },
 
@@ -53,15 +53,19 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
-// --- AUTO-SET TEAM FOR ADMIN USERS ---
+
+/* ---------------------------------------------------
+   AUTO-SET TEAM FOR ADMIN (Runs on create + save)
+-----------------------------------------------------*/
 userSchema.pre("save", function (next) {
   if (this.role === "admin") {
-    this.team = "IT";  // Force IT team for admin
+    this.team = "IT";
   }
   next();
 });
+
 
 export default mongoose.model("User", userSchema);

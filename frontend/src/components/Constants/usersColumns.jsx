@@ -71,6 +71,8 @@ export const usersColumns = (toggleUserStatus,openEditDialog) => [
       const user = row.original;
       return (
         <div className="flex justify-end">
+          {
+            row.getValue("role") != "admin" && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-muted">
@@ -91,6 +93,8 @@ export const usersColumns = (toggleUserStatus,openEditDialog) => [
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+            )
+          }
         </div>
       );
     },

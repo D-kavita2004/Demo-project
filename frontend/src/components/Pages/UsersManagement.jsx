@@ -24,6 +24,14 @@ const UsersManagement = () => {
         { withCredentials: true }
       );
 
+      const newData = res?.data?.data;
+
+      // Correctly update usersList
+      setUsersList(prev =>
+        prev.map(u => 
+          u.username === username ? { ...newData} : u
+        )
+      );
     } catch (err) {
       console.log("Update user error:", err);
     }
@@ -42,7 +50,7 @@ const UsersManagement = () => {
   }, []);
 
   // Toggle user status and update context
-  const toggleUserStatus = async (username, currentStatus) => {
+  const toggleUserStatus = async (username) => {
     try {
       const res = await axios.put(
         `${import.meta.env.VITE_API_BASE_URL}/user/changeStatus`,

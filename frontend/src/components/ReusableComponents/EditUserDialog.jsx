@@ -17,12 +17,15 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { editUserSchema } from "../ValidateSchema/authInputValidationShema";
 
 const EditUserDialog = ({ open, onClose, userData, onUpdate }) => {
   const {
     register,
     handleSubmit,
     setValue,
+    watch,
     reset,
     formState: { errors },
   } = useForm({
@@ -32,22 +35,32 @@ const EditUserDialog = ({ open, onClose, userData, onUpdate }) => {
       email: "",
       team: "",
     },
+    resolver:zodResolver(editUserSchema)
   });
 
-  // preload existing data when dialog opens
-  useEffect(() => {
-    if (userData) {
-      reset({
-        firstName: userData.firstName || "",
-        lastName: userData.lastName || "",
-        email: userData.email || "",
-        team: userData.team || "",
-      });
-    }
-  }, [userData, reset]);
+// preload data when dialog opens
+useEffect(() => {
+  if (userData) {
+    reset({
+      firstName: userData.firstName || "",
+      lastName: userData.lastName || "",
+      email: userData.email || "",
+      team: userData.team || "",
+    });
+  }
+}, [userData, reset]);
+
+// RESET FORM WHEN DIALOG CLOSES (important!)
+useEffect(() => {
+  if (!open) {
+    reset();
+  }
+}, [open, reset]);
+
 
   const onSubmit = async (data) => {
     await onUpdate(userData.username, data);
+    reset();
     onClose();
   };
 
@@ -68,9 +81,7 @@ const EditUserDialog = ({ open, onClose, userData, onUpdate }) => {
             <Input
               id="firstName"
               placeholder="Enter first name"
-              {...register("firstName", {
-                required: "First name is required",
-              })}
+              {...register("firstName")}
             />
             {errors.firstName && (
               <p className="text-red-500 text-sm">{errors.firstName.message}</p>
@@ -83,9 +94,7 @@ const EditUserDialog = ({ open, onClose, userData, onUpdate }) => {
             <Input
               id="lastName"
               placeholder="Enter last name"
-              {...register("lastName", {
-                required: "Last name is required",
-              })}
+              {...register("lastName")}
             />
             {errors.lastName && (
               <p className="text-red-500 text-sm">{errors.lastName.message}</p>
@@ -98,22 +107,28 @@ const EditUserDialog = ({ open, onClose, userData, onUpdate }) => {
             <Input
               id="email"
               placeholder="Enter email"
-              {...register("email", {
-                required: "Email is required",
-                pattern: { value: /\S+@\S+\.\S+/, message: "Invalid email" },
-              })}
+              {...register("email")}
             />
             {errors.email && (
               <p className="text-red-500 text-sm">{errors.email.message}</p>
             )}
           </div>
 
+          {/* Hidden input to register team */}
+          <input
+            type="hidden"
+            {...register("team")}
+          />
+
           {/* Team Dropdown */}
           <div className="space-y-1">
             <Label htmlFor="team">Team</Label>
+
             <Select
-              onValueChange={(value) => setValue("team", value)}
-              defaultValue={userData?.team}
+              value={watch("team")} // controlled value
+              onValueChange={(value) =>
+                setValue("team", value, { shouldValidate: true })
+              }
             >
               <SelectTrigger id="team">
                 <SelectValue placeholder="Select team" />
