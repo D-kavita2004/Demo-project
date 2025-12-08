@@ -3,7 +3,7 @@ import { UserContext } from "../Constants/userContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
-
+import { FormsContext } from "../Constants/formsContext";
 import { Input } from "../ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import TableView from "../ReusableComponents/TableView";
@@ -14,9 +14,8 @@ const Dashboard = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
 
-  const [formsList, setFormsList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-
+  const {formsList} = useContext(FormsContext)
   const { setUser, user } = useContext(UserContext);
 
   // Logout handler
@@ -34,22 +33,22 @@ const Dashboard = () => {
   };
 
   // Fetch all forms from backend
-  const fetchAllForms = async () => {
-    try {
-      const res = await axios.post(
-        `${apiUrl}/form/allForms`,
-        { Team: user.team },
-        { withCredentials: true }
-      );
-      setFormsList(res.data.forms || []);
-    } catch (err) {
-      console.error("Error fetching forms:", err);
-    }
-  };
+  // const fetchAllForms = async () => {
+  //   try {
+  //     const res = await axios.post(
+  //       `${apiUrl}/form/allForms`,
+  //       { Team: user.team },
+  //       { withCredentials: true }
+  //     );
+  //     setFormsList(res.data.forms || []);
+  //   } catch (err) {
+  //     console.error("Error fetching forms:", err);
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchAllForms();
-  }, []);
+  // useEffect(() => {
+  //   fetchAllForms();
+  // }, []);
 
   const filteredForms = formsList.filter((form) => {
     const search = searchTerm.toLowerCase();

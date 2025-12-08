@@ -1,0 +1,43 @@
+import { createContext, useState, useEffect, useContext } from "react";
+import { UserContext } from "./userContext";
+
+import axios from "axios";
+
+export const FormsContext = createContext();
+
+export const FormsProvider = ({ children }) => {
+
+  const {user} = useContext(UserContext);
+  const [formsList, setFormsList] = useState([]);
+
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
+  useEffect(() => {
+      console.log("teaaamm",user?.team)
+    const fetchAllForms = async () => {
+      try {
+            const res = await axios.post(
+            `${apiUrl}/form/allForms`,
+            { Team: user?.team },
+            { withCredentials: true }
+            );
+            setFormsList(res.data.forms || []);
+      } catch (err) {
+            console.error("Error fetching forms:", err);
+      }
+    };
+    // Fetch only ONCE when app loads
+    fetchAllForms();
+  }, []);
+
+  return (
+    <FormsContext.Provider
+      value={{
+        formsList,
+        setFormsList,
+      }}
+    >
+      {children}
+    </FormsContext.Provider>
+  );
+};

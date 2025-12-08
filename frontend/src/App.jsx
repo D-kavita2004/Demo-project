@@ -18,7 +18,14 @@ import { useContext } from "react";
 import { UserContext } from "./components/Constants/userContext";
 
 function App() {
-  const {user} = useContext(UserContext);
+  const {user,loading} = useContext(UserContext);
+  if (loading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center text-xl">
+        Loading...
+      </div>
+    );
+  }
   // console.log(user.role);
   return (
     <Router>
