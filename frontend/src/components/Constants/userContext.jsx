@@ -1,20 +1,21 @@
 import { createContext, useState, useEffect } from "react";
 import api from "@/api/axiosInstance";
-import axios from "axios";
+
 
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  
+
   const [user, setUser] = useState(null); // stores user info
   const [loading, setLoading] = useState(true); // loading state while verifying
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
   // Verify token on app load
   useEffect(() => {
     const verifyUser = async () => {
       try {
 
-        const response = await axios.get(`http://localhost:3000/verify-token`, {
+        const response = await api.get(`/verify-token`, {
           withCredentials: true,
         });
         console.log("here is my response",response);
@@ -34,6 +35,9 @@ export const UserProvider = ({ children }) => {
     verifyUser();
   }, []);
 
+  if (loading) {
+    return <div>Loading...</div>; // or your loader
+  }
   return (
     <UserContext.Provider value={{ user, setUser, loading }}>
       {children}

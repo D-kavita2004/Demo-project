@@ -37,9 +37,9 @@ const Login = () => {
       },1000)
 
     } catch (err) {
+      
        if (err?.response?.status === 400) {
             const backendErrors = err?.response?.data?.errors;
-
             if (backendErrors) {
               Object.keys(backendErrors).forEach((field) => {
                 setError(field, { message: backendErrors[field] });
