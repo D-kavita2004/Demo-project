@@ -7,12 +7,12 @@ import { FormsProvider } from './components/Constants/formsContext'
 import { Toaster } from 'sonner'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  // <StrictMode>
     <UserProvider>
       <FormsProvider>
         <App />
         <Toaster/>
       </FormsProvider>
     </UserProvider>
-  </StrictMode>,
+  // </StrictMode>,
 )
