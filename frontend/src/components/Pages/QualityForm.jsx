@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import axios from "axios";
+import api from "@/api/axiosInstance";
 import { useContext } from "react";
 import { UserContext } from "../Constants/userContext";
 import { useLocation } from "react-router-dom";
@@ -47,7 +47,7 @@ const uploadImage = async (file) => {
   const formData = new FormData();
   formData.append("productImage", file);
 
-  const res = await axios.post(`${apiUrl}/image/productImage`, formData, {
+  const res = await api.post(`${apiUrl}/image/productImage`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
     withCredentials: true,
   });
@@ -68,7 +68,7 @@ const onSubmit = async (data) => {
     const image = imageUrl || clickedForm?.formData?.productImage || "";
 
     // Step 2: Submit form data
-    const res = await axios.post(`${apiUrl}/form/modifyForm`, {
+    const res = await api.post(`${apiUrl}/form/modifyForm`, {
       formId: location.state?.data?._id,
       formData: {
         ...data,
@@ -99,7 +99,7 @@ const handleImageChange = (e) => {
 
     try {
       // Call the API to approve the form
-      const response = await axios.post(
+      const response = await api.post(
         `${apiUrl}/form/approveForm`,
         {formId:id},
         { withCredentials: true } // if your backend uses cookies

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../Constants/userContext";
-import axios from "axios";
+import api from "@/api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { FormsContext } from "../Constants/formsContext";
@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import TableView from "../ReusableComponents/TableView";
 import DownloadAllRecords from "../ReusableComponents/DownLoadAllRecords";
 import { toast } from "sonner";
+import { logOutUser } from "@/utils/logout";
 
 const Dashboard = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
@@ -19,18 +20,12 @@ const Dashboard = () => {
   const { setUser, user } = useContext(UserContext);
 
   // Logout handler
-  const handleLogout = async () => {
-    try {
-      await axios.get(`${apiUrl}/auth/logout`, {
-        withCredentials: true,
-      });
-      setUser(null);
-      toast.success("User Logged Out Successfully");
-      navigate("/login");
-    } catch (err) {
-      console.error("Logout failed:", err.response?.data || err.message);
-    }
-  };
+const handleLogout = async () => {
+  await logOutUser();  // calls backend
+  setUser(null);
+  toast.success("Logged out");
+  navigate("/login");
+};
 
   // Fetch all forms from backend
   // const fetchAllForms = async () => {

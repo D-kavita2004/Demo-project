@@ -1,7 +1,7 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import { UserContext } from "./userContext";
-
-import axios from "axios";
+import api
+ from "@/api/axiosInstance";
 
 export const FormsContext = createContext();
 
@@ -16,7 +16,7 @@ export const FormsProvider = ({ children }) => {
       console.log("teaaamm",user?.team)
     const fetchAllForms = async () => {
       try {
-            const res = await axios.post(
+            const res = await api.post(
             `${apiUrl}/form/allForms`,
             { Team: user?.team },
             { withCredentials: true }

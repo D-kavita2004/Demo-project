@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerUserSchema } from "../ValidateSchema/authInputValidationShema";
-import axios from "axios";
+import api from "@/api/axiosInstance";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -41,7 +41,7 @@ const CreateUserForm = () => {
   const onSubmit = async (data) => {
     try {
 
-      const res = await axios.post(`${apiUrl}/user/register`, data, {
+      const res = await api.post(`${apiUrl}/user/register`, data, {
         withCredentials: true,
       });
         toast.success(res?.data?.message || "User created successfully");

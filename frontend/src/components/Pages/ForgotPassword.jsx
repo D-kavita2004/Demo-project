@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Mail, Send } from "lucide-react";
-import axios from "axios";
+import api from "@/api/axiosInstance";
 import { toast } from "sonner";
 
 // Validation schema
@@ -28,7 +28,7 @@ export default function ForgotPassword() {
 
   const onSubmit = async (data) => {
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/forgot-password`, {
+      const res = await api.post(`${import.meta.env.VITE_API_BASE_URL}/auth/forgot-password`, {
         email: data.email,
       });
 

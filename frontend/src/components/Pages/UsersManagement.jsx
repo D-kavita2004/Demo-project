@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import axios from "axios";
+import api from "@/api/axiosInstance";
 import { toast } from "sonner";
 import TanstackTable from "../ReusableComponents/TanstackTable";
 import CreateUserForm from "./CreateUserForm";
@@ -19,7 +19,7 @@ const UsersManagement = () => {
 
   const updateUser = async (username, updatedData) => {
     try {
-      const res = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/user/update/${username}`,
+      const res = await api.put(`${import.meta.env.VITE_API_BASE_URL}/user/update/${username}`,
         updatedData,
         { withCredentials: true }
       );
@@ -38,7 +38,7 @@ const UsersManagement = () => {
   };
   const fetchAllUsers = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/user/allUsers`, { withCredentials: true });
+      const res = await api.get(`${import.meta.env.VITE_API_BASE_URL}/user/allUsers`, { withCredentials: true });
       setUsersList(res.data.data);
     } catch (err) {
       toast.error(err?.response?.data?.message || "Could not fetch users");
@@ -52,7 +52,7 @@ const UsersManagement = () => {
   // Toggle user status and update context
   const toggleUserStatus = async (username) => {
     try {
-      const res = await axios.put(
+      const res = await api.put(
         `${import.meta.env.VITE_API_BASE_URL}/user/changeStatus`,
         { username },
         { withCredentials: true }

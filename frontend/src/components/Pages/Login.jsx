@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { AlertCircle } from "lucide-react";
-import axios from "axios";
+import api from "@/api/axiosInstance";
 import { UserContext } from "../Constants/userContext";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
@@ -28,7 +28,7 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`,data,{withCredentials:true});
+      const response = await api.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`,data,{withCredentials:true});
       setUser(response?.data?.user);
       toast.success(response?.data?.message || "User Logged in Successfully");
 
