@@ -31,7 +31,7 @@ const Login = () => {
       const response = await api.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`,data,{withCredentials:true});
       setUser(response?.data?.user);
       toast.success(response?.data?.message || "User Logged in Successfully");
-
+      localStorage.setItem("loggedIn",true);
       setTimeout(()=>{
         navigate("/");
       },1000)

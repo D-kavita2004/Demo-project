@@ -53,9 +53,10 @@ export const modifyForm = async (req, res) => {
 export const getAllForms = async (req, res) => {
   try {    
     const {Team} = req.body;
+    const {role} = req.user;
     let forms;
 
-    if(Team === "Quality"){
+    if(Team === "QA" || role === "admin"){
       forms = await Form.find({}).lean();
     }
     else{

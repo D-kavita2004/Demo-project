@@ -14,7 +14,6 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
     const verifyUser = async () => {
       try {
-
         const response = await api.get(`/verify-token`, {
           withCredentials: true,
         });
@@ -31,13 +30,15 @@ export const UserProvider = ({ children }) => {
         setLoading(false);
       }
     };
+    // verifyUser()
+      if (localStorage.getItem("loggedIn") === "true") {
+        verifyUser();
+      } else {
 
-    verifyUser();
+        setLoading(false);
+      }
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>; // or your loader
-  }
   return (
     <UserContext.Provider value={{ user, setUser, loading }}>
       {children}

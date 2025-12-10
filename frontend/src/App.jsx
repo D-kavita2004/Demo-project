@@ -71,7 +71,9 @@ function App() {
           )
         }
 
-        <Route
+        {
+          user && (user.team === "QA" || user.role === "admin") && (
+          <Route
           path="/Quality-Form"
           element={
             <ProtectedRoute>
@@ -79,6 +81,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+          )
+        }
          <Route path="*" element={<ErrorPage/>} />
       </Routes>
     </Router>
