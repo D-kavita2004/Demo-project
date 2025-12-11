@@ -1,11 +1,5 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -18,8 +12,19 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { editUserSchema } from "../ValidateSchema/authInputValidationShema";
+// import { useForm } from "react-hook-form";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
-const EditUserDialog = ({ open, onClose, userData, onUpdate }) => {
+export const EditUserDialog = ({ open, onClose, userData, onUpdate }) => {
   const {
     register,
     handleSubmit,
@@ -158,4 +163,31 @@ useEffect(() => {
   );
 };
 
-export default EditUserDialog;
+export const SupplierDialog = ({open, onClose, mode, supplier}) => {
+  console.log(open, onClose, mode, supplier);
+  return (
+        <Dialog open={open} onOpenChange={onClose}>
+          <form>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>{mode === "create" ? "Add New Supplier" : "Edit the Supplier"}</DialogTitle>
+                
+              </DialogHeader>
+              <div className="grid gap-4">
+                <div className="grid gap-3">
+                  <Label htmlFor="supplierName">Supplier Name</Label>
+                  <Input id="supplierName" name="supplierName" defaultValue={supplier?.supplierName || ""}
+                   />
+                </div>
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button type="submit">Save </Button>
+              </DialogFooter>
+            </DialogContent>
+          </form>
+        </Dialog>
+      );
+};

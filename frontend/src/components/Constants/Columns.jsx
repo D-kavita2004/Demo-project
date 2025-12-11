@@ -100,3 +100,46 @@ export const usersColumns = (toggleUserStatus,openEditDialog) => [
     },
   },
 ];
+
+export const suppliersColumns = (handleEdit) => [
+    {
+      accessorKey: "serialNumber",
+      header: () => <div className="font-semibold">S.No.</div>,
+      cell: ({ row }) => <span className="font-medium">{row.index + 1}</span>,
+    },
+    {
+      accessorKey: "supplierName",
+      header: () => <div className="font-semibold">Supplier Name</div>,
+      cell: ({ row }) => (
+        <span className="text-gray-600 dark:text-gray-300">
+          {row.getValue("supplierName")}
+        </span>
+      ),
+    },
+    {
+      id: "actions",
+      header: () => <div className="font-semibold text-right">Actions</div>,
+      cell: ({ row }) => {
+
+        return (
+          <div className="flex justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-muted">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleEdit()}>Edit</DropdownMenuItem>
+
+                <DropdownMenuItem className="text-red-600 focus:text-red-600">
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
+    },
+  ];

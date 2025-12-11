@@ -4,8 +4,8 @@ import { toast } from "sonner";
 import TanstackTable from "../ReusableComponents/TanstackTable";
 import CreateUserForm from "./CreateUserForm";
 import { UserContext } from "../Constants/userContext";
-import { usersColumns } from "../Constants/usersColumns";
-import EditUserDialog from "../ReusableComponents/EditUserDialog";
+import { usersColumns } from "../Constants/Columns";
+import {EditUserDialog} from "../ReusableComponents/EditDialog";
 
 const UsersManagement = () => {
   const [usersList, setUsersList] = useState([]);
@@ -74,7 +74,7 @@ const UsersManagement = () => {
 
 
   return (
-    <div className="p-6 w-full min-h-screen bg-background flex justify-center">
+    <div className="p-6 w-full bg-background flex justify-center">
       <div className="w-full max-w-7xl flex flex-col gap-6">
         {/* Header */}
         <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4">

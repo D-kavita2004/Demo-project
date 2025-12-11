@@ -19,6 +19,7 @@ import verifyToken from "./Src/Middlewares/verifyToken.middleware.js";
 import formRoutes from "./Src/Routes/form.routes.js";
 import imageRoutes from "./Src/Routes/imageRoutes.js";
 import userRoutes from "./Src/Routes/users.routes.js";
+import supplierRoutes from "./Src/Routes/suppliers.routes.js";
 import { checkAdmin } from "./Src/Middlewares/checkAdmin.middleware.js";
 
 dotenv.config();
@@ -39,6 +40,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth",authRoutes);
 app.use("/api/user", verifyToken, checkAdmin, userRoutes);
+app.use("/api/suppliers", verifyToken, checkAdmin, supplierRoutes);
 app.use("/api/form",verifyToken,formRoutes);
 app.use("/api/image",verifyToken, imageRoutes);
 
