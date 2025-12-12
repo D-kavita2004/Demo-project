@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { editUserSchema } from "../ValidateSchema/authInputValidationShema";
-// import { useForm } from "react-hook-form";
+import { supplierSchema } from "../ValidateSchema/entityValidationSchema";
 import {
   Dialog,
   DialogClose,
@@ -163,31 +163,72 @@ useEffect(() => {
   );
 };
 
-export const SupplierDialog = ({open, onClose, mode, supplier}) => {
-  console.log(open, onClose, mode, supplier);
+export const SupplierDialog = ({ open, onClose, mode, supplier, action }) => {
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver:zodResolver(supplierSchema),
+    defaultValues: { supplierName: "" },
+  });
+
+  // Pre-fill value if editing
+  useEffect(() => {
+    if (mode === "edit" && supplier) {
+      setValue("supplierName", supplier.supplierName);
+    } else {
+      reset();
+    }
+  }, [mode, supplier]);
+
+  const onSubmit = (data) => {
+    if (mode === "create") {
+      console.log(data);
+      action(data.supplierName);
+    } else {
+      action(supplier._id, data.supplierName);
+    }
+
+    reset();
+    onClose(false);
+  };
+
   return (
-        <Dialog open={open} onOpenChange={onClose}>
-          <form>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>{mode === "create" ? "Add New Supplier" : "Edit the Supplier"}</DialogTitle>
-                
-              </DialogHeader>
-              <div className="grid gap-4">
-                <div className="grid gap-3">
-                  <Label htmlFor="supplierName">Supplier Name</Label>
-                  <Input id="supplierName" name="supplierName" defaultValue={supplier?.supplierName || ""}
-                   />
-                </div>
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline">Cancel</Button>
-                </DialogClose>
-                <Button type="submit">Save </Button>
-              </DialogFooter>
-            </DialogContent>
-          </form>
-        </Dialog>
-      );
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>
+            {mode === "create" ? "Add New Supplier" : "Edit Supplier"}
+          </DialogTitle>
+        </DialogHeader>
+
+        {/* FORM must be inside DialogContent */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="grid gap-3">
+            <Label htmlFor="supplierName">Supplier Name</Label>
+            <Input
+              id="supplierName"
+              {...register("supplierName")}
+              placeholder="Enter supplier name"
+            />
+            {errors.supplierName && (
+              <p className="text-red-500 text-sm">
+                {errors.supplierName.message}
+              </p>
+            )}
+          </div>
+
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button type="submit">Save</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
 };

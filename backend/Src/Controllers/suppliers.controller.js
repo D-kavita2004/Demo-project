@@ -30,8 +30,12 @@ export const createSupplier = async (req, res) => {
 // =========================
 export const getSuppliers = async (req, res) => {
   try {
-    const suppliers = await Supplier.find().sort({ createdAt: -1 });
-    res.status(200).json(suppliers);
+    const suppliers = await Supplier.find({},{ __v: 0, createdAt: 0, updatedAt: 0}).lean();
+    logger.info(suppliers);
+    res.status(200).json({
+      message:"All Suppliers fetched Successfully",
+      suppliers,
+    });
   } catch (error) {
     logger.error("Get Suppliers Error:", error);
     res.status(500).json({ message: "Internal server error" });

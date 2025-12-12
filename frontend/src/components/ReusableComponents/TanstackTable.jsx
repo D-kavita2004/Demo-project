@@ -21,7 +21,6 @@ import { useState } from "react";
 
 const TanstackTable = ({ data, columns, }) => {
   const [globalFilter, setGlobalFilter] = useState("");
-
   const table = useReactTable({
     data,
     columns,

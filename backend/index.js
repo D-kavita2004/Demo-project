@@ -45,7 +45,6 @@ app.use("/api/form",verifyToken,formRoutes);
 app.use("/api/image",verifyToken, imageRoutes);
 
 app.get("/api/verify-token",verifyToken,(req,res)=>{
-  logger.info("Verify api called");
   return res.status(200).send(req.user);
 });
 
