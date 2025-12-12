@@ -81,7 +81,7 @@ const Suppliers = () => {
       );
     }
   };
-  
+
   const deleteSupplier = async(id)=>{
     try {
       const res = await api.delete(
@@ -90,7 +90,7 @@ const Suppliers = () => {
       );
       setSuppliersList((prev) => prev.filter((s) => s._id !== id));
 
-      toast.success("Supplier updated successfully!");
+      toast.success(res?.data?.message || "Supplier Deleted successfully!");
     } catch (err) {
       toast.error(
         err?.response?.data?.message ||

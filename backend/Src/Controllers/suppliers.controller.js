@@ -18,7 +18,8 @@ export const createSupplier = async (req, res) => {
     }
 
     const supplier = await Supplier.create({ supplierName });
-    res.status(201).json({ message: "Supplier created successfully", supplier });
+    const newSupplier = {_id:supplier._id, supplierName:supplier.supplierName};
+    res.status(201).json({ message: "Supplier created successfully", supplier:newSupplier });
   } catch (error) {
     logger.error("Create Supplier Error:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -31,7 +32,6 @@ export const createSupplier = async (req, res) => {
 export const getSuppliers = async (req, res) => {
   try {
     const suppliers = await Supplier.find({},{ __v: 0, createdAt: 0, updatedAt: 0}).lean();
-    logger.info(suppliers);
     res.status(200).json({
       message:"All Suppliers fetched Successfully",
       suppliers,

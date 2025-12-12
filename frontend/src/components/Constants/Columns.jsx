@@ -6,6 +6,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 export const usersColumns = (toggleUserStatus,openEditDialog) => [
   {
@@ -118,31 +129,56 @@ export const suppliersColumns = (handleEdit,deleteSupplier) => [
   },
   {
     id: "actions",
-    header: () => <div className="font-semibold text-right">Actions</div>,
+    header: () => <div className="font-semibold text-center w-full">Actions</div>,
     cell: ({ row }) => {
       const supplier = row.original;
 
-      return (
-        <div className="flex justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-muted">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
+       return (
+          <div className="flex justify-center w-full">
 
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleEdit(supplier)}>
-                Edit
-              </DropdownMenuItem>
+            <AlertDialog>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-muted mx-auto">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
 
-              <DropdownMenuItem className="text-red-600 focus:text-red-600" onClick={()=>{deleteSupplier(row.original._id)}}>
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      );
+                <DropdownMenuContent align="end">
+
+                  <DropdownMenuItem onClick={() => handleEdit(supplier)}>
+                    Edit
+                  </DropdownMenuItem>
+
+                  {/* This item acts as the trigger */}
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem className="text-red-600 cursor-pointer">
+                      Delete
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete the supplier.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => deleteSupplier(row.original._id)}>
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+          </div>
+  );
     },
   },
 ];
