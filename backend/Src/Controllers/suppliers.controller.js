@@ -6,11 +6,7 @@ import logger from "../../Config/logger.js";
 // =========================
 export const createSupplier = async (req, res) => {
   try {
-    const { supplierName } = req.body;
-
-    if (!supplierName) {
-      return res.status(400).json({ message: "Supplier name is required" });
-    }
+    const supplierName = req.body.supplierName.trim().toLowerCase();
 
     const existing = await Supplier.findOne({ supplierName });
     if (existing) {
@@ -47,10 +43,24 @@ export const getSuppliers = async (req, res) => {
 // =========================
 export const updateSupplier = async (req, res) => {
   try {
-    const { supplierName } = req.body;
+    const supplierName = req.body.supplierName.trim().toLowerCase();
+    const supplierId = req.params.id;
 
+    // Check duplicate (exclude current supplier)
+    const existingSupplier = await Supplier.findOne({
+      supplierName,
+      _id: { $ne: supplierId },
+    });
+
+    if (existingSupplier) {
+      return res
+        .status(409)
+        .json({ message: "Supplier name already exists" });
+    }
+
+    // Update
     const supplier = await Supplier.findByIdAndUpdate(
-      req.params.id,
+      supplierId,
       { supplierName },
       { new: true, runValidators: true }
     );
@@ -59,12 +69,17 @@ export const updateSupplier = async (req, res) => {
       return res.status(404).json({ message: "Supplier not found" });
     }
 
-    res.status(200).json({ message: "Supplier updated successfully", supplier });
+    res.status(200).json({
+      message: "Supplier updated successfully",
+      supplier,
+    });
+
   } catch (error) {
     logger.error("Update Supplier Error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 // =========================
 // DELETE SUPPLIER

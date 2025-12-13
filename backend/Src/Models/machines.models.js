@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
-const supplierSchema = new mongoose.Schema(
+const machineSchema = new mongoose.Schema(
   {
-    supplierName:{
+    machineName:{
       type: String,
       required: true,
       unique: true,
@@ -13,4 +13,4 @@ const supplierSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-export default mongoose.model("Supplier", supplierSchema);
+export default mongoose.model("Machine", machineSchema);

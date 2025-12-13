@@ -1,7 +1,9 @@
 import { ZodError } from "zod"; // needed to type-check errors if desired
+import logger from "../../Config/logger.js";
 
 export const validateInput = (schema) => (req, res, next) => {
   try {
+    logger.info(req.body);
     const parsed = schema.parse(req.body); // throws ZodError if invalid
     req.body = parsed; 
 

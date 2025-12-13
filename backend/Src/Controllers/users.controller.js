@@ -150,6 +150,7 @@ export const updateUser = async (req, res) => {
       data: updatedUser,
     });
   } catch (err) {
+    logger.err(err);
     return res.status(500).json({ message: "Server error" });
   }
 };

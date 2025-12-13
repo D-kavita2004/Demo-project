@@ -52,10 +52,9 @@ const Suppliers = () => {
       toast.success(res?.data?.message || "Supplier created successfully!");
       
     } catch (err) {
+      console.log(err?.response?.data?.errors?.supplierName);
       toast.error(
-        err?.response?.data?.message ||
-          err?.response?.statusText ||
-          "Supplier could not be created"
+        err?.response?.data?.message || err?.response?.data?.errors?.supplierName || err?.response?.statusText || "Supplier could not be created"
       );
     }
   };
@@ -74,11 +73,10 @@ const Suppliers = () => {
 
       toast.success("Supplier updated successfully!");
     } catch (err) {
-      toast.error(
-        err?.response?.data?.message ||
-          err?.response?.statusText ||
-          "Supplier could not be updated"
-      );
+        console.log(err?.response?.data?.errors?.supplierName);
+        toast.error(
+          err?.response?.data?.message || err?.response?.data?.errors?.supplierName || err?.response?.statusText || "Supplier could not be created"
+        );
     }
   };
 
@@ -108,7 +106,7 @@ const Suppliers = () => {
     <div className="p-6 w-full bg-background flex justify-center">
       <div className="w-full max-w-7xl flex flex-col gap-6">
         <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-2xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">
             Suppliers Management
           </h1>
           <Button

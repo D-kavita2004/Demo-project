@@ -5,17 +5,19 @@ import {
   updateSupplier,
   deleteSupplier,
 } from "../Controllers/suppliers.controller.js";
+import { validateInput } from "../Middlewares/validateInput.middleware.js";
+import { supplierSchema } from "../ValidationSchema/entityValidationSchema.js";
 
 const router = express.Router();
 
 // CREATE Supplier
-router.post("/createSupplier", createSupplier);
+router.post("/createSupplier", validateInput(supplierSchema), createSupplier);
 
 // GET All Suppliers
 router.get("/", getSuppliers);
 
 // UPDATE Supplier
-router.put("/updateSupplier/:id", updateSupplier);
+router.put("/updateSupplier/:id", validateInput(supplierSchema), updateSupplier);
 
 // DELETE Supplier
 router.delete("/deleteSupplier/:id", deleteSupplier);

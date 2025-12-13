@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
-const supplierSchema = new mongoose.Schema(
+const partSchema = new mongoose.Schema(
   {
-    supplierName:{
+    partName:{
       type: String,
       required: true,
       unique: true,
@@ -13,4 +13,4 @@ const supplierSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-export default mongoose.model("Supplier", supplierSchema);
+export default mongoose.model("Part", partSchema);

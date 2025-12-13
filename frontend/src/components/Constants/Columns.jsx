@@ -182,3 +182,216 @@ export const suppliersColumns = (handleEdit,deleteSupplier) => [
     },
   },
 ];
+
+export const partsColumns = (handleEdit,deletePart) => [
+  {
+    accessorKey: "serialNumber",
+    header: () => <div className="font-semibold">S.No.</div>,
+    cell: ({ row }) => <span className="font-medium">{row.index + 1}</span>,
+  },
+  {
+    accessorKey: "partName",
+    header: () => <div className="font-semibold">Part Name</div>,
+    cell: ({ row }) => (
+      <span className="text-gray-600 dark:text-gray-300">
+        {row.getValue("partName")}
+      </span>
+    ),
+  },
+  {
+    id: "actions",
+    header: () => <div className="font-semibold text-center w-full">Actions</div>,
+    cell: ({ row }) => {
+      const part = row.original;
+
+       return (
+          <div className="flex justify-center w-full">
+
+            <AlertDialog>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-muted mx-auto">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end">
+
+                  <DropdownMenuItem onClick={() => handleEdit(part)}>
+                    Edit
+                  </DropdownMenuItem>
+
+                  {/* This item acts as the trigger */}
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem className="text-red-600 cursor-pointer">
+                      Delete
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete the part.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => deletePart(row.original._id)}>
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+          </div>
+  );
+    },
+  },
+];
+
+export const machinesColumns = (handleEdit,deleteMachine) => [
+  {
+    accessorKey: "serialNumber",
+    header: () => <div className="font-semibold">S.No.</div>,
+    cell: ({ row }) => <span className="font-medium">{row.index + 1}</span>,
+  },
+  {
+    accessorKey: "machineName",
+    header: () => <div className="font-semibold">Machine Name</div>,
+    cell: ({ row }) => (
+      <span className="text-gray-600 dark:text-gray-300">
+        {row.getValue("machineName")}
+      </span>
+    ),
+  },
+  {
+    id: "actions",
+    header: () => <div className="font-semibold text-center w-full">Actions</div>,
+    cell: ({ row }) => {
+      const machine = row.original;
+
+       return (
+          <div className="flex justify-center w-full">
+
+            <AlertDialog>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-muted mx-auto">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end">
+
+                  <DropdownMenuItem onClick={() => handleEdit(machine)}>
+                    Edit
+                  </DropdownMenuItem>
+
+                  {/* This item acts as the trigger */}
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem className="text-red-600 cursor-pointer">
+                      Delete
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete the machine.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => deleteMachine(row.original._id)}>
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+          </div>
+  );
+    },
+  },
+];
+
+export const processesColumns = (handleEdit,deleteProcess) => [
+  {
+    accessorKey: "serialNumber",
+    header: () => <div className="font-semibold">S.No.</div>,
+    cell: ({ row }) => <span className="font-medium">{row.index + 1}</span>,
+  },
+  {
+    accessorKey: "processName",
+    header: () => <div className="font-semibold">Process Name</div>,
+    cell: ({ row }) => (
+      <span className="text-gray-600 dark:text-gray-300">
+        {row.getValue("processName")}
+      </span>
+    ),
+  },
+  {
+    id: "actions",
+    header: () => <div className="font-semibold text-center w-full">Actions</div>,
+    cell: ({ row }) => {
+      const process = row.original;
+
+       return (
+          <div className="flex justify-center w-full">
+
+            <AlertDialog>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-muted mx-auto">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end">
+
+                  <DropdownMenuItem onClick={() => handleEdit(process)}>
+                    Edit
+                  </DropdownMenuItem>
+
+                  {/* This item acts as the trigger */}
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem className="text-red-600 cursor-pointer">
+                      Delete
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete the process.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => deleteProcess(row.original._id)}>
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+          </div>
+  );
+    },
+  },
+];

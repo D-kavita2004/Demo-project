@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
-const supplierSchema = new mongoose.Schema(
+const processSchema = new mongoose.Schema(
   {
-    supplierName:{
+    processName:{
       type: String,
       required: true,
       unique: true,
@@ -13,4 +13,4 @@ const supplierSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-export default mongoose.model("Supplier", supplierSchema);
+export default mongoose.model("Process", processSchema);

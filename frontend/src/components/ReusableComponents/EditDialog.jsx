@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { editUserSchema } from "../ValidateSchema/authInputValidationShema";
-import { supplierSchema } from "../ValidateSchema/entityValidationSchema";
+import { machineSchema, supplierSchema, partSchema, processSchema } from "../ValidateSchema/entityValidationSchema";
+import {  } from "../ValidateSchema/entityValidationSchema";
 import {
   Dialog,
   DialogClose,
@@ -217,6 +218,216 @@ export const SupplierDialog = ({ open, onClose, mode, supplier, action }) => {
             {errors.supplierName && (
               <p className="text-red-500 text-sm">
                 {errors.supplierName.message}
+              </p>
+            )}
+          </div>
+
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button type="submit">Save</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export const PartDialog = ({ open, onClose, mode, part, action }) => {
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver:zodResolver(partSchema),
+    defaultValues: { partName: "" },
+  });
+
+  // Pre-fill value if editing
+  useEffect(() => {
+    if (mode === "edit" && part) {
+      setValue("partName", part.partName);
+    } else {
+      reset();
+    }
+  }, [mode, part]);
+
+  const onSubmit = (data) => {
+    if (mode === "create") {
+      console.log(data);
+      action(data.partName);
+    } else {
+      action(part._id, data.partName);
+    }
+
+    reset();
+    onClose(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>
+            {mode === "create" ? "Add New Part" : "Edit Part"}
+          </DialogTitle>
+        </DialogHeader>
+
+        {/* FORM must be inside DialogContent */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="grid gap-3">
+            <Label htmlFor="partName">Part Name</Label>
+            <Input
+              id="partName"
+              {...register("partName")}
+              placeholder="Enter Part name"
+            />
+            {errors.partName && (
+              <p className="text-red-500 text-sm">
+                {errors?.partName?.message}
+              </p>
+            )}
+          </div>
+
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button type="submit">Save</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export const MachineDialog = ({ open, onClose, mode, machine, action }) => {
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver:zodResolver(machineSchema),
+    defaultValues: { machineName: "" },
+  });
+
+  // Pre-fill value if editing
+  useEffect(() => {
+    if (mode === "edit" && machine) {
+      setValue("machineName", machine.machineName);
+    } else {
+      reset();
+    }
+  }, [mode, machine]);
+
+  const onSubmit = (data) => {
+    if (mode === "create") {
+      console.log(data);
+      action(data.machineName);
+    } else {
+      action(machine._id, data.machineName);
+    }
+
+    reset();
+    onClose(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>
+            {mode === "create" ? "Add New Machine" : "Edit Machine"}
+          </DialogTitle>
+        </DialogHeader>
+
+        {/* FORM must be inside DialogContent */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="grid gap-3">
+            <Label htmlFor="machineName">Machine Name</Label>
+            <Input
+              id="machineName"
+              {...register("machineName")}
+              placeholder="Enter Machine name"
+            />
+            {errors.machineName && (
+              <p className="text-red-500 text-sm">
+                {errors?.machineName?.message}
+              </p>
+            )}
+          </div>
+
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button type="submit">Save</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export const ProcessDialog = ({ open, onClose, mode, process, action }) => {
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver:zodResolver(processSchema),
+    defaultValues: { processName: "" },
+  });
+
+  // Pre-fill value if editing
+  useEffect(() => {
+    if (mode === "edit" && process) {
+      setValue("processName", process.processName);
+    } else {
+      reset();
+    }
+  }, [mode, process]);
+
+  const onSubmit = (data) => {
+    if (mode === "create") {
+      console.log(data);
+      action(data.processName);
+    } else {
+      action(process._id, data.processName);
+    }
+
+    reset();
+    onClose(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>
+            {mode === "create" ? "Add New Process" : "Edit Process"}
+          </DialogTitle>
+        </DialogHeader>
+
+        {/* FORM must be inside DialogContent */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="grid gap-3">
+            <Label htmlFor="processName">Process Name</Label>
+            <Input
+              id="processName"
+              {...register("processName")}
+              placeholder="Enter Process name"
+            />
+            {errors.processName && (
+              <p className="text-red-500 text-sm">
+                {errors?.processName?.message}
               </p>
             )}
           </div>
