@@ -11,6 +11,7 @@ const UsersManagement = () => {
   const [usersList, setUsersList] = useState([]);
   const [editOpen, setEditOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [suppliersList, setSuppliersList] = useState([]);
 
   const openEditDialog = (user) => {
     setSelectedUser(user);
@@ -32,8 +33,11 @@ const UsersManagement = () => {
           u.username === username ? { ...newData} : u
         )
       );
+      toast.success(res?.data?.message || "User updated successfully");
+
     } catch (err) {
       console.log("Update user error:", err);
+      toast.error(err?.response?.data?.message || err?.response?.statusText || "Oops! User Cannot be Created");
     }
   };
   const fetchAllUsers = async () => {
@@ -44,10 +48,6 @@ const UsersManagement = () => {
       toast.error(err?.response?.data?.message || "Could not fetch users");
     }
   };
-
-  useEffect(() => {
-    fetchAllUsers();
-  }, []);
 
   // Toggle user status and update context
   const toggleUserStatus = async (username) => {
@@ -71,6 +71,26 @@ const UsersManagement = () => {
       toast.error(err?.response?.data?.message || err?.response?.statusText || "Could not change status");
     }
   };
+  const fetchAllSuppliers = async () => {
+    try {
+      const res = await api.get(
+        `${import.meta.env.VITE_API_BASE_URL}/suppliers`,
+        { withCredentials: true }
+      );
+      setSuppliersList(res?.data?.suppliers);
+    } catch (err) {
+      toast.error(
+        err?.response?.data?.message ||
+          err?.response?.statusText ||
+          "Could not fetch Suppliers"
+      );
+    }
+  };
+
+  useEffect(() => {
+    fetchAllUsers();
+    fetchAllSuppliers();
+  }, []);
 
 
   return (
@@ -82,7 +102,8 @@ const UsersManagement = () => {
             Users Management
           </h1>
           <div className="w-full sm:w-auto flex justify-center sm:justify-end">
-            <CreateUserForm />
+            <CreateUserForm suppliersList={suppliersList} />
+
           </div>
         </div>
 
@@ -90,11 +111,12 @@ const UsersManagement = () => {
         <div className="w-full bg-white dark:bg-neutral-900 rounded-2xl shadow-xl border border-gray-200 dark:border-neutral-800 overflow-x-auto p-3">
           <TanstackTable data={usersList} columns={usersColumns(toggleUserStatus, openEditDialog)} />
           <EditUserDialog
-        open={editOpen}
-        onClose={() => setEditOpen(false)}
-        userData={selectedUser}
-        onUpdate={updateUser}
-      />
+            open={editOpen}
+            onClose={() => setEditOpen(false)}
+            userData={selectedUser}
+            onUpdate={updateUser}
+            suppliersList={suppliersList}
+          />
         </div>
       </div>
     </div>

@@ -48,11 +48,12 @@ const userSchema = new mongoose.Schema(
     },
 
     team: {
-      type: String,
-      enum: ["IT", "QA", "Part", "Fit", "Assembly"],
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Supplier",
       required: true,
     },
   },
+
   { timestamps: true },
 );
 
@@ -60,12 +61,12 @@ const userSchema = new mongoose.Schema(
 /* ---------------------------------------------------
    AUTO-SET TEAM FOR ADMIN (Runs on create + save)
 -----------------------------------------------------*/
-userSchema.pre("save", function (next) {
-  if (this.role === "admin") {
-    this.team = "IT";
-  }
-  next();
-});
+// userSchema.pre("save", function (next) {
+//   if (this.role === "admin") {
+//     this.team = "it";
+//   }
+//   next();
+// });
 
 
 export default mongoose.model("User", userSchema);

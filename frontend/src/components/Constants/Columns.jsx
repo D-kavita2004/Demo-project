@@ -43,13 +43,8 @@ export const usersColumns = (toggleUserStatus,openEditDialog) => [
     accessorKey: "team",
     header: () => <div className="font-semibold">Team</div>,
     cell: ({ row }) => {
-      const team = row.getValue("team");
-      const teamColors = {
-        QA: "bg-purple-100 text-purple-700",
-        Part: "bg-blue-100 text-blue-700",
-        Fit: "bg-green-100 text-green-700",
-        Assembly: "bg-orange-100 text-orange-700",
-      };
+      const team = row.getValue("team")?.supplierName || "N/A";
+      const teamColors = "bg-purple-600 text-purple-700";
       return (
         <span className={`px-2 py-1 rounded-md text-xs font-medium ${teamColors[team] || "bg-gray-200 text-gray-700"}`}>
           {team}

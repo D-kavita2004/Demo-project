@@ -27,7 +27,10 @@ export const createSupplier = async (req, res) => {
 // =========================
 export const getSuppliers = async (req, res) => {
   try {
-    const suppliers = await Supplier.find({},{ __v: 0, createdAt: 0, updatedAt: 0}).lean();
+    const suppliers = await Supplier.find(
+      { supplierName: { $ne: "it" } },
+      { __v: 0, createdAt: 0, updatedAt: 0 },
+    ).lean();
     res.status(200).json({
       message:"All Suppliers fetched Successfully",
       suppliers,

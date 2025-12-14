@@ -23,10 +23,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const CreateUserForm = () => {
+const CreateUserForm = ({ suppliersList }) => {
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  // const [isDialogOpen,setIsDialogOpen] = useState(false);
 
   const {
     register,
@@ -162,16 +161,18 @@ const CreateUserForm = () => {
                       <div className="space-y-2">
                         <Label>Team</Label>
                         <Select onValueChange={(v) => setValue("team", v)} required>
-                          <SelectTrigger className="transition-all focus:ring-2 focus:ring-primary">
+                          <SelectTrigger>
                             <SelectValue placeholder="Select team" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="QA">QA</SelectItem>
-                            <SelectItem value="Part">Part</SelectItem>
-                            <SelectItem value="Fit">Fit</SelectItem>
-                            <SelectItem value="Assembly">Assembly</SelectItem>
+                            {suppliersList.map((s) => (
+                              <SelectItem key={s._id} value={s._id}>
+                                {s.supplierName}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
+
                         {errors.team && (
                           <p className="text-red-500 text-xs">{errors.team.message}</p>
                         )}

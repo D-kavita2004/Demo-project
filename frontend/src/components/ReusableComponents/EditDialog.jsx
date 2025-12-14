@@ -25,7 +25,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-export const EditUserDialog = ({ open, onClose, userData, onUpdate }) => {
+export const EditUserDialog = ({ open, onClose, userData, onUpdate,suppliersList }) => {
   const {
     register,
     handleSubmit,
@@ -130,22 +130,22 @@ useEffect(() => {
             <Label htmlFor="team">Team</Label>
 
             <Select
-              value={watch("team")} // controlled value
-              onValueChange={(value) =>
-                setValue("team", value, { shouldValidate: true })
-              }
+              value={watch("team")}
+              onValueChange={(value) => setValue("team", value, { shouldValidate: true })}
             >
               <SelectTrigger id="team">
                 <SelectValue placeholder="Select team" />
               </SelectTrigger>
 
               <SelectContent>
-                <SelectItem value="QA">QA</SelectItem>
-                <SelectItem value="Part">Part</SelectItem>
-                <SelectItem value="Fit">Fit</SelectItem>
-                <SelectItem value="Assembly">Assembly</SelectItem>
+                {suppliersList.map((supplier) => (
+                  <SelectItem key={supplier._id} value={supplier._id}>
+                    {supplier.supplierName}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
+
 
             {errors.team && (
               <p className="text-red-500 text-sm">{errors.team.message}</p>

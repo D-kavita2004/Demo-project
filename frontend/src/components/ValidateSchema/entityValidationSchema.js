@@ -6,7 +6,7 @@ import { z } from "zod";
 export const nameFieldSchema = z
   .string()
   .trim()
-  .min(3, "Name must be at least 3 characters")
+  .min(2, "Name must be at least 2 characters")
   .max(50, "Name cannot exceed 50 characters")
   .regex(
     /^[a-zA-Z]+([-\s]?[a-zA-Z0-9]+)*$/,

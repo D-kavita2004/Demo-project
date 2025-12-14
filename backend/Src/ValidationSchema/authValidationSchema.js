@@ -25,11 +25,11 @@ const usernameSchema = z
   );
 
 // ------------------ TEAM ENUM ------------------
-const teamSchema = z.enum(["QA", "Part", "Fit", "Assembly", "IT"], {
-  errorMap: () => ({
-    message: "Team must be one of: QA, Part, Fit, Assembly, IT",
-  }),
-});
+// const teamSchema = z.enum(["QA", "Part", "Fit", "Assembly", "IT"], {
+//   errorMap: () => ({
+//     message: "Team must be one of: QA, Part, Fit, Assembly, IT",
+//   }),
+// });
 
 // ------------------ ROLE ENUM ------------------
 const roleSchema = z.enum(["admin", "user"], {
@@ -64,7 +64,7 @@ export const registerUserSchema = z
         strongPasswordRegex,
         "Password must contain at least one uppercase, one lowercase, one number, one special character, and be 6–128 characters long",
       ),
-    team: teamSchema,
+    team: z.string().trim(),
     role: roleSchema.optional().default("user"),
   })
   .superRefine((data, ctx) => {

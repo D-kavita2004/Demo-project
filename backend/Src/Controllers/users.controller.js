@@ -2,14 +2,14 @@ import User from "../Models/users.models.js";
 import logger from "../../Config/logger.js";
 import { shareCredentialEmailConfig } from "../../Config/emailconfig.js";
 import bcrypt from "bcryptjs";
-    
+import Supplier from "../Models/suppliers.models.js";
 export const getAllUsers = async(req,res)=>{
   try{
-    const users = await User.find(
-      {}, 
-      { password: 0, __v: 0, createdAt: 0, updatedAt: 0, _id:0 },
-    ).lean();
-    
+    const users = await User.find()
+      .select("-password -__v -createdAt -updatedAt")
+      .populate("team")
+      .lean();
+
     return res.status(200).json({
       success:true,
       data:users,
@@ -46,7 +46,13 @@ export const handleSignUp = async (req, res) => {
 
       return res.status(409).json({ success: false, message });
     }
-
+    const teamExists = await Supplier.exists({_id:team});
+    if(!teamExists){
+      return res.status(404).json({
+        success: false,
+        message: "Supplier not found please register supplier first",
+      });
+    }
     const hashed = await bcrypt.hash(password, 10);
 
     const newUser = new User({
@@ -133,12 +139,48 @@ export const changeUserStatus = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { username } = req.params;
+    const { firstName, lastName, email, team } = req.body;
 
+    /* Check if team (Supplier) exists */
+    if (team) {
+      const teamExists = await Supplier.exists({ _id: team });
+      if (!teamExists) {
+        return res.status(404).json({
+          message: "Supplier not found. Please register supplier first",
+        });
+      }
+    }
+
+    /* Check if email already exists (but not for same user) */
+    if (email) {
+      const emailExists = await User.findOne({
+        email,
+        username: { $ne: username }, // exclude current user
+      });
+
+      if (emailExists) {
+        return res.status(409).json({
+          message: "Email already exists",
+        });
+      }
+    }
+
+    /* Update user */
     const updatedUser = await User.findOneAndUpdate(
       { username },
-      { $set: req.body },
-      { new: true }
-    );
+      {
+        $set: {
+          firstName,
+          lastName,
+          email,
+          team,
+        },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).populate("team"); 
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
@@ -150,7 +192,8 @@ export const updateUser = async (req, res) => {
       data: updatedUser,
     });
   } catch (err) {
-    logger.err(err);
+    logger.error(err);
     return res.status(500).json({ message: "Server error" });
   }
 };
+

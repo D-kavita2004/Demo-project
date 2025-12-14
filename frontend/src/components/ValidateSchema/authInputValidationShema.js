@@ -25,11 +25,11 @@ const usernameSchema = z
     );
 
 // ------------------ TEAM ENUM ------------------
-const teamSchema = z.enum(["QA", "Part", "Fit", "Assembly", "IT"], {
-  errorMap: () => ({
-    message: "Team must be one of: QA, Part, Fit, Assembly, IT",
-  }),
-});
+// const teamSchema = z.enum(["QA", "Part", "Fit", "Assembly", "IT"], {
+//   errorMap: () => ({
+//     message: "Team must be one of: QA, Part, Fit, Assembly, IT",
+//   }),
+// });
 
 
 // ------------------ NAME REGEX ------------------
@@ -58,8 +58,10 @@ export const registerUserSchema = z
         strongPasswordRegex,
         "Password must contain at least one uppercase, one lowercase, one number, one special character, and be 6–128 characters long"
       ),
-      team: teamSchema
-  })
+      team:  z
+        .string()
+        .trim()
+        })
 
 // ------------------ LOGIN SCHEMA ------------------
 export const loginUserSchema = z.object({
@@ -81,5 +83,8 @@ export const editUserSchema = z.object({
       .trim()
       .min(1, "Last name is required")
       .regex(nameRegex, "Last name can contain only alphabets, spaces, hyphens or apostrophes"),
-  team: teamSchema,
+  team:z
+        .string()
+        .trim()
+        
 });
