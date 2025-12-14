@@ -42,11 +42,13 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth",authRoutes);
+
 app.use("/api/user", verifyToken, checkAdmin, userRoutes);
 app.use("/api/suppliers", verifyToken, checkAdmin, supplierRoutes);
 app.use("/api/parts", verifyToken, checkAdmin, partRoutes);
 app.use("/api/machines", verifyToken, checkAdmin, machineRoutes);
 app.use("/api/processes", verifyToken, checkAdmin, processRoutes);
+
 app.use("/api/form",verifyToken,formRoutes);
 app.use("/api/image",verifyToken, imageRoutes);
 
