@@ -91,7 +91,7 @@ const AdminDashboard = () => {
             >
               <MenuIcon className="w-6 h-6 text-gray-700" />
             </button>
-            <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
+            <h1 className="text-2xl font-bold text-gray-800" onClick={()=>navigate("/")}>Dashboard</h1>
           </div>
 
           <div className="flex items-center space-x-4">

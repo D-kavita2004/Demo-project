@@ -26,8 +26,8 @@ export const formDataSchema = z
     associatedLotNo: nonEmpty.regex(/^[A-Z0-9-]+$/, "Only uppercase letters, numbers and hyphens allowed"),
     discoveredDate: dateString,
     issueDate: dateString,
-    orderNo: nonEmpty.regex(/^[A-Z0-9-]+$/, "Only uppercase letters, numbers and hyphens allowed"),
-    drawingNo: nonEmpty.regex(/^[A-Z0-9-]+$/, "Only uppercase letters, numbers and hyphens allowed"),
+    orderNo: z.string().trim().optional(),
+    drawingNo: z.string().trim().optional(),
     processName: nonEmpty,
     machineName: nonEmpty,
 

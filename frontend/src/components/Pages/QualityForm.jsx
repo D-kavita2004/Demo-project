@@ -95,7 +95,7 @@ const handleImageChange = (e) => {
   }
 };
 
-  const handleApprove = async (id) => {
+const handleApprove = async (id) => {
 
     try {
       // Call the API to approve the form
