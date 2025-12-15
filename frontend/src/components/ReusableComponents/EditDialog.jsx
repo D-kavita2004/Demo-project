@@ -50,7 +50,7 @@ useEffect(() => {
       firstName: userData.firstName || "",
       lastName: userData.lastName || "",
       email: userData.email || "",
-      team: userData.team || "",
+      team: userData.team?._id || "",
     });
   }
 }, [userData, reset]);

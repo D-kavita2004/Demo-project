@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerUserSchema } from "../ValidateSchema/authInputValidationShema";
 import api from "@/api/axiosInstance";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -23,10 +23,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const CreateUserForm = ({ suppliersList }) => {
+const CreateUserForm = ({ suppliersList,setUsersList }) => {
 
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-
+  const [open, setOpen] = useState(false);
   const {
     register,
     handleSubmit,
@@ -39,20 +39,27 @@ const CreateUserForm = ({ suppliersList }) => {
 
   const onSubmit = async (data) => {
     try {
-
+     
       const res = await api.post(`${apiUrl}/user/register`, data, {
         withCredentials: true,
       });
         toast.success(res?.data?.message || "User created successfully");
-        reset();
-
+        setOpen(false);
+        setUsersList(prev => [...prev, res?.data?.data]);
+        
     } catch (err) {
        toast.error(err?.response?.data?.message || err?.response?.statusText || "Oops! User Cannot be Created");
     }
   };
+  useEffect(() => {
+    if (open) {
+      reset(); 
+    }
+  }, [open, reset]);
+
 
   return (
-    <AlertDialog  >
+    <AlertDialog  open={open} onOpenChange={setOpen}>
         <AlertDialogTrigger asChild>
             <Button className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-all duration-200 w-full sm:w-auto">
                 + Create New User

@@ -102,7 +102,7 @@ const UsersManagement = () => {
             Users Management
           </h1>
           <div className="w-full sm:w-auto flex justify-center sm:justify-end">
-            <CreateUserForm suppliersList={suppliersList} />
+            <CreateUserForm suppliersList={suppliersList} setUsersList={setUsersList}/>
 
           </div>
         </div>

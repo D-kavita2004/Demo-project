@@ -3,6 +3,7 @@ import logger from "../../Config/logger.js";
 import { shareCredentialEmailConfig } from "../../Config/emailconfig.js";
 import bcrypt from "bcryptjs";
 import Supplier from "../Models/suppliers.models.js";
+
 export const getAllUsers = async(req,res)=>{
   try{
     const users = await User.find()
@@ -30,13 +31,13 @@ export const handleSignUp = async (req, res) => {
   const { username, email, firstName, lastName, password, role, team } = req.body;
 
   try {
+    // Check if username or email already exists
     const existingUser = await User.findOne({
       $or: [{ username }, { email }],
     });
 
     if (existingUser) {
       let message = "User already exists";
-
       if (existingUser.username === username && existingUser.email === email)
         message = "Username and Email already exist";
       else if (existingUser.username === username)
@@ -46,41 +47,47 @@ export const handleSignUp = async (req, res) => {
 
       return res.status(409).json({ success: false, message });
     }
-    const teamExists = await Supplier.exists({_id:team});
-    if(!teamExists){
+
+    // Check if team exists
+    const teamExists = await Supplier.exists({ _id: team });
+    if (!teamExists) {
       return res.status(404).json({
         success: false,
-        message: "Supplier not found please register supplier first",
+        message: "Supplier not found, please register supplier first",
       });
     }
-    const hashed = await bcrypt.hash(password, 10);
 
-    const newUser = new User({
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create user in one step
+    const newUser = await User.create({
       username,
       email,
       firstName,
       lastName,
       role: role || undefined,
-      password: hashed,
+      password: hashedPassword,
       team,
     });
 
-    await newUser.save();
+    // Populate team and sanitize user
+    await newUser.populate("team");
+    const { password: pwd, __v, createdAt, updatedAt, ...userObj } = newUser.toObject();
 
-    // send email to share credentials
+    logger.info("User registered successfully", userObj);
+
+    // Send credentials email
     const emailSent = await shareCredentialEmailConfig(username, email, password);
 
-    if (emailSent) {
-      return res.status(200).json({
-        success: true,
-        message: "User registered successfully and credentials sent",
-      });
-    } else {
-      return res.status(500).json({
-        success: false,
-        message: "User registered but credentials email could not be sent",
-      });
-    }
+    // Respond
+    return res.status(201).json({
+      success: true,
+      message: emailSent
+        ? "User registered successfully and credentials sent"
+        : "User registered successfully but credentials email could not be sent",
+      data: userObj,
+    });
 
   } catch (err) {
     logger.error("Register Error:", err);
