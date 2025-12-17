@@ -9,8 +9,8 @@ router.post("/createPart", validateInput(partSchema), createPart);
 
 router.get("/", getParts);
 
-router.put("/updatePart/:id", validateInput(partSchema), updatePart);
+router.put("/updatePart/:partCode", validateInput(partSchema), updatePart);
 
-router.delete("/deletePart/:id", deletePart);
+router.delete("/deletePart/:partCode", deletePart);
 
 export default router;

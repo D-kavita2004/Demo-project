@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import api from "@/api/axiosInstance";
 import { useContext } from "react";
-import { UserContext } from "../Constants/userContext";
+import { UserContext } from "../Utils/userContext";
 import { useLocation } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +15,7 @@ import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formDataSchema } from "../ValidateSchema/formDataValidationSchema";
-import {myData} from "../Constants/DefaultData";
+import {myData} from "../Utils/DefaultData";
 
 const QualityForm = () => {
 

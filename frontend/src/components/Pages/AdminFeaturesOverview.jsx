@@ -1,5 +1,5 @@
 import React from 'react'
-import { cards } from '../Constants/DefaultData';
+import { cards } from '../Utils/DefaultData';
 import { useNavigate } from 'react-router-dom';
 import {
   Card,

@@ -3,7 +3,7 @@ import api from "@/api/axiosInstance";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import TanstackTable from "../ReusableComponents/TanstackTable";
-import { machinesColumns } from "../Constants/Columns";
+import { machinesColumns } from "../Utils/Columns";
 import { MachineDialog } from "../ReusableComponents/EditDialog";
 
 const Machines = () => {
@@ -68,7 +68,7 @@ const Machines = () => {
       );
 
       setMachinesList((prev) =>
-        prev.map((s) => (s._id === id ? res.data.machine : s))
+        prev.map((s) => (s.machineCode === id ? res.data.machine : s))
       );
 
       toast.success("Machine updated successfully!");
@@ -86,7 +86,7 @@ const Machines = () => {
         `machines/deleteMachine/${id}`,
         { withCredentials: true }
       );
-      setMachinesList((prev) => prev.filter((s) => s._id !== id));
+      setMachinesList((prev) => prev.filter((s) => s.machineCode !== id));
 
       toast.success(res?.data?.message || "Machine Deleted successfully!");
     } catch (err) {

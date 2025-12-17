@@ -15,7 +15,7 @@ import ProcessNames from "./components/Pages/ProcessNames";
 import MachineNames from "./components/Pages/MachineNames";
 import AdminFeaturesOverview from "./components/Pages/AdminFeaturesOverview";
 import { useContext } from "react";
-import { UserContext } from "./components/Constants/userContext";
+import { UserContext } from "./components/Utils/userContext";
 
 function App() {
   const {user,loading} = useContext(UserContext);

@@ -7,8 +7,8 @@ import Supplier from "../Models/suppliers.models.js";
 export const getAllUsers = async(req,res)=>{
   try{
     const users = await User.find()
-      .select("-password -__v -createdAt -updatedAt")
-      .populate("team")
+      .select("-password -__v -createdAt -updatedAt -_id")
+      .populate("team","supplierName supplierCode flag -_id")
       .lean();
 
     return res.status(200).json({
@@ -49,7 +49,7 @@ export const handleSignUp = async (req, res) => {
     }
 
     // Check if team exists
-    const teamExists = await Supplier.exists({ _id: team });
+    const teamExists = await Supplier.exists({ supplierCode: team });
     if (!teamExists) {
       return res.status(404).json({
         success: false,
@@ -68,14 +68,17 @@ export const handleSignUp = async (req, res) => {
       lastName,
       role: role || undefined,
       password: hashedPassword,
-      team,
+      team:teamExists._id || undefined  ,
     });
 
     // Populate team and sanitize user
-    await newUser.populate("team");
-    const { password: pwd, __v, createdAt, updatedAt, ...userObj } = newUser.toObject();
+    await newUser.populate({
+      path: "team",
+      select: "supplierName supplierCode flag -_id",
+    });
+    const { password: pwd, __v, createdAt, updatedAt, _id, ...userObj } = newUser.toObject();
 
-    logger.info("User registered successfully", userObj);
+    logger.info("User registered successfully");
 
     // Send credentials email
     const emailSent = await shareCredentialEmailConfig(username, email, password);
@@ -146,11 +149,12 @@ export const changeUserStatus = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { username } = req.params;
-    const { firstName, lastName, email, team } = req.body;
+    const { firstName, lastName, email, team } = req.body; 
 
     /* Check if team (Supplier) exists */
+    let teamExists ;
     if (team) {
-      const teamExists = await Supplier.exists({ _id: team });
+      teamExists = await Supplier.findOne({ supplierCode: team });
       if (!teamExists) {
         return res.status(404).json({
           message: "Supplier not found. Please register supplier first",
@@ -180,14 +184,16 @@ export const updateUser = async (req, res) => {
           firstName,
           lastName,
           email,
-          team,
+          team:teamExists._id || undefined,
         },
       },
       {
         new: true,
         runValidators: true,
-      }
-    ).populate("team"); 
+      })
+      .select("-password -__v -createdAt -updatedAt -_id")
+      .populate("team","supplierName supplierCode flag -_id")
+      .lean();
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });

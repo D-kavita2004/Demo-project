@@ -14,12 +14,12 @@ export const createPart = async (req, res) => {
     }
 
     const part = await Part.create({ partName });
-    const newpart = {_id:part._id, partName:part.partName};
+    const newpart = {partCode:part.partCode, partName:part.partName};
 
     res.status(201).json({ message: "Part created successfully", part:newpart });
 
   } catch (error) {
-
+    logger.error("Create part Error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -29,7 +29,7 @@ export const createPart = async (req, res) => {
 // =========================
 export const getParts = async (req, res) => {
   try {
-    const parts = await Part.find({},{ __v: 0, createdAt: 0, updatedAt: 0}).lean();
+    const parts = await Part.find({},{ __v: 0, createdAt: 0, updatedAt: 0, _id:0}).lean();
     res.status(200).json({
       message:"All Parts fetched Successfully",
       parts,
@@ -46,12 +46,12 @@ export const getParts = async (req, res) => {
 export const updatePart = async (req, res) => {
   try {
     const partName = req.body.partName.trim().toLowerCase();
-    const partId = req.params.id;
+    const partCode = req.params.partCode;
 
     // Check duplicate (exclude current part)
     const existingpart = await Part.findOne({
       partName,
-      _id: { $ne: partId },
+      partCode: { $ne: partCode },
     });
 
     if (existingpart) {
@@ -61,8 +61,8 @@ export const updatePart = async (req, res) => {
     }
 
     // Update
-    const part = await Part.findByIdAndUpdate(
-      partId,
+    const part = await Part.findOneAndUpdate(
+      {partCode},
       { partName },
       { new: true, runValidators: true }
     );
@@ -87,7 +87,7 @@ export const updatePart = async (req, res) => {
 // =========================
 export const deletePart = async (req, res) => {
   try {
-    const part = await Part.findByIdAndDelete(req.params.id);
+    const part = await Part.findOneAndDelete(req.params.partCode);
     if (!part) {
       return res.status(404).json({ message: "Part not found" });
     }

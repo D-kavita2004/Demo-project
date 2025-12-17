@@ -3,7 +3,7 @@ import api from "@/api/axiosInstance";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import TanstackTable from "../ReusableComponents/TanstackTable";
-import { partsColumns } from "../Constants/Columns";
+import { partsColumns } from "../Utils/Columns";
 import { PartDialog } from "../ReusableComponents/EditDialog";
 
 const Parts = () => {
@@ -68,7 +68,7 @@ const Parts = () => {
       );
 
       setpartsList((prev) =>
-        prev.map((s) => (s._id === id ? res.data.part : s))
+        prev.map((s) => (s.partCode === id ? res.data.part : s))
       );
 
       toast.success("part updated successfully!");
@@ -86,7 +86,7 @@ const Parts = () => {
         `parts/deletePart/${id}`,
         { withCredentials: true }
       );
-      setpartsList((prev) => prev.filter((s) => s._id !== id));
+      setpartsList((prev) => prev.filter((s) => s.partCode !== id));
 
       toast.success(res?.data?.message || "part Deleted successfully!");
     } catch (err) {

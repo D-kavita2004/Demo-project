@@ -1,5 +1,5 @@
 import axios from "axios";
-import { logOutUser } from "@/utils/logout";
+import { logOutUser } from "@/components/Utils/logout";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,

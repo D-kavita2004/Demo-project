@@ -14,12 +14,12 @@ export const createMachine = async (req, res) => {
     }
 
     const machine = await Machine.create({ machineName });
-    const newmachine = {_id:machine._id, machineName:machine.machineName};
+    const newmachine = {machineCode:machine.machineCode, machineName:machine.machineName};
 
     res.status(201).json({ message: "Machine created successfully", machine:newmachine });
 
   } catch (error) {
-
+    logger.error("Create Machine Error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -29,7 +29,7 @@ export const createMachine = async (req, res) => {
 // =========================
 export const getMachines = async (req, res) => {
   try {
-    const machines = await Machine.find({},{ __v: 0, createdAt: 0, updatedAt: 0}).lean();
+    const machines = await Machine.find({},{ __v: 0, createdAt: 0, updatedAt: 0,_id:0}).lean();
     res.status(200).json({
       message:"All Machines fetched Successfully",
       machines,
@@ -46,12 +46,12 @@ export const getMachines = async (req, res) => {
 export const updateMachine = async (req, res) => {
   try {
     const machineName = req.body.machineName.trim().toLowerCase();
-    const machineId = req.params.id;
+    const machineCode = req.params.machineCode;
 
     // Check duplicate (exclude current machine)
     const existingmachine = await Machine.findOne({
       machineName,
-      _id: { $ne: machineId },
+      machineCode: { $ne: machineCode },
     });
 
     if (existingmachine) {
@@ -61,8 +61,8 @@ export const updateMachine = async (req, res) => {
     }
 
     // Update
-    const machine = await Machine.findByIdAndUpdate(
-      machineId,
+    const machine = await Machine.findOneAndUpdate(
+      {machineCode},
       { machineName },
       { new: true, runValidators: true }
     );
@@ -87,7 +87,7 @@ export const updateMachine = async (req, res) => {
 // =========================
 export const deleteMachine = async (req, res) => {
   try {
-    const machine = await Machine.findByIdAndDelete(req.params.id);
+    const machine = await Machine.findOneAndDelete(req.params.machineCode);
     if (!machine) {
       return res.status(404).json({ message: "Machine not found" });
     }

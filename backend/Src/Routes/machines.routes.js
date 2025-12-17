@@ -9,8 +9,8 @@ router.post("/createMachine", validateInput(machineSchema), createMachine);
 
 router.get("/", getMachines);
 
-router.put("/updateMachine/:id", validateInput(machineSchema), updateMachine);
+router.put("/updateMachine/:machineCode", validateInput(machineSchema), updateMachine);
 
-router.delete("/deleteMachine/:id", deleteMachine);
+router.delete("/deleteMachine/:machineCode", deleteMachine);
 
 export default router;

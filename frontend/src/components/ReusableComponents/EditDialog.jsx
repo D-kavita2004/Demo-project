@@ -50,7 +50,7 @@ useEffect(() => {
       firstName: userData.firstName || "",
       lastName: userData.lastName || "",
       email: userData.email || "",
-      team: userData.team?._id || "",
+      team: userData.team?.supplierCode || "",
     });
   }
 }, [userData, reset]);
@@ -139,7 +139,7 @@ useEffect(() => {
 
               <SelectContent>
                 {suppliersList.map((supplier) => (
-                  <SelectItem key={supplier._id} value={supplier._id}>
+                  <SelectItem key={supplier.supplierCode} value={supplier.supplierCode}>
                     {supplier.supplierName}
                   </SelectItem>
                 ))}
@@ -190,7 +190,7 @@ export const SupplierDialog = ({ open, onClose, mode, supplier, action }) => {
       console.log(data);
       action(data.supplierName);
     } else {
-      action(supplier._id, data.supplierName);
+      action(supplier.supplierCode, data.supplierName);
     }
 
     reset();
@@ -260,7 +260,7 @@ export const PartDialog = ({ open, onClose, mode, part, action }) => {
       console.log(data);
       action(data.partName);
     } else {
-      action(part._id, data.partName);
+      action(part.partCode, data.partName);
     }
 
     reset();
@@ -330,7 +330,7 @@ export const MachineDialog = ({ open, onClose, mode, machine, action }) => {
       console.log(data);
       action(data.machineName);
     } else {
-      action(machine._id, data.machineName);
+      action(machine.machineCode, data.machineName);
     }
 
     reset();
@@ -400,7 +400,7 @@ export const ProcessDialog = ({ open, onClose, mode, process, action }) => {
       console.log(data);
       action(data.processName);
     } else {
-      action(process._id, data.processName);
+      action(process.processCode, data.processName);
     }
 
     reset();

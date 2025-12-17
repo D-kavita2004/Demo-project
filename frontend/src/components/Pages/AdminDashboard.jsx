@@ -5,7 +5,7 @@ import {
   LogOutIcon,
   MenuIcon,
 } from "lucide-react";
-import { navcards as cards} from "../Constants/DefaultData";
+import { navcards as cards} from "../Utils/DefaultData";
 import { Outlet } from "react-router-dom";
 
 const AdminDashboard = () => {

@@ -12,19 +12,18 @@ async function createAdmin() {
   try {
     const conn = await mongoose.connect(`${process.env.MONGO_URI}/${process.env.DB_NAME}`);
 
-    /* Check if admin exists */
-    const adminExists = await User.exists({ role: "admin" });
-    if (adminExists) {
-      logger.info("Admin already exists");
-      await mongoose.disconnect();
-      process.exit(0);
-    }
-
     /* Ensure IT supplier exists */
     let itSupplier = await Supplier.findOne({ supplierName: "it" });
     if (!itSupplier) {
       itSupplier = await Supplier.create({ supplierName: "it" });
       logger.info("IT supplier created");
+    }
+    /* Check if admin exists */
+    const adminExists = await User.findOne({ role: "admin" });
+    if (adminExists) {
+      logger.info("Admin already exists");
+      await mongoose.disconnect();
+      process.exit(0);
     }
 
     /* Create admin */

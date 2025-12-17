@@ -3,7 +3,7 @@ import api from "@/api/axiosInstance";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import TanstackTable from "../ReusableComponents/TanstackTable";
-import { processesColumns } from "../Constants/Columns";
+import { processesColumns } from "../Utils/Columns";
 import { ProcessDialog } from "../ReusableComponents/EditDialog";
 
 const Processes = () => {
@@ -68,7 +68,7 @@ const Processes = () => {
       );
 
       setProcesssList((prev) =>
-        prev.map((s) => (s._id === id ? res.data.process : s))
+        prev.map((s) => (s.processCode === id ? res.data.process : s))
       );
 
       toast.success("Process updated successfully!");
@@ -86,7 +86,7 @@ const Processes = () => {
         `processes/deleteProcess/${id}`,
         { withCredentials: true }
       );
-      setProcesssList((prev) => prev.filter((s) => s._id !== id));
+      setProcesssList((prev) => prev.filter((s) => s.processCode !== id));
 
       toast.success(res?.data?.message || "Process Deleted successfully!");
     } catch (err) {

@@ -17,9 +17,9 @@ router.post("/createSupplier", validateInput(supplierSchema), createSupplier);
 router.get("/", getSuppliers);
 
 // UPDATE Supplier
-router.put("/updateSupplier/:id", validateInput(supplierSchema), updateSupplier);
+router.put("/updateSupplier/:supplierCode", validateInput(supplierSchema), updateSupplier);
 
 // DELETE Supplier
-router.delete("/deleteSupplier/:id", deleteSupplier);
+router.delete("/deleteSupplier/:supplierCode", deleteSupplier);
 
 export default router;

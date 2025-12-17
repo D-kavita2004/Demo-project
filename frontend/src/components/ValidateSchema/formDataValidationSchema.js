@@ -35,7 +35,7 @@ export const formDataSchema = z
     usedQuantity: z.coerce.number().int().min(0),
     residualQuantity: z.coerce.number().int().min(0),
 
-    defectRate: z.coerce.number().min(0).max(100),
+    defectRate: z.coerce.number().min(0).max(100).optional(),
 
     managerInstructions: nonEmpty,
     productImage: z.any().optional(),

@@ -14,12 +14,12 @@ export const createProcess = async (req, res) => {
     }
 
     const process = await Process.create({ processName });
-    const newprocess = {_id:process._id, processName:process.processName};
+    const newprocess = {processCode:process.processCode, processName:process.processName};
 
     res.status(201).json({ message: "Process created successfully", process:newprocess });
 
   } catch (error) {
-
+    logger.error("Create Process Error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -29,7 +29,7 @@ export const createProcess = async (req, res) => {
 // =========================
 export const getProcesses = async (req, res) => {
   try {
-    const processs = await Process.find({},{ __v: 0, createdAt: 0, updatedAt: 0}).lean();
+    const processs = await Process.find({},{ __v: 0, createdAt: 0, updatedAt: 0, _id:0}).lean();
     res.status(200).json({
       message:"All Processs fetched Successfully",
       processs,
@@ -46,12 +46,12 @@ export const getProcesses = async (req, res) => {
 export const updateProcess = async (req, res) => {
   try {
     const processName = req.body.processName.trim().toLowerCase();
-    const processId = req.params.id;
+    const processCode = req.params.processCode;
 
     // Check duplicate (exclude current process)
     const existingprocess = await Process.findOne({
       processName,
-      _id: { $ne: processId },
+      processCode: { $ne: processCode },
     });
 
     if (existingprocess) {
@@ -61,8 +61,8 @@ export const updateProcess = async (req, res) => {
     }
 
     // Update
-    const process = await Process.findByIdAndUpdate(
-      processId,
+    const process = await Process.findOneAndUpdate(
+      {processCode},
       { processName },
       { new: true, runValidators: true }
     );
@@ -87,7 +87,7 @@ export const updateProcess = async (req, res) => {
 // =========================
 export const deleteProcess = async (req, res) => {
   try {
-    const process = await Process.findByIdAndDelete(req.params.id);
+    const process = await Process.findOneAndDelete(req.params.processCode);
     if (!process) {
       return res.status(404).json({ message: "Process not found" });
     }

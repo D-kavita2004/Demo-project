@@ -12,8 +12,10 @@ export const handleLogin = async (req, res) => {
   const { username, password } = req.body;
   
   try {
-    const user = await User.findOne({ username });
-
+    const user = await User.findOne({ username })
+      .select("-__v -createdAt -updatedAt -_id")
+      .populate("team","supplierName supplierCode flag -_id")
+      .lean();
     if (!user)
       return res.status(404).json({ message: "User not found" });
 
@@ -26,9 +28,9 @@ export const handleLogin = async (req, res) => {
     if (!isMatch)
       return res.status(401).json({ message: "Invalid Password" });
 
-    const { password: _, _id, ...userPayload } = user.toObject(); 
+    const { password:hashed, _id, ...userPayload } = user;
     const token = jwt.sign(userPayload, process.env.SECRET);
- 
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: false,
@@ -41,7 +43,7 @@ export const handleLogin = async (req, res) => {
       user:userPayload,
     });
   } catch (err) {
-    logger.error("Login Error:", err);
+    logger.error(err);
     res.status(500).json({ message: "Login failed" });
   }
 };

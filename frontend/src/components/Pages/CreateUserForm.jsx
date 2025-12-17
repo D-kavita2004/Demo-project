@@ -31,6 +31,7 @@ const CreateUserForm = ({ suppliersList,setUsersList }) => {
     register,
     handleSubmit,
     setValue,
+    watch,
     reset,
     formState: { errors, isSubmitting },
   } = useForm({
@@ -167,13 +168,13 @@ const CreateUserForm = ({ suppliersList,setUsersList }) => {
                       {/* Team */}
                       <div className="space-y-2">
                         <Label>Team</Label>
-                        <Select onValueChange={(v) => setValue("team", v)} required>
+                        <Select value={watch("team")}  onValueChange={(v) => setValue("team", v)} required>
                           <SelectTrigger>
                             <SelectValue placeholder="Select team" />
                           </SelectTrigger>
                           <SelectContent>
                             {suppliersList.map((s) => (
-                              <SelectItem key={s._id} value={s._id}>
+                              <SelectItem key={s.supplierCode} value={s.supplierCode}>
                                 {s.supplierName}
                               </SelectItem>
                             ))}

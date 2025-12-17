@@ -3,8 +3,8 @@ import api from "@/api/axiosInstance";
 import { toast } from "sonner";
 import TanstackTable from "../ReusableComponents/TanstackTable";
 import CreateUserForm from "./CreateUserForm";
-import { UserContext } from "../Constants/userContext";
-import { usersColumns } from "../Constants/Columns";
+import { UserContext } from "../Utils/userContext";
+import { usersColumns } from "../Utils/Columns";
 import {EditUserDialog} from "../ReusableComponents/EditDialog";
 
 const UsersManagement = () => {

@@ -3,7 +3,7 @@ import api from "@/api/axiosInstance";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import TanstackTable from "../ReusableComponents/TanstackTable";
-import { suppliersColumns } from "../Constants/Columns";
+import { suppliersColumns } from "../Utils/Columns";
 import { SupplierDialog } from "../ReusableComponents/EditDialog";
 
 const Suppliers = () => {
@@ -68,7 +68,7 @@ const Suppliers = () => {
       );
 
       setSuppliersList((prev) =>
-        prev.map((s) => (s._id === id ? res.data.supplier : s))
+        prev.map((s) => (s.supplierCode === id ? res.data.supplier : s))
       );
 
       toast.success("Supplier updated successfully!");
@@ -86,7 +86,7 @@ const Suppliers = () => {
         `suppliers/deleteSupplier/${id}`,
         { withCredentials: true }
       );
-      setSuppliersList((prev) => prev.filter((s) => s._id !== id));
+      setSuppliersList((prev) => prev.filter((s) => s.supplierCode !== id));
 
       toast.success(res?.data?.message || "Supplier Deleted successfully!");
     } catch (err) {

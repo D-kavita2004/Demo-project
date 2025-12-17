@@ -9,8 +9,8 @@ router.post("/createProcess", validateInput(processSchema), createProcess);
 
 router.get("/", getProcesses);
 
-router.put("/updateProcess/:id", validateInput(processSchema), updateProcess);
+router.put("/updateProcess/:processCode", validateInput(processSchema), updateProcess);
 
-router.delete("/deleteProcess/:id", deleteProcess);
+router.delete("/deleteProcess/:processCode", deleteProcess);
 
 export default router;
