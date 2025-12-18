@@ -107,7 +107,7 @@ const Suppliers = () => {
       <div className="w-full max-w-7xl flex flex-col gap-6">
         <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4">
           <h1 className="text-2xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">
-            Suppliers Management
+            Suppliers/Sections Management
           </h1>
           <Button
             className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md"

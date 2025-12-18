@@ -14,7 +14,7 @@ const generateQualityFormExcel = (data) => {
         "Subject Matter": formData.subjectMatter,
         "Approved By": formData.approved,
         "Checked By": formData.checked,
-        "Issued To": formData.issued,
+        "Issued BY": formData.issued,
       },
     },
     {

@@ -7,7 +7,7 @@
       subjectMatter: "Inspection Report",
       approved: "John Doe",
       checked: "Jane Smith",
-      issued: "Production Team",
+      issued: undefined,
 
       // ========== Defectiveness Detail ==========
       supplierName: "",
@@ -18,8 +18,8 @@
       issueDate: "2025-10-22",
       orderNo: "ORD-9988",
       drawingNo: "DRW-5567",
-      processName: "Turning",
-      machineName: "CNC Lathe Machine",
+      processName: "",
+      machineName: "",
       totalQuantity: 100,
       usedQuantity: 60,
       residualQuantity: 40,
@@ -29,19 +29,20 @@
 
       // ========== Quality Check Comment ==========
       qcComment: "Checked and verified by QC team.",
-      approvalStatus: "approved",
-      checkedByQC: "Ravi Kumar",
+      // approvalStatus: "approved",
+      // checkedByQC: "Ravi Kumar",
       qcInstructions: "Proceed with 100% inspection for next batch.",
       defectCost: 250.75,
       unit: "piece",
-      occurrenceSection: "Assembly Line 2",
+      // occurrenceSection: "Assembly Line 2",
       importanceLevel: "A",
       reportTimeLimit: "2025-11-10",
 
       // ========== Measures Report ==========
-      measuresReport: "Replaced faulty parts and retrained staff.",
-      responsibleSection: "Maintenance",
-      causeDetails: "Improper clamping caused vibration defects.",
+      // measuresReport: "Replaced faulty parts and retrained staff.",
+      // responsibleSection: "Maintenance",
+      causesOfOccurrence: "Improper clamping caused vibration defects.",
+      causesOfOutflow: "Improper clamping caused vibration defects.",
       countermeasures: "Added additional support; training conducted.",
       enforcementDate: "2025-10-25",
       standardization:
@@ -81,7 +82,7 @@
   },
   {
     id: 3,
-    title: "Suppliers",
+    title: "Suppliers/Sections",
     icon: <TruckIcon className="w-6 h-6 text-white" />,
     route: "Suppliers",
     color: "from-green-500 to-green-600",
@@ -124,7 +125,7 @@
   },
   {
     id: 2,
-    title: "Suppliers",
+    title: "Suppliers/Sections",
     icon: <TruckIcon className="w-6 h-6 text-white" />,
     route: "Suppliers",
     color: "from-green-500 to-green-600",

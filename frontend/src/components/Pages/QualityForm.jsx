@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -16,23 +16,36 @@ import { ArrowLeft } from "lucide-react";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formDataSchema } from "../ValidateSchema/formDataValidationSchema";
 import {myData} from "../Utils/DefaultData";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const QualityForm = () => {
 
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-
+ 
   const clickedForm = location.state?.data;
   const [preview, setPreview] = useState(clickedForm?.formData?.productImage || "");
   const formFromState = clickedForm?.formData; 
   const myDefaultData = formFromState || myData;
 
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
+  const [suppliersList, setSuppliersList] = useState([]);
+  const [partsList, setPartsList] = useState([]);
+  const [machinesList, setMachinesList] = useState([]);
+  const [processesList, setProcessesList] = useState([]);
 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState:{errors},
   } = useForm(
     {
@@ -114,6 +127,76 @@ const handleApprove = async (id) => {
     } 
   };
 
+
+// Dropdowns
+const fetchAllSuppliers = async () => {
+    try {
+      const res = await api.get(
+        `${import.meta.env.VITE_API_BASE_URL}/suppliers`,
+        { withCredentials: true }
+      );
+      setSuppliersList(res?.data?.suppliers);
+    } catch (err) {
+      toast.error(
+        err?.response?.data?.message ||
+          err?.response?.statusText ||
+          "Could not fetch Suppliers"
+      );
+    }
+};
+const fetchAllParts = async () => {
+    try {
+      const res = await api.get(
+        `${import.meta.env.VITE_API_BASE_URL}/parts`,
+        { withCredentials: true }
+      );
+      setPartsList(res?.data?.parts);
+    } catch (err) {
+      toast.error(
+        err?.response?.data?.message ||
+          err?.response?.statusText ||
+          "Could not fetch parts"
+      );
+    }
+};
+const fetchAllProcesses = async () => {
+    try {
+      const res = await api.get(
+        `${import.meta.env.VITE_API_BASE_URL}/processes`,
+        { withCredentials: true }
+      );
+      setProcessesList(res?.data?.processes);
+    } catch (err) {
+      toast.error(
+        err?.response?.data?.message ||
+          err?.response?.statusText ||
+          "Could not fetch Processes"
+      );
+    }
+};
+const fetchAllMachines = async () => {
+    try {
+      const res = await api.get(
+        `${import.meta.env.VITE_API_BASE_URL}/machines`,
+        { withCredentials: true }
+      );
+      setMachinesList(res?.data?.machines);
+    } catch (err) {
+      toast.error(
+        err?.response?.data?.message ||
+          err?.response?.statusText ||
+          "Could not fetch Machines"
+      );
+    }
+}
+
+useEffect(()=>{
+    fetchAllSuppliers();
+    fetchAllParts();  
+    fetchAllProcesses();
+    fetchAllMachines();
+},[]);
+
   return (
     <div className="flex flex-col">
       <Button
@@ -169,11 +252,18 @@ const handleApprove = async (id) => {
                     {/* Part Name */}
                     <div className="flex flex-col space-y-1.5">
                       <Label htmlFor="partName">Part Name</Label>
-                      <Input
-                        id="partName"
-                        placeholder="Enter part name"
-                        {...register("partName")}
-                      />
+                      <Select value={watch("partName")}  onValueChange={(v) => setValue("partName", v)} required>
+                          <SelectTrigger  className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                            <SelectValue placeholder="Select Part Name" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {partsList.map((s) => (
+                              <SelectItem key={s.partCode} value={s.partCode}>
+                                {s.partName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       {errors.partName && (
                         <p className="text-sm text-red-500">{errors.partName.message}</p>
                       )}
@@ -220,9 +310,10 @@ const handleApprove = async (id) => {
 
                     {/* Issued */}
                     <div className="flex flex-col space-y-1.5">
-                      <Label htmlFor="issued">Issued To</Label>
+                      <Label htmlFor="issued">Issued By</Label>
                       <Input
                         id="issued"
+                        defaultValue={(user?.firstName || "") + " " + (user?.lastName || "")}
                         placeholder="Enter receiver name"
                         {...register("issued")}
                       />
@@ -242,17 +333,19 @@ const handleApprove = async (id) => {
 
                     {/* Section / Supplier Name */}
                     <div className="flex flex-col space-y-1.5">
-                      <Label htmlFor="supplierName">Section / Supplier Name</Label>
-                      <select
-                        id="supplierName"
-                        className="border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        {...register("supplierName")}
-                      >
-                        <option value="">Select Section/Supplier</option>
-                        <option value="Part Area">Part Area</option>
-                        <option value="Final Assembly">Final Assembly</option>
-                        <option value="Fit Area">Fit Area</option>
-                      </select>
+                     <Label htmlFor="supplierName">Section / Supplier Name</Label>
+                     <Select value={watch("supplierName")}  onValueChange={(v) => setValue("supplierName", v)} required>
+                          <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                            <SelectValue placeholder="Select Supplier" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {suppliersList.map((s) => (
+                              <SelectItem key={s.supplierCode} value={s.supplierCode}>
+                                {s.supplierName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                       </Select>
                       {errors.supplierName && (
                         <p className="text-sm text-red-500">{errors.supplierName.message}</p>
                       )}
@@ -353,11 +446,19 @@ const handleApprove = async (id) => {
                     {/* Process Name */}
                     <div className="flex flex-col space-y-1.5">
                       <Label htmlFor="processName">Process Name</Label>
-                      <Input
-                        id="processName"
-                        placeholder="Enter process name"
-                        {...register("processName" )}
-                      />
+                     
+                      <Select value={watch("processName")}  onValueChange={(v) => setValue("processName", v)} required>
+                          <SelectTrigger  className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                            <SelectValue placeholder="Select Process" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {processesList.map((s) => (
+                              <SelectItem key={s.processCode} value={s.processCode}>
+                                {s.processName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       {errors.processName && (
                         <p className="text-sm text-red-500">{errors.processName.message}</p>
                       )}
@@ -366,11 +467,18 @@ const handleApprove = async (id) => {
                     {/* Machine Name */}
                     <div className="flex flex-col space-y-1.5">
                       <Label htmlFor="machineName">Machine Name</Label>
-                      <Input
-                        id="machineName"
-                        placeholder="Enter machine name"
-                        {...register("machineName" )}
-                      />
+                      <Select value={watch("machineName")}  onValueChange={(v) => setValue("machineName", v)} required className="w-3/4">
+                          <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                            <SelectValue placeholder="Select Machine" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {machinesList.map((s) => (
+                              <SelectItem key={s.machineCode} value={s.machineCode}>
+                                {s.machineName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       {errors.machineName && (
                         <p className="text-sm text-red-500">{errors.machineName.message}</p>
                       )}
@@ -537,7 +645,8 @@ const handleApprove = async (id) => {
                           </div>
 
                           {/* Status / Approval Section */}
-                          <div className="grid md:grid-cols-2 gap-4">
+
+                          {/* <div className="grid md:grid-cols-2 gap-4">
                             <div className="flex flex-col space-y-1.5">
                               <Label htmlFor="approvalStatus">Approval Status</Label>
                               <select
@@ -562,7 +671,7 @@ const handleApprove = async (id) => {
                             </div>
 
                             {/* Approved / Issued By */}
-                            <div className="flex flex-col space-y-1.5">
+                            {/* <div className="flex flex-col space-y-1.5">
                               <Label htmlFor="checkedByQC">Checked / Issued By</Label>
                               <Input
                                 id="checkedByQC"
@@ -573,7 +682,7 @@ const handleApprove = async (id) => {
                                 <p className="text-sm text-red-500">{errors.checkedByQC.message}</p>
                               )}
                             </div>
-                          </div>
+                          </div> */} 
 
                           {/* Remarks or Instructions */}
                           <div className="flex flex-col space-y-1.5 md:col-span-2">
@@ -618,7 +727,7 @@ const handleApprove = async (id) => {
                           </div>
 
                           {/* Occurrence Section / Supplier */}
-                          <div className="flex flex-col space-y-1.5">
+                          {/* <div className="flex flex-col space-y-1.5">
                             <Label htmlFor="occurrenceSection">Occurrence Section / Supplier</Label>
                             <Input
                               id="occurrenceSection"
@@ -628,7 +737,7 @@ const handleApprove = async (id) => {
                             {errors.occurrenceSection && (
                               <p className="text-sm text-red-500">{errors.occurrenceSection.message}</p>
                             )}
-                          </div>
+                          </div> */}
 
                           {/* Important Level */}
                           <div className="flex flex-col space-y-1.5">
@@ -671,7 +780,7 @@ const handleApprove = async (id) => {
                       <div className="grid gap-4 p-4 rounded-lg border bg-card text-card-foreground shadow-sm col-span-2 border-blue-500">
 
                           {/* Measures Report */}
-                          <div className="flex flex-col space-y-1.5">
+                          {/* <div className="flex flex-col space-y-1.5">
                             <Label htmlFor="measuresReport">Measures Report</Label>
                             <Textarea
                               id="measuresReport"
@@ -681,10 +790,10 @@ const handleApprove = async (id) => {
                             {errors.measuresReport && (
                               <p className="text-sm text-red-500">{errors.measuresReport.message}</p>
                             )}
-                          </div>
+                          </div> */}
 
                           {/* Section (Group) in Charge */}
-                          <div className="flex flex-col space-y-1.5">
+                          {/* <div className="flex flex-col space-y-1.5">
                             <Label htmlFor="responsibleSection">Section (Group) in Charge</Label>
                             <Input
                               id="responsibleSection"
@@ -694,17 +803,32 @@ const handleApprove = async (id) => {
                             {errors.responsibleSection && (
                               <p className="text-sm text-red-500">{errors.responsibleSection.message}</p>
                             )}
-                          </div>
+                          </div> */}
 
                           {/* Causes of Occurrence and Outflow */}
                           <div className="flex flex-col space-y-1.5 md:col-span-2">
-                            <Label htmlFor="causeDetails">
-                              Causes of Occurrence and Causes of Outflow
+                            <Label htmlFor="causesOfOccurrence">
+                              Causes of Occurrence
                             </Label>
                             <Textarea
-                              id="causeDetails"
-                              placeholder="Describe causes of occurrence and causes of outflow..."
-                              {...register("causeDetails" )}
+                              id="causesOfOccurrence"
+                              placeholder="Describe causes of occurrence..."
+                              {...register("causesOfOccurrence" )}
+                            />
+                            {errors.causesOfOccurrence && (
+                              <p className="text-sm text-red-500">{errors.causesOfOccurrence.message}</p>
+                            )}
+                          </div>
+
+                           {/* Causes of Outflow */}
+                          <div className="flex flex-col space-y-1.5 md:col-span-2">
+                            <Label htmlFor="causesOfOutflow">
+                              Causes of Outflow
+                            </Label>
+                            <Textarea
+                              id="causesOfOutflow"
+                              placeholder="Describe causes of outflow..."
+                              {...register("causesOfOutflow" )}
                             />
                             {errors.causeDetails && (
                               <p className="text-sm text-red-500">{errors.causeDetails.message}</p>
@@ -817,17 +941,6 @@ const handleApprove = async (id) => {
                                   {...register("enforcementQCSection")}
                                 />
                               </div>
-                              <div className="flex flex-col space-y-1.5">
-                                <Label>Approvals</Label>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-sm text-muted-foreground">Approved</span>
-                                  <Input
-                                    type="checkbox"
-                                    {...register("enforcementApproved")}
-                                    className="h-4 w-4"
-                                  />
-                                </div>
-                              </div>
                             </div>
 
                             {/* --- Divider --- */}
@@ -887,17 +1000,6 @@ const handleApprove = async (id) => {
                                   placeholder="Enter QC section"
                                   {...register("effectQCSection")}
                                 />
-                              </div>
-                              <div className="flex flex-col space-y-1.5">
-                                <Label>Approvals</Label>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-sm text-muted-foreground">Approved</span>
-                                  <Input
-                                    type="checkbox"
-                                    {...register("effectApproved")}
-                                    className="h-4 w-4"
-                                  />
-                                </div>
                               </div>
                             </div>
                         </div>

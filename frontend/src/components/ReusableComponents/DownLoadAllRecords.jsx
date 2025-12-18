@@ -56,7 +56,7 @@ const buildSingleRecord = (formData, productImageBase64) => {
           "Subject Matter": formData.subjectMatter,
           "Approved By": formData.approved,
           "Checked By": formData.checked,
-          "Issued To": formData.issued,
+          "Issued By": formData.issued,
         }).map(([key, value]) => [
           { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
           { text: value ?? "-", margin: [2, 4, 2, 4] },

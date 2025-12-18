@@ -7,7 +7,7 @@ import { processesColumns } from "../Utils/Columns";
 import { ProcessDialog } from "../ReusableComponents/EditDialog";
 
 const Processes = () => {
-  const [processsList, setProcesssList] = useState([]);
+  const [processesList, setProcessesList] = useState([]);
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState("create");
   const [selectedProcess, setSelectedProcess] = useState(null);
@@ -30,12 +30,12 @@ const Processes = () => {
         `${import.meta.env.VITE_API_BASE_URL}/processes`,
         { withCredentials: true }
       );
-      setProcesssList(res?.data?.processs);
+      setProcessesList(res?.data?.processes);
     } catch (err) {
       toast.error(
         err?.response?.data?.message ||
           err?.response?.statusText ||
-          "Could not fetch Processs"
+          "Could not fetch Processes"
       );
     }
   };
@@ -48,7 +48,7 @@ const Processes = () => {
         { withCredentials: true }
       );
       console.log(res?.data?.process);
-      setProcesssList((prev) => [...prev, res?.data?.process]);
+      setProcessesList((prev) => [...prev, res?.data?.process]);
       toast.success(res?.data?.message || "Process created successfully!");
       
     } catch (err) {
@@ -67,7 +67,7 @@ const Processes = () => {
         { withCredentials: true }
       );
 
-      setProcesssList((prev) =>
+      setProcessesList((prev) =>
         prev.map((s) => (s.processCode === id ? res.data.process : s))
       );
 
@@ -86,7 +86,7 @@ const Processes = () => {
         `processes/deleteProcess/${id}`,
         { withCredentials: true }
       );
-      setProcesssList((prev) => prev.filter((s) => s.processCode !== id));
+      setProcessesList((prev) => prev.filter((s) => s.processCode !== id));
 
       toast.success(res?.data?.message || "Process Deleted successfully!");
     } catch (err) {
@@ -107,7 +107,7 @@ const Processes = () => {
       <div className="w-full max-w-7xl flex flex-col gap-6">
         <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4">
           <h1 className="text-2xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">
-            Processs Management
+            Processes Management
           </h1>
           <Button
             className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md"
@@ -118,7 +118,7 @@ const Processes = () => {
         </div>
 
         <div className="w-full bg-white dark:bg-neutral-900 rounded-2xl shadow-xl border p-3">
-          <TanstackTable data={processsList} columns={processesColumns(handleEdit,deleteProcess)} />
+          <TanstackTable data={processesList} columns={processesColumns(handleEdit,deleteProcess)} />
 
           <ProcessDialog
             open={open}

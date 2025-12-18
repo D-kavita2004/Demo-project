@@ -23,7 +23,7 @@ export const formDataSchema = z
     supplierName: nonEmpty,
     groupName: nonEmpty,
     stateOfProcess: nonEmpty,
-    associatedLotNo: nonEmpty.regex(/^[A-Z0-9-]+$/, "Only uppercase letters, numbers and hyphens allowed"),
+    associatedLotNo: nonEmpty,
     discoveredDate: dateString,
     issueDate: dateString,
     orderNo: z.string().trim().optional(),
