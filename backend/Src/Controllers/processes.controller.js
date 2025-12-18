@@ -29,10 +29,10 @@ export const createProcess = async (req, res) => {
 // =========================
 export const getProcesses = async (req, res) => {
   try {
-    const processs = await Process.find({},{ __v: 0, createdAt: 0, updatedAt: 0, _id:0}).lean();
+    const processes = await Process.find({},{ __v: 0, createdAt: 0, updatedAt: 0, _id:0}).lean();
     res.status(200).json({
       message:"All Processs fetched Successfully",
-      processs,
+      processes,
     });
   } catch (error) {
     logger.error("Get Processs Error:", error);
