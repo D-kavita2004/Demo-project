@@ -1,6 +1,7 @@
 import Supplier from "../Models/suppliers.models.js";
 import logger from "../../Config/logger.js";
 import User from "../Models/users.models.js";
+
 // =========================
 // CREATE SUPPLIER
 // =========================
@@ -30,7 +31,26 @@ export const createSupplier = async (req, res) => {
 export const getSuppliers = async (req, res) => {
   try {
     const suppliers = await Supplier.find(
-      { supplierName: { $ne: "it" } },
+      { flag : "INTERNAL" },                  // get only production team suppliers
+      { __v: 0, createdAt: 0, updatedAt: 0, _id: 0 },
+    ).lean();
+    res.status(200).json({
+      message:"All Suppliers fetched Successfully",
+      suppliers,
+    });
+  } catch (error) {
+    logger.error("Get Suppliers Error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// =========================
+// GET ALL SUPPLIERS
+// =========================
+export const getSuppliersForUserAssignment = async (req, res) => {
+  try {
+    const suppliers = await Supplier.find(
+      { flag: { $in: ["INTERNAL", "QA"] } },            //get suppliers for user assignment
       { __v: 0, createdAt: 0, updatedAt: 0, _id: 0 },
     ).lean();
     res.status(200).json({

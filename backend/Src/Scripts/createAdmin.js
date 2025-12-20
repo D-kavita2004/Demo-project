@@ -15,7 +15,7 @@ async function createAdmin() {
     /* Ensure IT supplier exists */
     let itSupplier = await Supplier.findOne({ supplierName: "it" });
     if (!itSupplier) {
-      itSupplier = await Supplier.create({ supplierName: "it" });
+      itSupplier = await Supplier.create({ supplierName: "it", flag : "IT" });
       logger.info("IT supplier created");
     }
     /* Check if admin exists */

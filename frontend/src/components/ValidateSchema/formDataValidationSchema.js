@@ -42,20 +42,22 @@ export const formDataSchema = z
 
     // ========== Quality Check Comment ==========
     qcComment: nonEmpty,
-    approvalStatus: nonEmpty,
-    checkedByQC: nonEmpty,
+    // approvalStatus: nonEmpty,
+    // checkedByQC: nonEmpty,
     qcInstructions: nonEmpty,
     defectCost: z.coerce.number().min(0),
     unit: nonEmpty,
-    occurrenceSection: nonEmpty,
+    // occurrenceSection: nonEmpty,
     importanceLevel: z.enum(["AA", "A", "B", "C"]),
     reportTimeLimit: dateString,
 
     // ========== Measures Report ==========
-    measuresReport: nonEmpty,
-    responsibleSection: nonEmpty,
-    causeDetails: nonEmpty,
-    countermeasures: nonEmpty,
+    // measuresReport: nonEmpty,
+    // responsibleSection: nonEmpty,
+    causesOfOccurrence: nonEmpty,
+    causesOfOutflow: nonEmpty,
+    counterMeasuresForCauses: nonEmpty,
+    counterMeasuresForOutflow: nonEmpty,
     enforcementDate: dateString,
     standardization: nonEmpty,
 
@@ -65,14 +67,14 @@ export const formDataSchema = z
     enforcementJudgment: nonEmpty,
     enforcementSecInCharge: nonEmpty,
     enforcementQCSection: nonEmpty,
-    enforcementApproved: z.boolean(),
+    // enforcementApproved: z.boolean(),
 
     effectDate: dateString,
     effectResult: nonEmpty,
     effectJudgment: nonEmpty,
     effectSecInCharge: nonEmpty,
     effectQCSection: nonEmpty,
-    effectApproved: z.boolean(),
+    // effectApproved: z.boolean(),
   })
 
   // ========== Cross-field validations ==========

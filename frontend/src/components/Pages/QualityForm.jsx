@@ -544,7 +544,7 @@ useEffect(()=>{
                     {/* Manager Instructions */}
                     <div className="flex flex-col space-y-1.5 md:col-span-2">
                       <Label htmlFor="managerInstructions">
-                        Temporary Treatment & Manager Instructions
+                        Manager Instructions
                       </Label>
                       <Textarea
                         id="managerInstructions"
@@ -644,45 +644,6 @@ useEffect(()=>{
                             )}
                           </div>
 
-                          {/* Status / Approval Section */}
-
-                          {/* <div className="grid md:grid-cols-2 gap-4">
-                            <div className="flex flex-col space-y-1.5">
-                              <Label htmlFor="approvalStatus">Approval Status</Label>
-                              <select
-                                id="approvalStatus"
-                                className="border rounded-md p-2 bg-background"
-                                {...register("approvalStatus" )}
-                              >
-                                <option value="">Select status</option>
-                                <option value="approved">Approved</option>
-                                <option value="pending">Pending</option>
-                                <option value="return-lot">Return the Lot</option>
-                                <option value="reworking">Reworking</option>
-                                <option value="sorting-use">Sorting / Use</option>
-                                <option value="sorting-not-use">Sorting / Not Use</option>
-                                <option value="regrading">Re-grading</option>
-                                <option value="not-use">Not Use</option>
-                                <option value="concession">Concession</option>
-                              </select>
-                              {errors.approvalStatus && (
-                                <p className="text-sm text-red-500">{errors.approvalStatus.message}</p>
-                              )}
-                            </div>
-
-                            {/* Approved / Issued By */}
-                            {/* <div className="flex flex-col space-y-1.5">
-                              <Label htmlFor="checkedByQC">Checked / Issued By</Label>
-                              <Input
-                                id="checkedByQC"
-                                placeholder="e.g., Varun / Ravi"
-                                {...register("checkedByQC" )}
-                              />
-                              {errors.checkedByQC && (
-                                <p className="text-sm text-red-500">{errors.checkedByQC.message}</p>
-                              )}
-                            </div>
-                          </div> */} 
 
                           {/* Remarks or Instructions */}
                           <div className="flex flex-col space-y-1.5 md:col-span-2">
@@ -726,19 +687,6 @@ useEffect(()=>{
                             </div>
                           </div>
 
-                          {/* Occurrence Section / Supplier */}
-                          {/* <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="occurrenceSection">Occurrence Section / Supplier</Label>
-                            <Input
-                              id="occurrenceSection"
-                              placeholder="e.g., Assy Area"
-                              {...register("occurrenceSection" )}
-                            />
-                            {errors.occurrenceSection && (
-                              <p className="text-sm text-red-500">{errors.occurrenceSection.message}</p>
-                            )}
-                          </div> */}
-
                           {/* Important Level */}
                           <div className="flex flex-col space-y-1.5">
                             <Label htmlFor="importanceLevel">Importance Level</Label>
@@ -779,32 +727,6 @@ useEffect(()=>{
                       <h2 className="text-2xl font-semibold border-b pb-2">Measures Report</h2>
                       <div className="grid gap-4 p-4 rounded-lg border bg-card text-card-foreground shadow-sm col-span-2 border-blue-500">
 
-                          {/* Measures Report */}
-                          {/* <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="measuresReport">Measures Report</Label>
-                            <Textarea
-                              id="measuresReport"
-                              placeholder="Enter details of the measures taken..."
-                              {...register("measuresReport" )}
-                            />
-                            {errors.measuresReport && (
-                              <p className="text-sm text-red-500">{errors.measuresReport.message}</p>
-                            )}
-                          </div> */}
-
-                          {/* Section (Group) in Charge */}
-                          {/* <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="responsibleSection">Section (Group) in Charge</Label>
-                            <Input
-                              id="responsibleSection"
-                              placeholder="Enter responsible section or group"
-                              {...register("responsibleSection" )}
-                            />
-                            {errors.responsibleSection && (
-                              <p className="text-sm text-red-500">{errors.responsibleSection.message}</p>
-                            )}
-                          </div> */}
-
                           {/* Causes of Occurrence and Outflow */}
                           <div className="flex flex-col space-y-1.5 md:col-span-2">
                             <Label htmlFor="causesOfOccurrence">
@@ -838,15 +760,28 @@ useEffect(()=>{
                           {/* Countermeasures (temporary / permanent) */}
                           <div className="flex flex-col space-y-1.5 md:col-span-2">
                             <Label htmlFor="countermeasures">
-                              Counter measures for Cause and Outflow (Temporary / Permanent)
+                              Counter measures for Cause
                             </Label>
                             <Textarea
-                              id="countermeasures"
+                              id="counterMeasuresForCauses"
                               placeholder="Describe temporary and permanent countermeasures..."
-                              {...register("countermeasures" )}
+                              {...register("counterMeasuresForCausess" )}
                             />
-                            {errors.countermeasures && (
-                              <p className="text-sm text-red-500">{errors.countermeasures.message}</p>
+                            {errors.counterMeasuresForCauses && (
+                              <p className="text-sm text-red-500">{errors.counterMeasuresForCauses.message}</p>
+                            )}
+                          </div>
+                          <div className="flex flex-col space-y-1.5 md:col-span-2">
+                            <Label htmlFor="countermeasures">
+                              Counter measures for Outflow 
+                            </Label>
+                            <Textarea
+                              id="counterMeasuresForOutflow"
+                              placeholder="Describe temporary and permanent countermeasures..."
+                              {...register("counterMeasuresForOutflow" )}
+                            />
+                            {errors.counterMeasuresForOutflow && (
+                              <p className="text-sm text-red-500">{errors.counterMeasuresForOutflow.message}</p>
                             )}
                           </div>
 

@@ -43,7 +43,8 @@
       // responsibleSection: "Maintenance",
       causesOfOccurrence: "Improper clamping caused vibration defects.",
       causesOfOutflow: "Improper clamping caused vibration defects.",
-      countermeasures: "Added additional support; training conducted.",
+      counterMeasuresForCauses: "Added additional support; training conducted.",
+      counterMeasuresForOutflow: "Added additional support; training conducted.",
       enforcementDate: "2025-10-25",
       standardization:
         "Updated SOP and shared learnings across all production lines.",
@@ -54,14 +55,14 @@
       enforcementJudgment: "Effective",
       enforcementSecInCharge: "R&D Team",
       enforcementQCSection: "QC Section A",
-      enforcementApproved: true,
+      // enforcementApproved: true,
 
       effectDate: "2025-11-01",
       effectResult: "No recurrence of issue detected.",
       effectJudgment: "Stable",
       effectSecInCharge: "Production",
       effectQCSection: "QC Section A",
-      effectApproved: true,
+      // effectApproved: true,
   }
  export const navcards = [
     {

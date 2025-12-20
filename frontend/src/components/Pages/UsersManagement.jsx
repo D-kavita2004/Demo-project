@@ -74,7 +74,7 @@ const UsersManagement = () => {
   const fetchAllSuppliers = async () => {
     try {
       const res = await api.get(
-        `${import.meta.env.VITE_API_BASE_URL}/suppliers`,
+        `${import.meta.env.VITE_API_BASE_URL}/suppliers/forUserAssignment`,
         { withCredentials: true }
       );
       setSuppliersList(res?.data?.suppliers);
