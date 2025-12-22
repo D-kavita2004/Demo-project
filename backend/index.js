@@ -17,7 +17,6 @@ import express from "express";
 import authRoutes from "./Src/Routes/authentication.routes.js";
 import verifyToken from "./Src/Middlewares/verifyToken.middleware.js";
 import formRoutes from "./Src/Routes/form.routes.js";
-import imageRoutes from "./Src/Routes/imageRoutes.js";
 import userRoutes from "./Src/Routes/users.routes.js";
 import supplierRoutes from "./Src/Routes/suppliers.routes.js";
 import partRoutes from "./Src/Routes/parts.routes.js";
@@ -36,6 +35,7 @@ app.use(cors({
 
 app.use(cookieParser());
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
 
 app.get("/", (req, res) => {
   res.status(200).json({ status: "OK" });
@@ -50,7 +50,7 @@ app.use("/api/machines", verifyToken, checkAdmin, machineRoutes);
 app.use("/api/processes", verifyToken, checkAdmin, processRoutes);
 
 app.use("/api/form",verifyToken,formRoutes);
-app.use("/api/image",verifyToken, imageRoutes);
+// app.use("/api/image",verifyToken, imageRoutes);
 
 app.get("/api/verify-token",verifyToken,(req,res)=>{
   return res.status(200).send(req.user);

@@ -3,7 +3,11 @@ import mongoose from "mongoose";
 const formSchema = new mongoose.Schema(
   {
     formData: { type: mongoose.Schema.Types.Mixed, required: true },
-    filledBy: { type: String, enum: ["Quality", "Production"], default: "Quality" },
+    filledBy: { 
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Supplier",
+      required: true,
+    },
     status: { 
       type: String, 
       enum: ["pending_prod", "pending_quality", "approved"],

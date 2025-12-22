@@ -1,11 +1,18 @@
 import Form from "../Models/form.models.js";
 import logger from "../../Config/logger.js";
+import Supplier from "../Models/suppliers.models.js";
 
 export const modifyForm = async (req, res) => {
   try {
     // console.log("modify function hit")
-    const { formId, formData, filledBy, status, imageUrl } = req.body;
-    // console.log(imageUrl);
+    const { formId, filledBy, status } = req.body;
+    const supplier = await Supplier.findOne({ supplierCode: filledBy });
+
+    let formData = {};
+    if (req.body.formData) {
+      formData = JSON.parse(req.body.formData);
+    }
+    const imageUrl = req.fileUrl;
 
     if (!formData) {
       return res.status(404).json({ message: "Form data is required" });
@@ -18,9 +25,8 @@ export const modifyForm = async (req, res) => {
       form = await Form.findByIdAndUpdate(
         formId,
         {
-          formData,
-          imageUrl,
-          filledBy: filledBy || "Quality",
+          formData: {...formData, productImage: imageUrl},
+          filledBy: (supplier) && supplier._id,
           status: status || "pending_prod",
           updatedAt: new Date(),
         },
@@ -29,9 +35,8 @@ export const modifyForm = async (req, res) => {
     } else {
       // Create new form
       form = new Form({
-        formData,
-        imageUrl,
-        filledBy: filledBy || "Quality",
+        formData: {...formData, productImage: imageUrl},
+        filledBy: (supplier) && supplier._id,
         status: status || "pending_prod",
       });
       await form.save();

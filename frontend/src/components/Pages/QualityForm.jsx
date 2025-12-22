@@ -56,54 +56,41 @@ const QualityForm = () => {
   const {user} = useContext(UserContext);
   const navigate = useNavigate();
 
-const uploadImage = async (file) => {
-  const formData = new FormData();
-  formData.append("productImage", file);
 
-  const res = await api.post(`${apiUrl}/image/productImage`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-    withCredentials: true,
-  });
-  console.log("Response",res);
-  return res.data.url; // backend returns file URL
-};
+  const onSubmit = async (formData) => {
+    try {
+      const data = new FormData();
+      console.log(user);
+      // Add all form fields
+      data.append("formId", clickedForm?._id || "");
+      data.append("filledBy", user.team.supplierCode);
+      data.append("status", user.team === "QA" ? "pending_prod" : "pending_quality");
 
-
-const onSubmit = async (data) => {
-  console.log("calling modify form api", data);
-
-  try {
-    let imageUrl;
-      if(uploadedImageUrl){                             //check if user uploaded something new
-         imageUrl = await uploadImage(data.productImage[0]);
+      // Append productImage file if selected
+      if (uploadedImageUrl) {
+        data.append("productImage", uploadedImageUrl);
       }
-    // Step 1: Use the uploaded image URL
-    const image = imageUrl || clickedForm?.formData?.productImage || "";
 
-    // Step 2: Submit form data
-    const res = await api.post(`${apiUrl}/form/modifyForm`, {
-      formId: location.state?.data?._id,
-      formData: {
-        ...data,
-        productImage: image, //store the URL inside formData
-      },
-      filledBy: user.team,
-      status: user.team === "QA" ? "pending_prod" : "pending_quality",
-    },{withCredentials:true});
+      // Append other form fields (formData object)
+      data.append("formData", JSON.stringify(formData));
 
-    console.log("Form submitted successfully:", res.data);
-    navigate("/");
-  } catch (err) {
-    console.error("Error submitting form:", err);
-  }
-};
+      const res = await api.post(`${apiUrl}/form/modifyForm`, data, {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
+      });
 
+      console.log("Form submitted successfully:", res.data);
+      navigate("/");
+    } catch (err) {
+      console.error("Error submitting form:", err);
+    }
+  };
 // Image preview handler
 const handleImageChange = (e) => {
   const file = e.target.files[0];
   if (file) {
+    setUploadedImageUrl(file);
     const imageUrl = URL.createObjectURL(file);
-    setUploadedImageUrl(imageUrl);
     setPreview(imageUrl);
   }
 };
@@ -573,31 +560,6 @@ useEffect(()=>{
                       {errors.productImage && (
                         <p className="text-sm text-red-500">{errors.productImage.message}</p>
                       )}
-                      {/* {imageMsg && (
-                        <p className="text-sm text-red-500">{imageMsg}</p>
-                      )} */}
-                      {/* Upload button */}
-                      {/* <Button
-                        type="button"
-                        variant="outline"
-                        onClick={async () => {
-                          const file = watch("productImage")?.[0];
-                          if (!file) {
-                            setimageMsg("Please select an image before uploading.");
-                            return;
-                          }
-                          try {
-                            const url = await uploadImage(file);
-                            setUploadedImageUrl(url);
-                            setimageMsg("Image uploaded successfully!");
-                          } catch (error) {
-                            console.error("Image upload failed:", error);
-                            setimageMsg("Image upload failed. Please try again.");
-                          }
-        }}
-                      >
-                        Upload Image
-                      </Button> */}
 
 
                       {/* Image preview */}
@@ -765,7 +727,7 @@ useEffect(()=>{
                             <Textarea
                               id="counterMeasuresForCauses"
                               placeholder="Describe temporary and permanent countermeasures..."
-                              {...register("counterMeasuresForCausess" )}
+                              {...register("counterMeasuresForCauses" )}
                             />
                             {errors.counterMeasuresForCauses && (
                               <p className="text-sm text-red-500">{errors.counterMeasuresForCauses.message}</p>
