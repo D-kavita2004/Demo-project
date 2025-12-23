@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../Utils/userContext";
-import api from "@/api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { FormsContext } from "../Utils/formsContext";
@@ -12,7 +11,7 @@ import { toast } from "sonner";
 import { logOutUser } from "@/components/Utils/logout";
 
 const Dashboard = () => {
-  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState("");

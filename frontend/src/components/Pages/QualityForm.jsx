@@ -31,7 +31,7 @@ const QualityForm = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
  
   const clickedForm = location.state?.data;
-  const [preview, setPreview] = useState(clickedForm?.formData?.productImage || "");
+  // const [preview, setPreview] = useState(clickedForm?.formData?.defectivenessDetail?.productImage || "");
   const formFromState = clickedForm?.formData; 
   const myDefaultData = formFromState || myData;
 
@@ -56,19 +56,24 @@ const QualityForm = () => {
   const {user} = useContext(UserContext);
   const navigate = useNavigate();
 
+  const productImageFile = watch("defectivenessDetail.productImage");
+  const preview = productImageFile && productImageFile[0]
+    ? URL.createObjectURL(productImageFile[0])
+    : clickedForm?.formData?.defectivenessDetail?.productImage || "";
 
-  const onSubmit = async (formData) => {
+
+const onSubmit = async (formData) => {
     try {
       const data = new FormData();
       console.log(user);
       // Add all form fields
       data.append("formId", clickedForm?._id || "");
-      data.append("filledBy", user.team.supplierCode);
+      // data.append("filledBy", user.team.supplierCode);
       data.append("status", user.team === "QA" ? "pending_prod" : "pending_quality");
 
       // Append productImage file if selected
-      if (uploadedImageUrl) {
-        data.append("productImage", uploadedImageUrl);
+      if (productImageFile && productImageFile[0]) {
+        data.append("productImage", productImageFile[0]);
       }
 
       // Append other form fields (formData object)
@@ -85,15 +90,6 @@ const QualityForm = () => {
       console.error("Error submitting form:", err);
     }
   };
-// Image preview handler
-const handleImageChange = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    setUploadedImageUrl(file);
-    const imageUrl = URL.createObjectURL(file);
-    setPreview(imageUrl);
-  }
-};
 
 const handleApprove = async (id) => {
 
@@ -203,44 +199,47 @@ useEffect(()=>{
 
             <form onSubmit={handleSubmit(onSubmit)}>
               <CardContent className="flex flex-col gap-10 my-6">
+                  {/* ====================== ISSUING SECTION ====================== */}
+                  <section className="space-y-6">
+                    <h2 className="text-2xl font-semibold border-b pb-2">Issuing Section</h2>
 
-                {/* ====================== ISSUING SECTION ====================== */}
-                <section className="space-y-6">
-                  <h2 className="text-2xl font-semibold border-b pb-2">Issuing Section</h2>
+                    <div className="grid gap-6 md:grid-cols-2 p-4 rounded-lg border bg-card text-card-foreground shadow-sm border-blue-500">
 
-                  <div className="grid gap-6 md:grid-cols-2 p-4 rounded-lg border bg-card text-card-foreground shadow-sm border-blue-500">
+                      {/* Receiving No. */}
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="receivingNo">Receiving No.</Label>
+                        <Input
+                          id="receivingNo"
+                          placeholder="Enter receiving number"
+                          {...register("issuingSection.receivingNo")}
+                        />
+                        {errors.issuingSection?.receivingNo && (
+                          <p className="text-sm text-red-500">{errors.issuingSection.receivingNo.message}</p>
+                        )}
+                      </div>
 
-                    {/* Receiving No. */}
-                    <div className="flex flex-col space-y-1.5">
-                      <Label htmlFor="receivingNo">Receiving No.</Label>
-                      <Input
-                        id="receivingNo"
-                        placeholder="Enter receiving number"
-                        {...register("receivingNo")}
-                      />
-                      {errors.receivingNo && (
-                        <p className="text-sm text-red-500">{errors.receivingNo.message}</p>
-                      )}
-                    </div>
+                      {/* Reference No. */}
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="referenceNo">Reference No.</Label>
+                        <Input
+                          id="referenceNo"
+                          placeholder="Enter reference number"
+                          {...register("issuingSection.referenceNo")}
+                        />
+                        {errors.issuingSection?.referenceNo && (
+                          <p className="text-sm text-red-500">{errors.issuingSection.referenceNo.message}</p>
+                        )}
+                      </div>
 
-                    {/* Reference No. */}
-                    <div className="flex flex-col space-y-1.5">
-                      <Label htmlFor="referenceNo">Reference No.</Label>
-                      <Input
-                        id="referenceNo"
-                        placeholder="Enter reference number"
-                        {...register("referenceNo")}
-                      />
-                      {errors.referenceNo && (
-                        <p className="text-sm text-red-500">{errors.referenceNo.message}</p>
-                      )}
-                    </div>
-
-                    {/* Part Name */}
-                    <div className="flex flex-col space-y-1.5">
-                      <Label htmlFor="partName">Part Name</Label>
-                      <Select value={watch("partName")}  onValueChange={(v) => setValue("partName", v)} required>
-                          <SelectTrigger  className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                      {/* Part Name */}
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="partName">Part Name</Label>
+                        <Select
+                          value={watch("issuingSection.partName")}
+                          onValueChange={(v) => setValue("issuingSection.partName", v)}
+                          required
+                        >
+                          <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
                             <SelectValue placeholder="Select Part Name" />
                           </SelectTrigger>
                           <SelectContent>
@@ -251,66 +250,67 @@ useEffect(()=>{
                             ))}
                           </SelectContent>
                         </Select>
-                      {errors.partName && (
-                        <p className="text-sm text-red-500">{errors.partName.message}</p>
-                      )}
-                    </div>
+                        {errors.issuingSection?.partName && (
+                          <p className="text-sm text-red-500">{errors.issuingSection.partName.message}</p>
+                        )}
+                      </div>
 
-                    {/* Subject Matter */}
-                    <div className="flex flex-col space-y-1.5">
-                      <Label htmlFor="subjectMatter">Subject Matter</Label>
-                      <Input
-                        id="subjectMatter"
-                        placeholder="Enter subject matter"
-                        {...register("subjectMatter")}
-                      />
-                      {errors.subjectMatter && (
-                        <p className="text-sm text-red-500">{errors.subjectMatter.message}</p>
-                      )}
-                    </div>
+                      {/* Subject Matter */}
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="subjectMatter">Subject Matter</Label>
+                        <Input
+                          id="subjectMatter"
+                          placeholder="Enter subject matter"
+                          {...register("issuingSection.subjectMatter")}
+                        />
+                        {errors.issuingSection?.subjectMatter && (
+                          <p className="text-sm text-red-500">{errors.issuingSection.subjectMatter.message}</p>
+                        )}
+                      </div>
 
-                    {/* Approved */}
-                    <div className="flex flex-col space-y-1.5">
-                      <Label htmlFor="approved">Approved By</Label>
-                      <Input
-                        id="approved"
-                        placeholder="Enter approver name"
-                        {...register("approved")}
-                      />
-                      {errors.approved && (
-                        <p className="text-sm text-red-500">{errors.approved.message}</p>
-                      )}
-                    </div>
+                      {/* Approved */}
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="approved">Approved By</Label>
+                        <Input
+                          id="approved"
+                          placeholder="Enter approver name"
+                          {...register("issuingSection.approved")}
+                        />
+                        {errors.issuingSection?.approved && (
+                          <p className="text-sm text-red-500">{errors.issuingSection.approved.message}</p>
+                        )}
+                      </div>
 
-                    {/* Checked */}
-                    <div className="flex flex-col space-y-1.5">
-                      <Label htmlFor="checked">Checked By</Label>
-                      <Input
-                        id="checked"
-                        placeholder="Enter checker name"
-                        {...register("checked")}
-                      />
-                      {errors.checked && (
-                        <p className="text-sm text-red-500">{errors.checked.message}</p>
-                      )}
-                    </div>
+                      {/* Checked */}
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="checked">Checked By</Label>
+                        <Input
+                          id="checked"
+                          placeholder="Enter checker name"
+                          {...register("issuingSection.checked")}
+                        />
+                        {errors.issuingSection?.checked && (
+                          <p className="text-sm text-red-500">{errors.issuingSection.checked.message}</p>
+                        )}
+                      </div>
 
-                    {/* Issued */}
-                    <div className="flex flex-col space-y-1.5">
-                      <Label htmlFor="issued">Issued By</Label>
-                      <Input
-                        id="issued"
-                        defaultValue={(user?.firstName || "") + " " + (user?.lastName || "")}
-                        placeholder="Enter receiver name"
-                        {...register("issued")}
-                      />
-                      {errors.issued && (
-                        <p className="text-sm text-red-500">{errors.issued.message}</p>
-                      )}
-                    </div>
+                      {/* Issued */}
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="issued">Issued By</Label>
+                        <Input
+                          id="issued"
+                          defaultValue={(user?.firstName || "") + " " + (user?.lastName || "")}
+                          placeholder="Enter receiver name"
+                          {...register("issuingSection.issued")}
+                        />
+                        {errors.issuingSection?.issued && (
+                          <p className="text-sm text-red-500">{errors.issuingSection.issued.message}</p>
+                        )}
+                      </div>
 
-                  </div>
-                </section>
+                    </div>
+                  </section>
+
 
                 {/* ====================== DEFECTIVENESS DETAIL ====================== */}
                 <section className="space-y-6">
@@ -320,24 +320,27 @@ useEffect(()=>{
 
                     {/* Section / Supplier Name */}
                     <div className="flex flex-col space-y-1.5">
-                     <Label htmlFor="supplierName">Section / Supplier Name</Label>
-                     <Select value={watch("supplierName")}  onValueChange={(v) => setValue("supplierName", v)} required>
-                          <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                            <SelectValue placeholder="Select Supplier" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {suppliersList.map((s) => (
-                              <SelectItem key={s.supplierCode} value={s.supplierCode}>
-                                {s.supplierName}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                       </Select>
-                      {errors.supplierName && (
-                        <p className="text-sm text-red-500">{errors.supplierName.message}</p>
+                      <Label htmlFor="supplierName">Section / Supplier Name</Label>
+                      <Select
+                        value={watch("defectivenessDetail.supplierName")}
+                        onValueChange={(v) => setValue("defectivenessDetail.supplierName", v)}
+                        required
+                      >
+                        <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                          <SelectValue placeholder="Select Supplier" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {suppliersList.map((s) => (
+                            <SelectItem key={s.supplierCode} value={s.supplierCode}>
+                              {s.supplierName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.defectivenessDetail?.supplierName && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.supplierName.message}</p>
                       )}
                     </div>
-
 
                     {/* Group Name */}
                     <div className="flex flex-col space-y-1.5">
@@ -345,23 +348,23 @@ useEffect(()=>{
                       <Input
                         id="groupName"
                         placeholder="Enter group name"
-                        {...register("groupName")}
+                        {...register("defectivenessDetail.groupName")}
                       />
-                      {errors.groupName && (
-                        <p className="text-sm text-red-500">{errors.groupName.message}</p>
+                      {errors.defectivenessDetail?.groupName && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.groupName.message}</p>
                       )}
                     </div>
-                    
+
                     {/* State of Process */}
                     <div className="flex flex-col space-y-1.5">
                       <Label htmlFor="stateOfProcess">State of Process</Label>
                       <Input
                         id="stateOfProcess"
                         placeholder="Enter state of process"
-                        {...register("stateOfProcess" )}
+                        {...register("defectivenessDetail.stateOfProcess")}
                       />
-                      {errors.stateOfProcess && (
-                        <p className="text-sm text-red-500">{errors.stateOfProcess.message}</p>
+                      {errors.defectivenessDetail?.stateOfProcess && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.stateOfProcess.message}</p>
                       )}
                     </div>
 
@@ -371,10 +374,10 @@ useEffect(()=>{
                       <Input
                         id="associatedLotNo"
                         placeholder="Enter associated lot number"
-                        {...register("associatedLotNo" )}
+                        {...register("defectivenessDetail.associatedLotNo")}
                       />
-                      {errors.associatedLotNo && (
-                        <p className="text-sm text-red-500">{errors.associatedLotNo.message}</p>
+                      {errors.defectivenessDetail?.associatedLotNo && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.associatedLotNo.message}</p>
                       )}
                     </div>
 
@@ -384,10 +387,10 @@ useEffect(()=>{
                       <Input
                         id="discoveredDate"
                         type="date"
-                        {...register("discoveredDate" )}
+                        {...register("defectivenessDetail.discoveredDate")}
                       />
-                      {errors.discoveredDate && (
-                        <p className="text-sm text-red-500">{errors.discoveredDate.message}</p>
+                      {errors.defectivenessDetail?.discoveredDate && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.discoveredDate.message}</p>
                       )}
                     </div>
 
@@ -397,10 +400,10 @@ useEffect(()=>{
                       <Input
                         id="issueDate"
                         type="date"
-                        {...register("issueDate" )}
+                        {...register("defectivenessDetail.issueDate")}
                       />
-                      {errors.issueDate && (
-                        <p className="text-sm text-red-500">{errors.issueDate.message}</p>
+                      {errors.defectivenessDetail?.issueDate && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.issueDate.message}</p>
                       )}
                     </div>
 
@@ -410,10 +413,10 @@ useEffect(()=>{
                       <Input
                         id="orderNo"
                         placeholder="Enter order or lot number"
-                        {...register("orderNo" )}
+                        {...register("defectivenessDetail.orderNo")}
                       />
-                      {errors.orderNo && (
-                        <p className="text-sm text-red-500">{errors.orderNo.message}</p>
+                      {errors.defectivenessDetail?.orderNo && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.orderNo.message}</p>
                       )}
                     </div>
 
@@ -423,51 +426,59 @@ useEffect(()=>{
                       <Input
                         id="drawingNo"
                         placeholder="Enter drawing number"
-                        {...register("drawingNo" )}
+                        {...register("defectivenessDetail.drawingNo")}
                       />
-                      {errors.drawingNo && (
-                        <p className="text-sm text-red-500">{errors.drawingNo.message}</p>
+                      {errors.defectivenessDetail?.drawingNo && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.drawingNo.message}</p>
                       )}
                     </div>
 
                     {/* Process Name */}
                     <div className="flex flex-col space-y-1.5">
                       <Label htmlFor="processName">Process Name</Label>
-                     
-                      <Select value={watch("processName")}  onValueChange={(v) => setValue("processName", v)} required>
-                          <SelectTrigger  className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                            <SelectValue placeholder="Select Process" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {processesList.map((s) => (
-                              <SelectItem key={s.processCode} value={s.processCode}>
-                                {s.processName}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      {errors.processName && (
-                        <p className="text-sm text-red-500">{errors.processName.message}</p>
+                      <Select
+                        value={watch("defectivenessDetail.processName")}
+                        onValueChange={(v) => setValue("defectivenessDetail.processName", v)}
+                        required
+                      >
+                        <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                          <SelectValue placeholder="Select Process" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {processesList.map((s) => (
+                            <SelectItem key={s.processCode} value={s.processCode}>
+                              {s.processName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.defectivenessDetail?.processName && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.processName.message}</p>
                       )}
                     </div>
 
                     {/* Machine Name */}
                     <div className="flex flex-col space-y-1.5">
                       <Label htmlFor="machineName">Machine Name</Label>
-                      <Select value={watch("machineName")}  onValueChange={(v) => setValue("machineName", v)} required className="w-3/4">
-                          <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                            <SelectValue placeholder="Select Machine" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {machinesList.map((s) => (
-                              <SelectItem key={s.machineCode} value={s.machineCode}>
-                                {s.machineName}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      {errors.machineName && (
-                        <p className="text-sm text-red-500">{errors.machineName.message}</p>
+                      <Select
+                        value={watch("defectivenessDetail.machineName")}
+                        onValueChange={(v) => setValue("defectivenessDetail.machineName", v)}
+                        required
+                        className="w-3/4"
+                      >
+                        <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                          <SelectValue placeholder="Select Machine" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {machinesList.map((s) => (
+                            <SelectItem key={s.machineCode} value={s.machineCode}>
+                              {s.machineName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.defectivenessDetail?.machineName && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.machineName.message}</p>
                       )}
                     </div>
 
@@ -478,10 +489,10 @@ useEffect(()=>{
                         id="totalQuantity"
                         type="number"
                         placeholder="Enter total quantity"
-                        {...register("totalQuantity" )}
+                        {...register("defectivenessDetail.totalQuantity")}
                       />
-                      {errors.totalQuantity && (
-                        <p className="text-sm text-red-500">{errors.totalQuantity.message}</p>
+                      {errors.defectivenessDetail?.totalQuantity && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.totalQuantity.message}</p>
                       )}
                     </div>
 
@@ -492,10 +503,10 @@ useEffect(()=>{
                         id="usedQuantity"
                         type="number"
                         placeholder="Enter used quantity"
-                        {...register("usedQuantity" )}
+                        {...register("defectivenessDetail.usedQuantity")}
                       />
-                      {errors.usedQuantity && (
-                        <p className="text-sm text-red-500">{errors.usedQuantity.message}</p>
+                      {errors.defectivenessDetail?.usedQuantity && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.usedQuantity.message}</p>
                       )}
                     </div>
 
@@ -506,10 +517,10 @@ useEffect(()=>{
                         id="residualQuantity"
                         type="number"
                         placeholder="Enter residual quantity"
-                        {...register("residualQuantity" )}
+                        {...register("defectivenessDetail.residualQuantity")}
                       />
-                      {errors.residualQuantity && (
-                        <p className="text-sm text-red-500">{errors.residualQuantity.message}</p>
+                      {errors.defectivenessDetail?.residualQuantity && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.residualQuantity.message}</p>
                       )}
                     </div>
 
@@ -521,386 +532,372 @@ useEffect(()=>{
                         type="number"
                         step="0.01"
                         placeholder="Enter defect rate"
-                        {...register("defectRate" )}
+                        {...register("defectivenessDetail.defectRate")}
                       />
-                      {errors.defectRate && (
-                        <p className="text-sm text-red-500">{errors.defectRate.message}</p>
+                      {errors.defectivenessDetail?.defectRate && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.defectRate.message}</p>
                       )}
                     </div>
 
                     {/* Manager Instructions */}
                     <div className="flex flex-col space-y-1.5 md:col-span-2">
-                      <Label htmlFor="managerInstructions">
-                        Manager Instructions
-                      </Label>
+                      <Label htmlFor="managerInstructions">Manager Instructions</Label>
                       <Textarea
                         id="managerInstructions"
                         placeholder="Enter temporary treatment and manager instructions..."
-                        {...register("managerInstructions" )}
+                        {...register("defectivenessDetail.managerInstructions")}
                       />
-                      {errors.managerInstructions && (
-                        <p className="text-sm text-red-500">{errors.managerInstructions.message}</p>
+                      {errors.defectivenessDetail?.managerInstructions && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.managerInstructions.message}</p>
                       )}
                     </div>
 
-                    {/* Product Image */}
+                    {/* Product Image Upload */}
                     <div className="flex flex-col space-y-1.5 md:col-span-2">
                       <Label htmlFor="productImage">Product Image</Label>
-
-                      {/* Image Input */}
                       <Input
                         id="productImage"
                         type="file"
                         accept="image/*"
-                        {...register("productImage")}
-                        onChange={(e) => {
-                          handleImageChange(e);
-                        }}
+                        {...register("defectivenessDetail.productImage")}
                       />
-                      {errors.productImage && (
-                        <p className="text-sm text-red-500">{errors.productImage.message}</p>
+                      {errors.defectivenessDetail?.productImage && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.productImage.message}</p>
                       )}
-
 
                       {/* Image preview */}
                       {preview && (
                         <div className="mt-3 flex justify-center">
-                          <a href={uploadedImageUrl || preview} target="_blank" rel="noopener noreferrer">
+                          <a href={preview} target="_blank" rel="noopener noreferrer">
                             <img
-                              src={uploadedImageUrl || preview}
+                              src={preview}
                               alt="Preview"
-                              className="
-                                max-w-full
-                                max-h-40
-                                object-contain
-                                rounded-md
-                                border
-                                border-gray-300
-                                shadow-sm hover:scale-105 transition-transform duration-200
-                              "
+                              className="max-w-full max-h-40 object-contain rounded-md border border-gray-300 shadow-sm hover:scale-105 transition-transform duration-200"
                             />
                           </a>
                         </div>
                       )}
                     </div>
 
+                  </div>
+                </section>
+
+
+                {/* ====================== QUALITY CHECK COMMENT ====================== */}
+                <section className="space-y-6">
+                  <h2 className="text-2xl font-semibold border-b pb-2">Quality Check Comment</h2>
+                  <div className="grid gap-6 md:grid-cols-2 p-4 rounded-lg border bg-card text-card-foreground shadow-sm border-blue-500">
+
+                    {/* QC Comment */}
+                    <div className="flex flex-col space-y-1.5 md:col-span-2">
+                      <Label htmlFor="qcComment">QC Comment</Label>
+                      <Textarea
+                        id="qcComment"
+                        placeholder="Enter QC comment..."
+                        {...register("qualityCheckComment.qcComment")}
+                      />
+                      {errors.qualityCheckComment?.qcComment && (
+                        <p className="text-sm text-red-500">{errors.qualityCheckComment.qcComment.message}</p>
+                      )}
+                    </div>
+
+                    {/* QC Instructions */}
+                    <div className="flex flex-col space-y-1.5 md:col-span-2">
+                      <Label htmlFor="qcInstructions">QC Instructions</Label>
+                      <Textarea
+                        id="qcInstructions"
+                        placeholder="e.g., First need 100% sorting, then use if OK..."
+                        {...register("qualityCheckComment.qcInstructions")}
+                      />
+                      {errors.qualityCheckComment?.qcInstructions && (
+                        <p className="text-sm text-red-500">{errors.qualityCheckComment.qcInstructions.message}</p>
+                      )}
+                    </div>
+
+                    {/* Cost of Defective Work & Unit */}
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="defectCost">Cost of Defective Work ($)</Label>
+                        <Input
+                          id="defectCost"
+                          type="number"
+                          step="0.01"
+                          placeholder="Enter cost"
+                          {...register("qualityCheckComment.defectCost")}
+                        />
+                        {errors.qualityCheckComment?.defectCost && (
+                          <p className="text-sm text-red-500">{errors.qualityCheckComment.defectCost.message}</p>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="unit">Unit (kg / piece)</Label>
+                        <Input
+                          id="unit"
+                          placeholder="Enter unit (e.g., kg or piece)"
+                          {...register("qualityCheckComment.unit")}
+                        />
+                        {errors.qualityCheckComment?.unit && (
+                          <p className="text-sm text-red-500">{errors.qualityCheckComment.unit.message}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Importance Level */}
+                    <div className="flex flex-col space-y-1.5">
+                      <Label htmlFor="importanceLevel">Importance Level</Label>
+                      <select
+                        id="importanceLevel"
+                        className="border rounded-md p-2 bg-background"
+                        {...register("qualityCheckComment.importanceLevel")}
+                      >
+                        <option value="">Select level</option>
+                        <option value="AA">AA</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                      </select>
+                      {errors.qualityCheckComment?.importanceLevel && (
+                        <p className="text-sm text-red-500">{errors.qualityCheckComment.importanceLevel.message}</p>
+                      )}
+                    </div>
+
+                    {/* Report Time Limit */}
+                    <div className="flex flex-col space-y-1.5">
+                      <Label htmlFor="reportTimeLimit">Report Time Limit</Label>
+                      <Input
+                        id="reportTimeLimit"
+                        type="date"
+                        {...register("qualityCheckComment.reportTimeLimit")}
+                      />
+                      {errors.qualityCheckComment?.reportTimeLimit && (
+                        <p className="text-sm text-red-500">{errors.qualityCheckComment.reportTimeLimit.message}</p>
+                      )}
+                    </div>
 
                   </div>
                 </section>
 
-                {/* ====================== QUALITY CHECK COMMENT ====================== */}
-                <section className="space-y-6">
-                      <h2 className="text-2xl font-semibold border-b pb-2">Quality Check Comment</h2>
-                      <div className="grid gap-6 md:grid-cols-2 p-4 rounded-lg border bg-card text-card-foreground shadow-sm border-blue-500">
 
-                          {/* QC Comment */}
-                          <div className="flex flex-col space-y-1.5 md:col-span-2">
-                            <Label htmlFor="qcComment">QC Comment</Label>
-                            <Textarea
-                              id="qcComment"
-                              placeholder="Enter QC comment..."
-                              {...register("qcComment" )}
-                            />
-                            {errors.qcComment && (
-                              <p className="text-sm text-red-500">{errors.qcComment.message}</p>
-                            )}
-                          </div>
-
-
-                          {/* Remarks or Instructions */}
-                          <div className="flex flex-col space-y-1.5 md:col-span-2">
-                            <Label htmlFor="qcInstructions">QC Instructions</Label>
-                            <Textarea
-                              id="qcInstructions"
-                              placeholder="e.g., First need 100% sorting, then use if OK..."
-                              {...register("qcInstructions" )}
-                            />
-                            {errors.qcInstructions && (
-                              <p className="text-sm text-red-500">{errors.qcInstructions.message}</p>
-                            )}
-                          </div>
-
-                          {/* Cost of Defective Work */}
-                          <div className="grid md:grid-cols-2 gap-4">
-                            <div className="flex flex-col space-y-1.5">
-                              <Label htmlFor="defectCost">Cost of Defective Work ($)</Label>
-                              <Input
-                                id="defectCost"
-                                type="number"
-                                step="0.01"
-                                placeholder="Enter cost"
-                                {...register("defectCost" )}
-                              />
-                              {errors.defectCost && (
-                                <p className="text-sm text-red-500">{errors.defectCost.message}</p>
-                              )}
-                            </div>
-
-                            <div className="flex flex-col space-y-1.5">
-                              <Label htmlFor="unit">Unit (kg / piece)</Label>
-                              <Input
-                                id="unit"
-                                placeholder="Enter unit (e.g., kg or piece)"
-                                {...register("unit" )}
-                              />
-                              {errors.unit && (
-                                <p className="text-sm text-red-500">{errors.unit.message}</p>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Important Level */}
-                          <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="importanceLevel">Importance Level</Label>
-                            <select
-                              id="importanceLevel"
-                              className="border rounded-md p-2 bg-background"
-                              {...register("importanceLevel" )}
-                            >
-                              <option value="">Select level</option>
-                              <option value="AA">AA</option>
-                              <option value="A">A</option>
-                              <option value="B">B</option>
-                              <option value="C">C</option>
-                            </select>
-                            {errors.importanceLevel && (
-                              <p className="text-sm text-red-500">{errors.importanceLevel.message}</p>
-                            )}
-                          </div>
-
-                          {/* Report Time Limit */}
-                          <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="reportTimeLimit">Report Time Limit</Label>
-                            <Input
-                              id="reportTimeLimit"
-                              type="date"
-                              {...register("reportTimeLimit" )}
-                            />
-                            {errors.reportTimeLimit && (
-                              <p className="text-sm text-red-500">{errors.reportTimeLimit.message}</p>
-                            )}
-                          </div>
-
-                      </div>
-                </section>
 
                 {/* ====================== MEASURES REPORT ====================== */}
                 <section className="space-y-6">
-                      <h2 className="text-2xl font-semibold border-b pb-2">Measures Report</h2>
-                      <div className="grid gap-4 p-4 rounded-lg border bg-card text-card-foreground shadow-sm col-span-2 border-blue-500">
+                  <h2 className="text-2xl font-semibold border-b pb-2">Measures Report</h2>
+                  <div className="grid gap-4 p-4 rounded-lg border bg-card text-card-foreground shadow-sm col-span-2 border-blue-500">
 
-                          {/* Causes of Occurrence and Outflow */}
-                          <div className="flex flex-col space-y-1.5 md:col-span-2">
-                            <Label htmlFor="causesOfOccurrence">
-                              Causes of Occurrence
-                            </Label>
-                            <Textarea
-                              id="causesOfOccurrence"
-                              placeholder="Describe causes of occurrence..."
-                              {...register("causesOfOccurrence" )}
-                            />
-                            {errors.causesOfOccurrence && (
-                              <p className="text-sm text-red-500">{errors.causesOfOccurrence.message}</p>
-                            )}
-                          </div>
+                    {/* Causes of Occurrence */}
+                    <div className="flex flex-col space-y-1.5 md:col-span-2">
+                      <Label htmlFor="causesOfOccurrence">Causes of Occurrence</Label>
+                      <Textarea
+                        id="causesOfOccurrence"
+                        placeholder="Describe causes of occurrence..."
+                        {...register("measuresReport.causesOfOccurrence")}
+                      />
+                      {errors.measuresReport?.causesOfOccurrence && (
+                        <p className="text-sm text-red-500">{errors.measuresReport.causesOfOccurrence.message}</p>
+                      )}
+                    </div>
 
-                           {/* Causes of Outflow */}
-                          <div className="flex flex-col space-y-1.5 md:col-span-2">
-                            <Label htmlFor="causesOfOutflow">
-                              Causes of Outflow
-                            </Label>
-                            <Textarea
-                              id="causesOfOutflow"
-                              placeholder="Describe causes of outflow..."
-                              {...register("causesOfOutflow" )}
-                            />
-                            {errors.causeDetails && (
-                              <p className="text-sm text-red-500">{errors.causeDetails.message}</p>
-                            )}
-                          </div>
+                    {/* Causes of Outflow */}
+                    <div className="flex flex-col space-y-1.5 md:col-span-2">
+                      <Label htmlFor="causesOfOutflow">Causes of Outflow</Label>
+                      <Textarea
+                        id="causesOfOutflow"
+                        placeholder="Describe causes of outflow..."
+                        {...register("measuresReport.causesOfOutflow")}
+                      />
+                      {errors.measuresReport?.causesOfOutflow && (
+                        <p className="text-sm text-red-500">{errors.measuresReport.causesOfOutflow.message}</p>
+                      )}
+                    </div>
 
-                          {/* Countermeasures (temporary / permanent) */}
-                          <div className="flex flex-col space-y-1.5 md:col-span-2">
-                            <Label htmlFor="countermeasures">
-                              Counter measures for Cause
-                            </Label>
-                            <Textarea
-                              id="counterMeasuresForCauses"
-                              placeholder="Describe temporary and permanent countermeasures..."
-                              {...register("counterMeasuresForCauses" )}
-                            />
-                            {errors.counterMeasuresForCauses && (
-                              <p className="text-sm text-red-500">{errors.counterMeasuresForCauses.message}</p>
-                            )}
-                          </div>
-                          <div className="flex flex-col space-y-1.5 md:col-span-2">
-                            <Label htmlFor="countermeasures">
-                              Counter measures for Outflow 
-                            </Label>
-                            <Textarea
-                              id="counterMeasuresForOutflow"
-                              placeholder="Describe temporary and permanent countermeasures..."
-                              {...register("counterMeasuresForOutflow" )}
-                            />
-                            {errors.counterMeasuresForOutflow && (
-                              <p className="text-sm text-red-500">{errors.counterMeasuresForOutflow.message}</p>
-                            )}
-                          </div>
+                    {/* Countermeasures for Causes */}
+                    <div className="flex flex-col space-y-1.5 md:col-span-2">
+                      <Label htmlFor="counterMeasuresForCauses">Countermeasures for Cause</Label>
+                      <Textarea
+                        id="counterMeasuresForCauses"
+                        placeholder="Describe temporary and permanent countermeasures..."
+                        {...register("measuresReport.counterMeasuresForCauses")}
+                      />
+                      {errors.measuresReport?.counterMeasuresForCauses && (
+                        <p className="text-sm text-red-500">{errors.measuresReport.counterMeasuresForCauses.message}</p>
+                      )}
+                    </div>
 
-                          {/* Measures Enforcement Date */}
-                          <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="enforcementDate">Measures Enforcement Date</Label>
-                            <Input
-                              id="enforcementDate"
-                              type="date"
-                              {...register("enforcementDate" )}
-                            />
-                            {errors.enforcementDate && (
-                              <p className="text-sm text-red-500">{errors.enforcementDate.message}</p>
-                            )}
-                          </div>
+                    {/* Countermeasures for Outflow */}
+                    <div className="flex flex-col space-y-1.5 md:col-span-2">
+                      <Label htmlFor="counterMeasuresForOutflow">Countermeasures for Outflow</Label>
+                      <Textarea
+                        id="counterMeasuresForOutflow"
+                        placeholder="Describe temporary and permanent countermeasures..."
+                        {...register("measuresReport.counterMeasuresForOutflow")}
+                      />
+                      {errors.measuresReport?.counterMeasuresForOutflow && (
+                        <p className="text-sm text-red-500">{errors.measuresReport.counterMeasuresForOutflow.message}</p>
+                      )}
+                    </div>
 
-                          {/* Standardization / Preventive Measures */}
-                          <div className="flex flex-col space-y-1.5 md:col-span-2">
-                            <Label htmlFor="standardization">
-                              Standardization of Measures / Preventive Measures (Wide Deployment)
-                            </Label>
-                            <Textarea
-                              id="standardization"
-                              placeholder="Describe how measures are standardized or deployed widely..."
-                              {...register("standardization" )}
-                            />
-                            {errors.standardization && (
-                              <p className="text-sm text-red-500">{errors.standardization.message}</p>
-                            )}
-                          </div>
-                      </div>
+                    {/* Measures Enforcement Date */}
+                    <div className="flex flex-col space-y-1.5">
+                      <Label htmlFor="enforcementDate">Measures Enforcement Date</Label>
+                      <Input
+                        id="enforcementDate"
+                        type="date"
+                        {...register("measuresReport.enforcementDate")}
+                      />
+                      {errors.measuresReport?.enforcementDate && (
+                        <p className="text-sm text-red-500">{errors.measuresReport.enforcementDate.message}</p>
+                      )}
+                    </div>
+
+                    {/* Standardization / Preventive Measures */}
+                    <div className="flex flex-col space-y-1.5 md:col-span-2">
+                      <Label htmlFor="standardization">
+                        Standardization of Measures / Preventive Measures (Wide Deployment)
+                      </Label>
+                      <Textarea
+                        id="standardization"
+                        placeholder="Describe how measures are standardized or deployed widely..."
+                        {...register("measuresReport.standardization")}
+                      />
+                      {errors.measuresReport?.standardization && (
+                        <p className="text-sm text-red-500">{errors.measuresReport.standardization.message}</p>
+                      )}
+                    </div>
+
+                  </div>
                 </section>
+
 
                 {/* ====================== Results of Measures ====================== */}
                 <section className="space-y-6">
-                        <h2 className="text-2xl font-semibold border-b pb-2">Results of Measures</h2>
-                        <div className="grid gap-4 p-4 rounded-lg border bg-card text-card-foreground shadow-sm border-blue-500">
-                            {/* --- Result of Measures Enforcement --- */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                              <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="enforcementDateResult">Date (Enforcement)</Label>
-                                <Input
-                                  id="enforcementDateResult"
-                                  type="date"
-                                  {...register("enforcementDateResult" )}
-                                />
-                                {errors.enforcementDateResult && (
-                                  <p className="text-sm text-red-500">
-                                    {errors.enforcementDateResult}
-                                  </p>
-                                )}
-                              </div>
+                  <h2 className="text-2xl font-semibold border-b pb-2">Results of Measures</h2>
+                  <div className="grid gap-4 p-4 rounded-lg border bg-card text-card-foreground shadow-sm border-blue-500">
 
-                              <div className="flex flex-col space-y-1.5 md:col-span-2">
-                                <Label htmlFor="enforcementResult">
-                                  Result of Measures Enforcement (Comment)
-                                </Label>
-                                <Textarea
-                                  id="enforcementResult"
-                                  placeholder="Describe result of measures enforcement..."
-                                  {...register("enforcementResult" )}
-                                />
-                                {errors.enforcementResult && (
-                                  <p className="text-sm text-red-500">{errors.enforcementResult.message}</p>
-                                )}
-                              </div>
-                            </div>
+                    {/* --- Result of Measures Enforcement --- */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="enforcementDateResult">Date (Enforcement)</Label>
+                        <Input
+                          id="enforcementDateResult"
+                          type="date"
+                          {...register("resultsOfMeasures.enforcementDateResult")}
+                        />
+                        {errors.resultsOfMeasures?.enforcementDateResult && (
+                          <p className="text-sm text-red-500">
+                            {errors.resultsOfMeasures.enforcementDateResult.message}
+                          </p>
+                        )}
+                      </div>
 
-                            {/* --- Enforcement Approval Table --- */}
-                            <div className="grid md:grid-cols-4 gap-4">
-                              <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="enforcementJudgment">Judgment</Label>
-                                <Input
-                                  id="enforcementJudgment"
-                                  placeholder="Enter judgment"
-                                  {...register("enforcementJudgment")}
-                                />
-                              </div>
-                              <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="enforcementSecInCharge">Sec. in Charge</Label>
-                                <Input
-                                  id="enforcementSecInCharge"
-                                  placeholder="Enter section in charge"
-                                  {...register("enforcementSecInCharge")}
-                                />
-                              </div>
-                              <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="enforcementQCSection">QC Section</Label>
-                                <Input
-                                  id="enforcementQCSection"
-                                  placeholder="Enter QC section"
-                                  {...register("enforcementQCSection")}
-                                />
-                              </div>
-                            </div>
+                      <div className="flex flex-col space-y-1.5 md:col-span-2">
+                        <Label htmlFor="enforcementResult">Result of Measures Enforcement (Comment)</Label>
+                        <Textarea
+                          id="enforcementResult"
+                          placeholder="Describe result of measures enforcement..."
+                          {...register("resultsOfMeasures.enforcementResult")}
+                        />
+                        {errors.resultsOfMeasures?.enforcementResult && (
+                          <p className="text-sm text-red-500">
+                            {errors.resultsOfMeasures.enforcementResult.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
 
-                            {/* --- Divider --- */}
-                            <hr className="my-6 border-muted" />
+                    {/* --- Enforcement Approval Table --- */}
+                    <div className="grid md:grid-cols-4 gap-4">
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="enforcementJudgment">Judgment</Label>
+                        <Input
+                          id="enforcementJudgment"
+                          placeholder="Enter judgment"
+                          {...register("resultsOfMeasures.enforcementJudgment")}
+                        />
+                      </div>
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="enforcementSecInCharge">Sec. in Charge</Label>
+                        <Input
+                          id="enforcementSecInCharge"
+                          placeholder="Enter section in charge"
+                          {...register("resultsOfMeasures.enforcementSecInCharge")}
+                        />
+                      </div>
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="enforcementQCSection">QC Section</Label>
+                        <Input
+                          id="enforcementQCSection"
+                          placeholder="Enter QC section"
+                          {...register("resultsOfMeasures.enforcementQCSection")}
+                        />
+                      </div>
+                    </div>
 
-                            {/* --- Result of Measures Effect --- */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                              <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="effectDate">Date (Effect)</Label>
-                                <Input
-                                  id="effectDate"
-                                  type="date"
-                                  {...register("effectDate" )}
-                                />
-                                {errors.effectDate && (
-                                  <p className="text-sm text-red-500">{errors.effectDate.message}</p>
-                                )}
-                              </div>
+                    {/* --- Divider --- */}
+                    <hr className="my-6 border-muted" />
 
-                              <div className="flex flex-col space-y-1.5 md:col-span-2">
-                                <Label htmlFor="effectResult">
-                                  Result of Measures Effect (Comment)
-                                </Label>
-                                <Textarea
-                                  id="effectResult"
-                                  placeholder="Describe result of measures effect..."
-                                  {...register("effectResult" )}
-                                />
-                                {errors.effectResult && (
-                                  <p className="text-sm text-red-500">{errors.effectResult.message}</p>
-                                )}
-                              </div>
-                            </div>
+                    {/* --- Result of Measures Effect --- */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="effectDate">Date (Effect)</Label>
+                        <Input
+                          id="effectDate"
+                          type="date"
+                          {...register("resultsOfMeasures.effectDate")}
+                        />
+                        {errors.resultsOfMeasures?.effectDate && (
+                          <p className="text-sm text-red-500">
+                            {errors.resultsOfMeasures.effectDate.message}
+                          </p>
+                        )}
+                      </div>
 
-                            {/* --- Effect Approval Table --- */}
-                            <div className="grid md:grid-cols-4 gap-4">
-                              <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="effectJudgment">Judgment</Label>
-                                <Input
-                                  id="effectJudgment"
-                                  placeholder="Enter judgment"
-                                  {...register("effectJudgment")}
-                                />
-                              </div>
-                              <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="effectSecInCharge">Sec. in Charge</Label>
-                                <Input
-                                  id="effectSecInCharge"
-                                  placeholder="Enter section in charge"
-                                  {...register("effectSecInCharge")}
-                                />
-                              </div>
-                              <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="effectQCSection">QC Section</Label>
-                                <Input
-                                  id="effectQCSection"
-                                  placeholder="Enter QC section"
-                                  {...register("effectQCSection")}
-                                />
-                              </div>
-                            </div>
-                        </div>
+                      <div className="flex flex-col space-y-1.5 md:col-span-2">
+                        <Label htmlFor="effectResult">Result of Measures Effect (Comment)</Label>
+                        <Textarea
+                          id="effectResult"
+                          placeholder="Describe result of measures effect..."
+                          {...register("resultsOfMeasures.effectResult")}
+                        />
+                        {errors.resultsOfMeasures?.effectResult && (
+                          <p className="text-sm text-red-500">
+                            {errors.resultsOfMeasures.effectResult.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* --- Effect Approval Table --- */}
+                    <div className="grid md:grid-cols-4 gap-4">
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="effectJudgment">Judgment</Label>
+                        <Input
+                          id="effectJudgment"
+                          placeholder="Enter judgment"
+                          {...register("resultsOfMeasures.effectJudgment")}
+                        />
+                      </div>
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="effectSecInCharge">Sec. in Charge</Label>
+                        <Input
+                          id="effectSecInCharge"
+                          placeholder="Enter section in charge"
+                          {...register("resultsOfMeasures.effectSecInCharge")}
+                        />
+                      </div>
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="effectQCSection">QC Section</Label>
+                        <Input
+                          id="effectQCSection"
+                          placeholder="Enter QC section"
+                          {...register("resultsOfMeasures.effectQCSection")}
+                        />
+                      </div>
+                    </div>
+
+                  </div>
                 </section>
+
 
               </CardContent>
               {

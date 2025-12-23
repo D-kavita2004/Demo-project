@@ -8,9 +8,9 @@ const dateString = z
 // Reusable non-empty string validator
 const nonEmpty = z.string().trim().min(1, "This field cannot be empty");
 
-export const formDataSchema = z
-  .object({
-    // ========== Issuing Section ==========
+export const formDataSchema = z.object({
+  // ========== Issuing Section ==========
+  issuingSection: z.object({
     receivingNo: nonEmpty.regex(/^[A-Z0-9-]+$/, "Only uppercase letters, numbers and hyphens allowed"),
     referenceNo: nonEmpty.regex(/^[A-Z0-9-]+$/, "Only uppercase letters, numbers and hyphens allowed"),
     partName: nonEmpty,
@@ -18,8 +18,10 @@ export const formDataSchema = z
     approved: nonEmpty,
     checked: nonEmpty,
     issued: nonEmpty,
+  }),
 
-    // ========== Defectiveness Detail ==========
+  // ========== Defectiveness Detail ==========
+  defectivenessDetail: z.object({
     supplierName: nonEmpty,
     groupName: nonEmpty,
     stateOfProcess: nonEmpty,
@@ -30,81 +32,89 @@ export const formDataSchema = z
     drawingNo: z.string().trim().optional(),
     processName: nonEmpty,
     machineName: nonEmpty,
-
     totalQuantity: z.coerce.number().int().min(1, "Must be at least 1"),
     usedQuantity: z.coerce.number().int().min(0),
     residualQuantity: z.coerce.number().int().min(0),
-
     defectRate: z.coerce.number().min(0).max(100).optional(),
-
     managerInstructions: nonEmpty,
     productImage: z.any().optional(),
+  }),
 
-    // ========== Quality Check Comment ==========
+  // ========== Quality Check Comment ==========
+  qualityCheckComment: z.object({
     qcComment: nonEmpty,
-    // approvalStatus: nonEmpty,
-    // checkedByQC: nonEmpty,
     qcInstructions: nonEmpty,
     defectCost: z.coerce.number().min(0),
     unit: nonEmpty,
-    // occurrenceSection: nonEmpty,
     importanceLevel: z.enum(["AA", "A", "B", "C"]),
     reportTimeLimit: dateString,
+  }),
 
-    // ========== Measures Report ==========
-    // measuresReport: nonEmpty,
-    // responsibleSection: nonEmpty,
+  // ========== Measures Report ==========
+  measuresReport: z.object({
     causesOfOccurrence: nonEmpty,
     causesOfOutflow: nonEmpty,
     counterMeasuresForCauses: nonEmpty,
     counterMeasuresForOutflow: nonEmpty,
     enforcementDate: dateString,
     standardization: nonEmpty,
+  }),
 
-    // ========== Results of Measures ==========
+  // ========== Results of Measures ==========
+  resultsOfMeasures: z.object({
     enforcementDateResult: dateString,
     enforcementResult: nonEmpty,
     enforcementJudgment: nonEmpty,
     enforcementSecInCharge: nonEmpty,
     enforcementQCSection: nonEmpty,
-    // enforcementApproved: z.boolean(),
-
     effectDate: dateString,
     effectResult: nonEmpty,
     effectJudgment: nonEmpty,
     effectSecInCharge: nonEmpty,
     effectQCSection: nonEmpty,
-    // effectApproved: z.boolean(),
-  })
-
+  }),
+})
   // ========== Cross-field validations ==========
-
-  // Used quantity should not exceed totalQuantity
-  .refine((data) => data.usedQuantity <= data.totalQuantity, {
-    message: "Used quantity cannot exceed total quantity",
-    path: ["usedQuantity"], // FIELD LEVEL ERROR
-  })
-
-  // Residual = total - used
-  .refine((data) => data.residualQuantity === data.totalQuantity - data.usedQuantity, {
-    message: "Residual quantity should be totalQuantity - usedQuantity",
-    path: ["residualQuantity"], // FIELD LEVEL ERROR
-  })
-
-  // Issue date ≥ discovered date
-  .refine((data) => new Date(data.discoveredDate) <= new Date(data.issueDate), {
-    message: "Issue date cannot be earlier than discovered date",
-    path: ["issueDate"], // FIELD LEVEL ERROR
-  })
-
-  // enforcementDateResult ≥ enforcementDate
-  .refine((data) => new Date(data.enforcementDate) <= new Date(data.enforcementDateResult), {
-    message: "Measure result date must be on or after enforcement date",
-    path: ["enforcementDateResult"], // FIELD LEVEL ERROR
-  })
-
-  // effectDate ≥ enforcementDateResult
-  .refine((data) => new Date(data.enforcementDateResult) <= new Date(data.effectDate), {
-    message: "Effect date cannot be earlier than enforcement result date",
-    path: ["effectDate"], // FIELD LEVEL ERROR
-  });
+  .refine(
+    (data) => data.defectivenessDetail.usedQuantity <= data.defectivenessDetail.totalQuantity,
+    {
+      message: "Used quantity cannot exceed total quantity",
+      path: ["defectivenessDetail", "usedQuantity"],
+    }
+  )
+  .refine(
+    (data) =>
+      data.defectivenessDetail.residualQuantity ===
+      data.defectivenessDetail.totalQuantity - data.defectivenessDetail.usedQuantity,
+    {
+      message: "Residual quantity should be totalQuantity - usedQuantity",
+      path: ["defectivenessDetail", "residualQuantity"],
+    }
+  )
+  .refine(
+    (data) =>
+      new Date(data.defectivenessDetail.discoveredDate) <=
+      new Date(data.defectivenessDetail.issueDate),
+    {
+      message: "Issue date cannot be earlier than discovered date",
+      path: ["defectivenessDetail", "issueDate"],
+    }
+  )
+  .refine(
+    (data) =>
+      new Date(data.measuresReport.enforcementDate) <=
+      new Date(data.resultsOfMeasures.enforcementDateResult),
+    {
+      message: "Measure result date must be on or after enforcement date",
+      path: ["resultsOfMeasures", "enforcementDateResult"],
+    }
+  )
+  .refine(
+    (data) =>
+      new Date(data.resultsOfMeasures.enforcementDateResult) <=
+      new Date(data.resultsOfMeasures.effectDate),
+    {
+      message: "Effect date cannot be earlier than enforcement result date",
+      path: ["resultsOfMeasures", "effectDate"],
+    }
+  );
