@@ -21,7 +21,7 @@ const formDataSchema = new mongoose.Schema(
     issuingSection: {
       receivingNo: { type: String, required: true },
       referenceNo: { type: String, required: true },
-      partName: { type: mongoose.Schema.Types.ObjectId, ref: "Part", required: true },
+      partName: { type: String, required: true },
       subjectMatter: { type: String, required: true },
       approved: { type: String, required: true },
       checked: { type: String, required: true },
@@ -30,7 +30,7 @@ const formDataSchema = new mongoose.Schema(
 
     /* ---------- Defectiveness Detail ---------- */
     defectivenessDetail: {
-      supplierName: { type: mongoose.Schema.Types.ObjectId, ref: "Supplier", required: true },
+      supplierName: { type: String, required: true },
       groupName: { type: String, required: true },
       stateOfProcess: { type: String, required: true },
       associatedLotNo: { type: String, required: true },
@@ -38,8 +38,8 @@ const formDataSchema = new mongoose.Schema(
       issueDate: { type: String, required: true },      // YYYY-MM-DD
       orderNo: { type: String },
       drawingNo: { type: String },
-      processName: { type: mongoose.Schema.Types.ObjectId, ref: "Process", required: true },
-      machineName: { type: mongoose.Schema.Types.ObjectId, ref: "Machine", required: true },
+      processName: { type: String, required: true },
+      machineName: { type: String, required: true },
 
       totalQuantity: { type: Number, required: true },
       usedQuantity: { type: Number, required: true },

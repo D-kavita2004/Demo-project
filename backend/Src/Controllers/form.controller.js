@@ -1,9 +1,10 @@
 import Form from "../Models/form.models.js";
 import logger from "../../Config/logger.js";
-import Supplier from "../Models/suppliers.models.js";
-import Part from "../Models/parts.models.js";
-import Process from "../Models/processes.models.js";
-import Machine from "../Models/machines.models.js";
+// import Supplier from "../Models/suppliers.models.js";
+// import Part from "../Models/parts.models.js";
+// import Process from "../Models/processes.models.js";
+// import Machine from "../Models/machines.models.js";
+
 
 export const modifyForm = async (req, res) => {
   try {
@@ -15,10 +16,10 @@ export const modifyForm = async (req, res) => {
     if (req.body.formData) {
       formData = JSON.parse(req.body.formData);
     }
-    const supplierId = await Supplier.findOne({supplierCode: formData.supplierName}).select("_id");
-    const partId = await Part.findOne({partCode: formData.partCode}).select("_id");
-    const processId = await Process.findOne({processCode: formData.processCode}).select("_id");
-    const machineId = await Machine.findOne({machineCode: formData.machineCode}).select("_id");
+    // const supplierId = await Supplier.findOne({supplierCode: formData.supplierName}).select("_id");
+    // const partId = await Part.findOne({partCode: formData.partCode}).select("_id");
+    // const processId = await Process.findOne({processCode: formData.processCode}).select("_id");
+    // const machineId = await Machine.findOne({machineCode: formData.machineCode}).select("_id");
 
     if (!formData) {
       return res.status(404).json({ message: "Form data is required" });
@@ -31,7 +32,7 @@ export const modifyForm = async (req, res) => {
       form = await Form.findByIdAndUpdate(
         formId,
         {
-          formData: {...formData, productImage: imageUrl, supplierName:supplierId, partCode:partId, processCode:processId, machineCode:machineId},
+          formData: {...formData, defectivenessDetail: {...formData.defectivenessDetail, productImage: imageUrl}  },
           status: status || "pending_prod",
           updatedAt: new Date(),
         },
@@ -40,7 +41,7 @@ export const modifyForm = async (req, res) => {
     } else {
       // Create new form
       form = new Form({
-        formData: {...formData, productImage: imageUrl},
+        formData: {...formData, defectivenessDetail: {...formData.defectivenessDetail, productImage: imageUrl}  },
         status: status || "pending_prod",
       });
       await form.save();
@@ -69,10 +70,34 @@ export const getAllForms = async (req, res) => {
         : { status: { $ne: "approved" } };
 
     const forms = await Form.find(filter)
-      .populate("formData.issuingSection.partName", "partCode partName")
-      .populate("formData.defectivenessDetail.processName", "processCode processName")
-      .populate("formData.defectivenessDetail.supplierName", "supplierCode supplierName")
-      .populate("formData.defectivenessDetail.machineName", "machineCode machineName")
+      .populate({
+        path: "formData.issuingSection.partName",   // local field in Form
+        model: "Part",                              // referenced model
+        foreignField: "partCode",                   // field in Part to match
+        select: "partCode partName -_id",                // fields to return
+        justOne: true                               // optional if one-to-one
+      })
+      .populate({
+        path: "formData.defectivenessDetail.processName",
+        model: "Process",
+        foreignField: "processCode",
+        select: "processCode processName -_id",
+        justOne: true,
+      })
+      .populate({
+        path: "formData.defectivenessDetail.supplierName",
+        model: "Supplier",
+        foreignField: "supplierCode",
+        select: "supplierCode supplierName -_id",
+        justOne: true,
+      })
+      .populate({
+        path: "formData.defectivenessDetail.machineName",
+        model: "Machine",
+        foreignField: "machineCode",
+        select: "machineCode machineName -_id",
+        justOne: true,
+      })
       .lean();
 
     if (!forms.length) {
@@ -96,7 +121,6 @@ export const getAllForms = async (req, res) => {
     });
   }
 };
-
 
 export const approveForm = async (req, res) => {
   try {

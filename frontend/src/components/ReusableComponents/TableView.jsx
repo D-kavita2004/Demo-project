@@ -39,7 +39,7 @@ const TableView = ({ data }) => {
       accessorKey: "formData.partName",
       cell: ({ row }) => (
         <span className="font-medium text-gray-800 dark:text-gray-100">
-          {row.original.formData.partName || "Untitled"}
+          {row.original.formData.issuingSection.partName.partName || "Untitled"}
         </span>
       ),
     },
@@ -48,7 +48,7 @@ const TableView = ({ data }) => {
       accessorKey: "formData.supplierName",
       cell: ({ row }) => (
         <span className="text-gray-700 dark:text-gray-300">
-          {row.original.formData.supplierName}
+          {row.original.formData.defectivenessDetail.supplierName.supplierName || "N/A"}
         </span>
       ),
     },

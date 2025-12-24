@@ -35,7 +35,7 @@ const QualityForm = () => {
   const formFromState = clickedForm?.formData; 
   const myDefaultData = formFromState || myData;
 
-  const [uploadedImageUrl, setUploadedImageUrl] = useState("");
+  // const [uploadedImageUrl, setUploadedImageUrl] = useState("");
   const [suppliersList, setSuppliersList] = useState([]);
   const [partsList, setPartsList] = useState([]);
   const [machinesList, setMachinesList] = useState([]);

@@ -8,7 +8,7 @@
       subjectMatter: "Inspection Report",
       approved: "John Doe",
       checked: "Jane Smith",
-      issued: "", // can be empty string
+      issued: undefined, // can be empty string
     },
 
     // ========== Defectiveness Detail ==========
