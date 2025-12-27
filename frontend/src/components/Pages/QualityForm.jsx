@@ -31,11 +31,12 @@ const QualityForm = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
  
   const clickedForm = location.state?.data;
-  // const [preview, setPreview] = useState(clickedForm?.formData?.defectivenessDetail?.productImage || "");
-  const formFromState = clickedForm?.formData; 
+  const formFromState = clickedForm?.formData;  //preview existing data
   const myDefaultData = formFromState || myData;
-
-  // const [uploadedImageUrl, setUploadedImageUrl] = useState("");
+  
+  const [isNewForm, setIsNewForm] = useState(!clickedForm); 
+  const [preview, setPreview] = useState(null);
+  
   const [suppliersList, setSuppliersList] = useState([]);
   const [partsList, setPartsList] = useState([]);
   const [machinesList, setMachinesList] = useState([]);
@@ -56,10 +57,27 @@ const QualityForm = () => {
   const {user} = useContext(UserContext);
   const navigate = useNavigate();
 
-  const productImageFile = watch("defectivenessDetail.productImage");
-  const preview = productImageFile && productImageFile[0]
-    ? URL.createObjectURL(productImageFile[0])
-    : clickedForm?.formData?.defectivenessDetail?.productImage || "";
+  // const productImageFile = watch("defectivenessDetail.productImage");
+  // let preview;
+  // if(isNewForm && productImageFile && productImageFile[0]){
+  //   preview= URL.createObjectURL(productImageFile[0]);
+  // }
+  // else{
+  //   preview = clickedForm?.formData?.defectivenessDetail?.productImage || null;
+  // }
+
+
+const productImageFile = watch("defectivenessDetail.productImage");
+useEffect(() => {
+  if (isNewForm && productImageFile?.length > 0) {
+    const objectUrl = URL.createObjectURL(productImageFile[0]);
+    setPreview(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }
+
+  setPreview(clickedForm?.formData?.defectivenessDetail?.productImage || null);
+}, [productImageFile, isNewForm, clickedForm]);
 
 
 const onSubmit = async (formData) => {

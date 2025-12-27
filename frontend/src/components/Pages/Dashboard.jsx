@@ -26,24 +26,6 @@ const handleLogout = async () => {
   navigate("/login");
 };
 
-  // Fetch all forms from backend
-  // const fetchAllForms = async () => {
-  //   try {
-  //     const res = await axios.post(
-  //       `${apiUrl}/form/allForms`,
-  //       { Team: user.team },
-  //       { withCredentials: true }
-  //     );
-  //     setFormsList(res.data.forms || []);
-  //   } catch (err) {
-  //     console.error("Error fetching forms:", err);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchAllForms();
-  // }, []);
-
   const filteredForms = formsList.filter((form) => {
     const search = searchTerm.toLowerCase();
 

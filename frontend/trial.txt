@@ -5,11 +5,10 @@ const QualityForm = () => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
  
   const clickedForm = location.state?.data;
-  const [preview, setPreview] = useState(clickedForm?.formData?.productImage || "");
-  const formFromState = clickedForm?.formData; 
+  const formFromState = clickedForm?.formData;  //preview existing data
   const myDefaultData = formFromState || myData;
-
-  const [uploadedImageUrl, setUploadedImageUrl] = useState("");
+  
+  const [isNewForm, setIsNewForm] = useState(!clickedForm); 
 
   const {
     register,
@@ -26,57 +25,45 @@ const QualityForm = () => {
   const {user} = useContext(UserContext);
   const navigate = useNavigate();
 
-const uploadImage = async (file) => {
-  const formData = new FormData();
-  formData.append("productImage", file);
-
-  const res = await api.post(`${apiUrl}/image/productImage`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-    withCredentials: true,
-  });
-  console.log("Response",res);
-  return res.data.url; // backend returns file URL
-};
+  const productImageFile = watch("defectivenessDetail.productImage");
+  let preview;
+  if(isNewForm && productImageFile && productImageFile.length[0]){
+    preview= URL.createObjectURL(productImageFile[0]);
+  }
+  else{
+    preview = clickedForm?.formData?.defectivenessDetail?.productImage || null;
+  }
 
 
-const onSubmit = async (data) => {
-  console.log("calling modify form api", data);
 
-  try {
-    let imageUrl;
-      if(uploadedImageUrl){                             //check if user uploaded something new
-         imageUrl = await uploadImage(data.productImage[0]);
+const onSubmit = async (formData) => {
+    try {
+      const data = new FormData();
+      console.log(user);
+      // Add all form fields
+      data.append("formId", clickedForm?._id || "");
+      // data.append("filledBy", user.team.supplierCode);
+      data.append("status", user.team === "QA" ? "pending_prod" : "pending_quality");
+
+      // Append productImage file if selected
+      if (productImageFile && productImageFile[0]) {
+        data.append("productImage", productImageFile[0]);
       }
-    // Step 1: Use the uploaded image URL
-    const image = imageUrl || clickedForm?.formData?.productImage || "";
 
-    // Step 2: Submit form data
-    const res = await api.post(`${apiUrl}/form/modifyForm`, {
-      formId: location.state?.data?._id,
-      formData: {
-        ...data,
-        productImage: image, //store the URL inside formData
-      },
-      filledBy: user.team,
-      status: user.team === "QA" ? "pending_prod" : "pending_quality",
-    },{withCredentials:true});
+      // Append other form fields (formData object)
+      data.append("formData", JSON.stringify(formData));
 
-    console.log("Form submitted successfully:", res.data);
-    navigate("/");
-  } catch (err) {
-    console.error("Error submitting form:", err);
-  }
-};
+      const res = await api.post(`${apiUrl}/form/modifyForm`, data, {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
+      });
 
-// Image preview handler
-const handleImageChange = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    const imageUrl = URL.createObjectURL(file);
-    setUploadedImageUrl(imageUrl);
-    setPreview(imageUrl);
-  }
-};
+      console.log("Form submitted successfully:", res.data);
+      navigate("/");
+    } catch (err) {
+      console.error("Error submitting form:", err);
+    }
+  };
 
 const handleApprove = async (id) => {
 
@@ -118,32 +105,41 @@ const handleApprove = async (id) => {
             <form onSubmit={handleSubmit(onSubmit)}>
               <CardContent className="flex flex-col gap-10 my-6">
 
-                {/* ====================== ISSUING SECTION ====================== */}
+                {/* ====================== DEFECTIVENESS DETAIL ====================== */}
                 <section className="space-y-6">
-                  <h2 className="text-2xl font-semibold border-b pb-2">Issuing Section</h2>
+                  <h2 className="text-2xl font-semibold border-b pb-2">Defectiveness Detail</h2>
 
                   <div className="grid gap-6 md:grid-cols-2 p-4 rounded-lg border bg-card text-card-foreground shadow-sm border-blue-500">
 
-
-
-
-                    {/* Issued */}
-                    <div className="flex flex-col space-y-1.5">
-                      <Label htmlFor="issued">Issued By</Label>
+                    {/* Product Image Upload */}
+                    <div className="flex flex-col space-y-1.5 md:col-span-2">
+                      <Label htmlFor="productImage">Product Image</Label>
                       <Input
-                        id="issued"
-                        defaultValue={(user?.firstName || "") + " " + (user?.lastName || "")}
-                        placeholder="Enter receiver name"
-                        {...register("issued")}
+                        id="productImage"
+                        type="file"
+                        accept="image/*"
+                        {...register("defectivenessDetail.productImage")}
                       />
-                      {errors.issued && (
-                        <p className="text-sm text-red-500">{errors.issued.message}</p>
+                      {errors.defectivenessDetail?.productImage && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.productImage.message}</p>
+                      )}
+
+                      {/* Image preview */}
+                      {preview && (
+                        <div className="mt-3 flex justify-center">
+                          <a href={preview} target="_blank" rel="noopener noreferrer">
+                            <img
+                              src={preview}
+                              alt="Preview"
+                              className="max-w-full max-h-40 object-contain rounded-md border border-gray-300 shadow-sm hover:scale-105 transition-transform duration-200"
+                            />
+                          </a>
+                        </div>
                       )}
                     </div>
 
                   </div>
                 </section>
-
 
 
               </CardContent>
@@ -161,20 +157,7 @@ const handleApprove = async (id) => {
                   Approve
                 </Button>
                 )
-              } 
-            <Dialog open={isOpen} onOpenChange={setIsOpen}>
-              <DialogContent className="sm:max-w-[400px]">
-                <DialogHeader>
-                  <DialogTitle>Form Approved ✅</DialogTitle>
-                </DialogHeader>
-                <div className="mt-2">
-                  The form has been approved and the report has been generated.
-                </div>
-                <DialogFooter>
-                  <Button onClick={() => setIsOpen(false)}>Close</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>     
+              }   
                   </CardFooter>
                 )
               }

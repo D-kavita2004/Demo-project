@@ -75,7 +75,7 @@ export const getAllForms = async (req, res) => {
         model: "Part",                              // referenced model
         foreignField: "partCode",                   // field in Part to match
         select: "partCode partName -_id",                // fields to return
-        justOne: true                               // optional if one-to-one
+        justOne: true,                            // optional if one-to-one
       })
       .populate({
         path: "formData.defectivenessDetail.processName",
@@ -113,7 +113,8 @@ export const getAllForms = async (req, res) => {
       count: forms.length,
       forms,
     });
-  } catch (error) {
+  }
+  catch(error){
     logger.error("Error fetching forms:", error);
     return res.status(500).json({
       message: "Failed to fetch forms",
