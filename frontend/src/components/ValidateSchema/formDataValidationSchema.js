@@ -13,7 +13,7 @@ export const formDataSchema = z.object({
   issuingSection: z.object({
     receivingNo: nonEmpty.regex(/^[A-Z0-9-]+$/, "Only uppercase letters, numbers and hyphens allowed"),
     referenceNo: nonEmpty.regex(/^[A-Z0-9-]+$/, "Only uppercase letters, numbers and hyphens allowed"),
-    partName: nonEmpty,
+    part: nonEmpty,
     subjectMatter: nonEmpty,
     approved: nonEmpty,
     checked: nonEmpty,
@@ -22,7 +22,7 @@ export const formDataSchema = z.object({
 
   // ========== Defectiveness Detail ==========
   defectivenessDetail: z.object({
-    supplierName: nonEmpty,
+    supplier: nonEmpty,
     groupName: nonEmpty,
     stateOfProcess: nonEmpty,
     associatedLotNo: nonEmpty,
@@ -30,8 +30,8 @@ export const formDataSchema = z.object({
     issueDate: dateString,
     orderNo: z.string().trim().optional(),
     drawingNo: z.string().trim().optional(),
-    processName: nonEmpty,
-    machineName: nonEmpty,
+    process: nonEmpty,
+    machine: nonEmpty,
     totalQuantity: z.coerce.number().int().min(1, "Must be at least 1"),
     usedQuantity: z.coerce.number().int().min(0),
     residualQuantity: z.coerce.number().int().min(0),
@@ -60,19 +60,23 @@ export const formDataSchema = z.object({
     standardization: nonEmpty,
   }),
 
-  // ========== Results of Measures ==========
-  resultsOfMeasures: z.object({
+  // ========== Results of Measures Enforcement ==========
+  resultsOfMeasuresEnforcement: z.object({
     enforcementDateResult: dateString,
     enforcementResult: nonEmpty,
     enforcementJudgment: nonEmpty,
     enforcementSecInCharge: nonEmpty,
     enforcementQCSection: nonEmpty,
+  }),
+
+  // ========== Results of Measures Effect ==========
+  resultsOfMeasuresEffect: z.object({
     effectDate: dateString,
     effectResult: nonEmpty,
     effectJudgment: nonEmpty,
     effectSecInCharge: nonEmpty,
     effectQCSection: nonEmpty,
-  }),
+  })
 })
   // ========== Cross-field validations ==========
   .refine(
@@ -100,21 +104,21 @@ export const formDataSchema = z.object({
       path: ["defectivenessDetail", "issueDate"],
     }
   )
-  .refine(
-    (data) =>
-      new Date(data.measuresReport.enforcementDate) <=
-      new Date(data.resultsOfMeasures.enforcementDateResult),
-    {
-      message: "Measure result date must be on or after enforcement date",
-      path: ["resultsOfMeasures", "enforcementDateResult"],
-    }
-  )
-  .refine(
-    (data) =>
-      new Date(data.resultsOfMeasures.enforcementDateResult) <=
-      new Date(data.resultsOfMeasures.effectDate),
-    {
-      message: "Effect date cannot be earlier than enforcement result date",
-      path: ["resultsOfMeasures", "effectDate"],
-    }
-  );
+  // .refine(
+  //   (data) =>
+  //     new Date(data.resultsOfMeasuresEnforcement.enforcementDateResult) <=
+  //     new Date(data.resultsOfMeasuresEnforcement.enforcementDateResult),
+  //   {
+  //     message: "Measure result date must be on or after enforcement date",
+  //     path: ["resultsOfMeasuresEnforcement", "enforcementDateResult"],
+  //   }
+  // )
+  // .refine(
+  //   (data) =>
+  //     new Date(data.resultsOfMeasuresEnforcement.enforcementDateResult) <=
+  //     new Date(data.resultsOfMeasuresEffect.effectDate),
+  //   {
+  //     message: "Effect date cannot be earlier than enforcement result date",
+  //     path: ["resultsOfMeasuresEffect", "effectDate"],
+  //   }
+  // );

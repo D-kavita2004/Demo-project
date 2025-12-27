@@ -29,8 +29,8 @@ const handleLogout = async () => {
   const filteredForms = formsList.filter((form) => {
     const search = searchTerm.toLowerCase();
 
-    const partName = form.formData?.partName?.toLowerCase() || "";
-    const supplier = form.formData?.supplierName?.toLowerCase() || "";
+    const partName = form.formData?.part?.partName?.toLowerCase() || "";
+    const supplier = form.formData?.supplier?.supplierName?.toLowerCase() || "";
     const status = form.status?.toLowerCase() || "";
 
     return (

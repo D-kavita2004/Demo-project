@@ -36,19 +36,19 @@ const TableView = ({ data }) => {
   const baseColumns = [
     {
       header: "Part Name",
-      accessorKey: "formData.partName",
+      accessorKey: "formData.issuingSection.part.partName",
       cell: ({ row }) => (
         <span className="font-medium text-gray-800 dark:text-gray-100">
-          {row.original.formData.issuingSection.partName.partName || "Untitled"}
+          {row.original.formData.issuingSection.part.partName || "Untitled"}
         </span>
       ),
     },
     {
       header: "Supplier/Department Name",
-      accessorKey: "formData.supplierName",
+      accessorKey: "formData.defectivenessDetail.supplier.supplierName",
       cell: ({ row }) => (
         <span className="text-gray-700 dark:text-gray-300">
-          {row.original.formData.defectivenessDetail.supplierName.supplierName || "N/A"}
+          {row.original.formData.defectivenessDetail.supplier.supplierName || "N/A"}
         </span>
       ),
     },

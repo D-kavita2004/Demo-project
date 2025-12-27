@@ -35,12 +35,13 @@ const QualityForm = () => {
   const myDefaultData = formFromState || myData;
   
   const [isNewForm, setIsNewForm] = useState(!clickedForm); 
-  const [preview, setPreview] = useState(null);
   
   const [suppliersList, setSuppliersList] = useState([]);
   const [partsList, setPartsList] = useState([]);
   const [machinesList, setMachinesList] = useState([]);
   const [processesList, setProcessesList] = useState([]);
+
+  const [preview, setPreview] = useState(null); // image preview state
 
   const {
     register,
@@ -56,16 +57,6 @@ const QualityForm = () => {
 
   const {user} = useContext(UserContext);
   const navigate = useNavigate();
-
-  // const productImageFile = watch("defectivenessDetail.productImage");
-  // let preview;
-  // if(isNewForm && productImageFile && productImageFile[0]){
-  //   preview= URL.createObjectURL(productImageFile[0]);
-  // }
-  // else{
-  //   preview = clickedForm?.formData?.defectivenessDetail?.productImage || null;
-  // }
-
 
 const productImageFile = watch("defectivenessDetail.productImage");
 useEffect(() => {
@@ -83,7 +74,7 @@ useEffect(() => {
 const onSubmit = async (formData) => {
     try {
       const data = new FormData();
-      console.log(user);
+      console.log(formData);
       // Add all form fields
       data.append("formId", clickedForm?._id || "");
       // data.append("filledBy", user.team.supplierCode);
@@ -192,10 +183,12 @@ const fetchAllMachines = async () => {
 }
 
 useEffect(()=>{
+  if(isNewForm){
     fetchAllSuppliers();
     fetchAllParts();  
     fetchAllProcesses();
     fetchAllMachines();
+  }
 },[]);
 
   return (
@@ -252,9 +245,12 @@ useEffect(()=>{
                       {/* Part Name */}
                       <div className="flex flex-col space-y-1.5">
                         <Label htmlFor="partName">Part Name</Label>
+                        {
+                          isNewForm ? 
+                          (
                         <Select
-                          value={watch("issuingSection.partName")}
-                          onValueChange={(v) => setValue("issuingSection.partName", v)}
+                          value={watch("issuingSection.part")}
+                          onValueChange={(v) => setValue("issuingSection.part", v)}
                           required
                         >
                           <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
@@ -268,8 +264,19 @@ useEffect(()=>{
                             ))}
                           </SelectContent>
                         </Select>
-                        {errors.issuingSection?.partName && (
-                          <p className="text-sm text-red-500">{errors.issuingSection.partName.message}</p>
+                          ):
+                          (
+                        <Input
+                          value={
+                            clickedForm?.formData?.issuingSection?.part?.partName || ""
+                          }
+                          readOnly
+                          className="bg-muted cursor-not-allowed"
+                        />
+                          )
+                        }
+                        {errors.issuingSection?.part && (
+                          <p className="text-sm text-red-500">{errors.issuingSection.part.message}</p>
                         )}
                       </div>
 
@@ -339,24 +346,38 @@ useEffect(()=>{
                     {/* Section / Supplier Name */}
                     <div className="flex flex-col space-y-1.5">
                       <Label htmlFor="supplierName">Section / Supplier Name</Label>
-                      <Select
-                        value={watch("defectivenessDetail.supplierName")}
-                        onValueChange={(v) => setValue("defectivenessDetail.supplierName", v)}
-                        required
-                      >
-                        <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                          <SelectValue placeholder="Select Supplier" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {suppliersList.map((s) => (
-                            <SelectItem key={s.supplierCode} value={s.supplierCode}>
-                              {s.supplierName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {errors.defectivenessDetail?.supplierName && (
-                        <p className="text-sm text-red-500">{errors.defectivenessDetail.supplierName.message}</p>
+                        {
+                          isNewForm ?
+                          (
+                            <Select
+                              value={watch("defectivenessDetail.supplier")}
+                              onValueChange={(v) => setValue("defectivenessDetail.supplier", v)}
+                              required
+                            >
+                              <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                                <SelectValue placeholder="Select Supplier" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {suppliersList.map((s) => (
+                                  <SelectItem key={s.supplierCode} value={s.supplierCode}>
+                                    {s.supplierName}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          ):
+                          (
+                            <Input
+                              value={
+                                clickedForm?.formData?.issuingSection?.part?.partName || ""
+                              }
+                              readOnly
+                              className="bg-muted cursor-not-allowed"
+                            />
+                          )
+                        }
+                      {errors.defectivenessDetail?.supplier && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.supplier.message}</p>
                       )}
                     </div>
 
@@ -454,49 +475,77 @@ useEffect(()=>{
                     {/* Process Name */}
                     <div className="flex flex-col space-y-1.5">
                       <Label htmlFor="processName">Process Name</Label>
-                      <Select
-                        value={watch("defectivenessDetail.processName")}
-                        onValueChange={(v) => setValue("defectivenessDetail.processName", v)}
-                        required
-                      >
-                        <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                          <SelectValue placeholder="Select Process" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {processesList.map((s) => (
-                            <SelectItem key={s.processCode} value={s.processCode}>
-                              {s.processName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {errors.defectivenessDetail?.processName && (
-                        <p className="text-sm text-red-500">{errors.defectivenessDetail.processName.message}</p>
+                      {
+                        isNewForm ? 
+                        (
+                          <Select
+                            value={watch("defectivenessDetail.process")}
+                            onValueChange={(v) => setValue("defectivenessDetail.process", v)}
+                            required
+                          >
+                            <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                              <SelectValue placeholder="Select Process" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {processesList.map((s) => (
+                                <SelectItem key={s.processCode} value={s.processCode}>
+                                  {s.processName}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ):
+                        (
+                          <Input
+                            value={
+                              clickedForm?.formData?.issuingSection?.part?.partName || ""
+                            }
+                            readOnly
+                            className="bg-muted cursor-not-allowed"
+                          />
+                        )
+                      }
+                      {errors.defectivenessDetail?.process && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.process.message}</p>
                       )}
                     </div>
 
                     {/* Machine Name */}
                     <div className="flex flex-col space-y-1.5">
                       <Label htmlFor="machineName">Machine Name</Label>
-                      <Select
-                        value={watch("defectivenessDetail.machineName")}
-                        onValueChange={(v) => setValue("defectivenessDetail.machineName", v)}
-                        required
-                        className="w-3/4"
-                      >
-                        <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                          <SelectValue placeholder="Select Machine" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {machinesList.map((s) => (
-                            <SelectItem key={s.machineCode} value={s.machineCode}>
-                              {s.machineName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {errors.defectivenessDetail?.machineName && (
-                        <p className="text-sm text-red-500">{errors.defectivenessDetail.machineName.message}</p>
+                      {
+                        isNewForm ?
+                        (
+                          <Select
+                            value={watch("defectivenessDetail.machine")}
+                            onValueChange={(v) => setValue("defectivenessDetail.machine", v)}
+                            required
+                            className="w-3/4"
+                          >
+                            <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                              <SelectValue placeholder="Select Machine" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {machinesList.map((s) => (
+                                <SelectItem key={s.machineCode} value={s.machineCode}>
+                                  {s.machineName}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ):
+                        (
+                          <Input
+                            value={
+                              clickedForm?.formData?.issuingSection?.part?.partName || ""
+                            }
+                            readOnly
+                            className="bg-muted cursor-not-allowed"
+                          />
+                        )
+                      }
+                      {errors.defectivenessDetail?.machine && (
+                        <p className="text-sm text-red-500">{errors.defectivenessDetail.machine.message}</p>
                       )}
                     </div>
 
@@ -787,9 +836,9 @@ useEffect(()=>{
                 </section>
 
 
-                {/* ====================== Results of Measures ====================== */}
+                {/* ====================== Results of Measures Enforcement ====================== */}
                 <section className="space-y-6">
-                  <h2 className="text-2xl font-semibold border-b pb-2">Results of Measures</h2>
+                  <h2 className="text-2xl font-semibold border-b pb-2">Results of Measures Enforcement</h2>
                   <div className="grid gap-4 p-4 rounded-lg border bg-card text-card-foreground shadow-sm border-blue-500">
 
                     {/* --- Result of Measures Enforcement --- */}
@@ -799,9 +848,9 @@ useEffect(()=>{
                         <Input
                           id="enforcementDateResult"
                           type="date"
-                          {...register("resultsOfMeasures.enforcementDateResult")}
+                          {...register("resultsOfMeasuresEnforcement.enforcementDateResult")}
                         />
-                        {errors.resultsOfMeasures?.enforcementDateResult && (
+                        {errors.resultsOfMeasuresEnforcement?.enforcementDateResult && (
                           <p className="text-sm text-red-500">
                             {errors.resultsOfMeasures.enforcementDateResult.message}
                           </p>
@@ -813,11 +862,11 @@ useEffect(()=>{
                         <Textarea
                           id="enforcementResult"
                           placeholder="Describe result of measures enforcement..."
-                          {...register("resultsOfMeasures.enforcementResult")}
+                          {...register("resultsOfMeasuresEnforcement.enforcementResult")}
                         />
-                        {errors.resultsOfMeasures?.enforcementResult && (
+                        {errors.resultsOfMeasuresEnforcement?.enforcementResult && (
                           <p className="text-sm text-red-500">
-                            {errors.resultsOfMeasures.enforcementResult.message}
+                            {errors.resultsOfMeasuresEnforcement.enforcementResult.message}
                           </p>
                         )}
                       </div>
@@ -830,7 +879,7 @@ useEffect(()=>{
                         <Input
                           id="enforcementJudgment"
                           placeholder="Enter judgment"
-                          {...register("resultsOfMeasures.enforcementJudgment")}
+                          {...register("resultsOfMeasuresEnforcement.enforcementJudgment")}
                         />
                       </div>
                       <div className="flex flex-col space-y-1.5">
@@ -838,7 +887,7 @@ useEffect(()=>{
                         <Input
                           id="enforcementSecInCharge"
                           placeholder="Enter section in charge"
-                          {...register("resultsOfMeasures.enforcementSecInCharge")}
+                          {...register("resultsOfMeasuresEnforcement.enforcementSecInCharge")}
                         />
                       </div>
                       <div className="flex flex-col space-y-1.5">
@@ -846,72 +895,78 @@ useEffect(()=>{
                         <Input
                           id="enforcementQCSection"
                           placeholder="Enter QC section"
-                          {...register("resultsOfMeasures.enforcementQCSection")}
+                          {...register("resultsOfMeasuresEnforcement.enforcementQCSection")}
                         />
                       </div>
                     </div>
 
-                    {/* --- Divider --- */}
-                    <hr className="my-6 border-muted" />
+                  </div>
+                </section>
 
-                    {/* --- Result of Measures Effect --- */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                      <div className="flex flex-col space-y-1.5">
-                        <Label htmlFor="effectDate">Date (Effect)</Label>
-                        <Input
-                          id="effectDate"
-                          type="date"
-                          {...register("resultsOfMeasures.effectDate")}
-                        />
-                        {errors.resultsOfMeasures?.effectDate && (
-                          <p className="text-sm text-red-500">
-                            {errors.resultsOfMeasures.effectDate.message}
-                          </p>
-                        )}
+
+                {/* ====================== Results of Measures Effect====================== */}
+                <section className="space-y-6">
+                  <h2 className="text-2xl font-semibold border-b pb-2">Results of Measures Effect</h2>
+                  <div className="grid gap-4 p-4 rounded-lg border bg-card text-card-foreground shadow-sm border-blue-500">
+
+                      {/* --- Result of Measures Effect --- */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                        <div className="flex flex-col space-y-1.5">
+                          <Label htmlFor="effectDate">Date (Effect)</Label>
+                          <Input
+                            id="effectDate"
+                            type="date"
+                            {...register("resultsOfMeasuresEffect.effectDate")}
+                          />
+                          {errors.resultsOfMeasuresEffect?.effectDate && (
+                            <p className="text-sm text-red-500">
+                              {errors.resultsOfMeasuresEffect.effectDate.message}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col space-y-1.5 md:col-span-2">
+                          <Label htmlFor="effectResult">Result of Measures Effect (Comment)</Label>
+                          <Textarea
+                            id="effectResult"
+                            placeholder="Describe result of measures effect..."
+                            {...register("resultsOfMeasuresEffect.effectResult")}
+                          />
+                          {errors.resultsOfMeasuresEffect?.effectResult && (
+                            <p className="text-sm text-red-500">
+                              {errors.resultsOfMeasuresEffect.effectResult.message}
+                            </p>
+                          )}
+                        </div>
                       </div>
 
-                      <div className="flex flex-col space-y-1.5 md:col-span-2">
-                        <Label htmlFor="effectResult">Result of Measures Effect (Comment)</Label>
-                        <Textarea
-                          id="effectResult"
-                          placeholder="Describe result of measures effect..."
-                          {...register("resultsOfMeasures.effectResult")}
-                        />
-                        {errors.resultsOfMeasures?.effectResult && (
-                          <p className="text-sm text-red-500">
-                            {errors.resultsOfMeasures.effectResult.message}
-                          </p>
-                        )}
+                      {/* --- Effect Approval Table --- */}
+                      <div className="grid md:grid-cols-4 gap-4">
+                        <div className="flex flex-col space-y-1.5">
+                          <Label htmlFor="effectJudgment">Judgment</Label>
+                          <Input
+                            id="effectJudgment"
+                            placeholder="Enter judgment"
+                            {...register("resultsOfMeasuresEffect.effectJudgment")}
+                          />
+                        </div>
+                        <div className="flex flex-col space-y-1.5">
+                          <Label htmlFor="effectSecInCharge">Sec. in Charge</Label>
+                          <Input
+                            id="effectSecInCharge"
+                            placeholder="Enter section in charge"
+                            {...register("resultsOfMeasuresEffect.effectSecInCharge")}
+                          />
+                        </div>
+                        <div className="flex flex-col space-y-1.5">
+                          <Label htmlFor="effectQCSection">QC Section</Label>
+                          <Input
+                            id="effectQCSection"
+                            placeholder="Enter QC section"
+                            {...register("resultsOfMeasuresEffect.effectQCSection")}
+                          />
+                        </div>
                       </div>
-                    </div>
-
-                    {/* --- Effect Approval Table --- */}
-                    <div className="grid md:grid-cols-4 gap-4">
-                      <div className="flex flex-col space-y-1.5">
-                        <Label htmlFor="effectJudgment">Judgment</Label>
-                        <Input
-                          id="effectJudgment"
-                          placeholder="Enter judgment"
-                          {...register("resultsOfMeasures.effectJudgment")}
-                        />
-                      </div>
-                      <div className="flex flex-col space-y-1.5">
-                        <Label htmlFor="effectSecInCharge">Sec. in Charge</Label>
-                        <Input
-                          id="effectSecInCharge"
-                          placeholder="Enter section in charge"
-                          {...register("resultsOfMeasures.effectSecInCharge")}
-                        />
-                      </div>
-                      <div className="flex flex-col space-y-1.5">
-                        <Label htmlFor="effectQCSection">QC Section</Label>
-                        <Input
-                          id="effectQCSection"
-                          placeholder="Enter QC section"
-                          {...register("resultsOfMeasures.effectQCSection")}
-                        />
-                      </div>
-                    </div>
 
                   </div>
                 </section>

@@ -9,6 +9,12 @@ const QualityForm = () => {
   const myDefaultData = formFromState || myData;
   
   const [isNewForm, setIsNewForm] = useState(!clickedForm); 
+  const [preview, setPreview] = useState(null);
+  
+  const [suppliersList, setSuppliersList] = useState([]);
+  const [partsList, setPartsList] = useState([]);
+  const [machinesList, setMachinesList] = useState([]);
+  const [processesList, setProcessesList] = useState([]);
 
   const {
     register,
@@ -25,21 +31,24 @@ const QualityForm = () => {
   const {user} = useContext(UserContext);
   const navigate = useNavigate();
 
-  const productImageFile = watch("defectivenessDetail.productImage");
-  let preview;
-  if(isNewForm && productImageFile && productImageFile.length[0]){
-    preview= URL.createObjectURL(productImageFile[0]);
-  }
-  else{
-    preview = clickedForm?.formData?.defectivenessDetail?.productImage || null;
+const productImageFile = watch("defectivenessDetail.productImage");
+
+useEffect(() => {
+  if (isNewForm && productImageFile?.length > 0) {
+    const objectUrl = URL.createObjectURL(productImageFile[0]);
+    setPreview(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
   }
 
+  setPreview(clickedForm?.formData?.defectivenessDetail?.productImage || null);
+}, [productImageFile, isNewForm, clickedForm]);
 
 
 const onSubmit = async (formData) => {
     try {
       const data = new FormData();
-      console.log(user);
+      console.log(formData);
       // Add all form fields
       data.append("formId", clickedForm?._id || "");
       // data.append("filledBy", user.team.supplierCode);
@@ -84,7 +93,6 @@ const handleApprove = async (id) => {
     } 
   };
 
-
   return (
     <div className="flex flex-col">
       <Button
@@ -104,43 +112,38 @@ const handleApprove = async (id) => {
 
             <form onSubmit={handleSubmit(onSubmit)}>
               <CardContent className="flex flex-col gap-10 my-6">
+                  {/* ====================== ISSUING SECTION ====================== */}
+                  <section className="space-y-6">
+                    <h2 className="text-2xl font-semibold border-b pb-2">Issuing Section</h2>
 
-                {/* ====================== DEFECTIVENESS DETAIL ====================== */}
-                <section className="space-y-6">
-                  <h2 className="text-2xl font-semibold border-b pb-2">Defectiveness Detail</h2>
+                    <div className="grid gap-6 md:grid-cols-2 p-4 rounded-lg border bg-card text-card-foreground shadow-sm border-blue-500">
 
-                  <div className="grid gap-6 md:grid-cols-2 p-4 rounded-lg border bg-card text-card-foreground shadow-sm border-blue-500">
+                      {/* Part Name */}
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="partName">Part Name</Label>
+                        <Select
+                          value={watch(isNewForm ? "issuingSection.part" : "issuingSection.part.partName")}
+                          onValueChange={(v) => setValue(isNewForm ? "issuingSection.part" : "issuingSection.part.partName", v)}
+                          required
+                        >
+                          <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                            <SelectValue placeholder="Select Part Name" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {partsList.map((s) => (
+                              <SelectItem key={s.partCode} value={s.partCode}>
+                                {s.partName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {errors.issuingSection?.part && (
+                          <p className="text-sm text-red-500">{errors.issuingSection.part.message}</p>
+                        )}
+                      </div>
 
-                    {/* Product Image Upload */}
-                    <div className="flex flex-col space-y-1.5 md:col-span-2">
-                      <Label htmlFor="productImage">Product Image</Label>
-                      <Input
-                        id="productImage"
-                        type="file"
-                        accept="image/*"
-                        {...register("defectivenessDetail.productImage")}
-                      />
-                      {errors.defectivenessDetail?.productImage && (
-                        <p className="text-sm text-red-500">{errors.defectivenessDetail.productImage.message}</p>
-                      )}
-
-                      {/* Image preview */}
-                      {preview && (
-                        <div className="mt-3 flex justify-center">
-                          <a href={preview} target="_blank" rel="noopener noreferrer">
-                            <img
-                              src={preview}
-                              alt="Preview"
-                              className="max-w-full max-h-40 object-contain rounded-md border border-gray-300 shadow-sm hover:scale-105 transition-transform duration-200"
-                            />
-                          </a>
-                        </div>
-                      )}
                     </div>
-
-                  </div>
-                </section>
-
+                  </section>
 
               </CardContent>
               {
@@ -157,7 +160,7 @@ const handleApprove = async (id) => {
                   Approve
                 </Button>
                 )
-              }   
+              }    
                   </CardFooter>
                 )
               }

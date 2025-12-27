@@ -4,7 +4,7 @@
     issuingSection: {
       receivingNo: "RCV-2025-001",
       referenceNo: "REF-12345",
-      partName: "", // ObjectId of part will go here
+      partName: "", // Id of part will go here
       subjectMatter: "Inspection Report",
       approved: "John Doe",
       checked: "Jane Smith",
@@ -13,7 +13,7 @@
 
     // ========== Defectiveness Detail ==========
     defectivenessDetail: {
-      supplierName: "", // ObjectId of supplier will go here
+      supplierName: "", // Id of supplier will go here
       groupName: "Quality Group A",
       stateOfProcess: "Machining",
       associatedLotNo: "LOT-7789",
@@ -53,12 +53,15 @@
     },
 
     // ========== Results of Measures ==========
-    resultsOfMeasures: {
+    resultsOfMeasuresEnforcement: {
       enforcementDateResult: "2025-10-28",
       enforcementResult: "Measures implemented successfully.",
       enforcementJudgment: "Effective",
       enforcementSecInCharge: "R&D Team",
       enforcementQCSection: "QC Section A",
+    },
+        // ========== Results of Measures ==========
+    resultsOfMeasuresEffect: {
       effectDate: "2025-11-01",
       effectResult: "No recurrence of issue detected.",
       effectJudgment: "Stable",

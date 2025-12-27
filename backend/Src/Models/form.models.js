@@ -21,7 +21,7 @@ const formDataSchema = new mongoose.Schema(
     issuingSection: {
       receivingNo: { type: String, required: true },
       referenceNo: { type: String, required: true },
-      partName: { type: String, required: true },
+      part: { type: String, required: true },
       subjectMatter: { type: String, required: true },
       approved: { type: String, required: true },
       checked: { type: String, required: true },
@@ -30,7 +30,7 @@ const formDataSchema = new mongoose.Schema(
 
     /* ---------- Defectiveness Detail ---------- */
     defectivenessDetail: {
-      supplierName: { type: String, required: true },
+      supplier: { type: String, required: true },
       groupName: { type: String, required: true },
       stateOfProcess: { type: String, required: true },
       associatedLotNo: { type: String, required: true },
@@ -38,8 +38,8 @@ const formDataSchema = new mongoose.Schema(
       issueDate: { type: String, required: true },      // YYYY-MM-DD
       orderNo: { type: String },
       drawingNo: { type: String },
-      processName: { type: String, required: true },
-      machineName: { type: String, required: true },
+      process: { type: String, required: true },
+      machine: { type: String, required: true },
 
       totalQuantity: { type: Number, required: true },
       usedQuantity: { type: Number, required: true },
@@ -75,12 +75,16 @@ const formDataSchema = new mongoose.Schema(
     },
 
     /* ---------- Results of Measures ---------- */
-    resultsOfMeasures: {
+    resultsOfMeasuresEnforcement: {
       enforcementDateResult: { type: String, required: true },
       enforcementResult: { type: String, required: true },
       enforcementJudgment: { type: String, required: true },
       enforcementSecInCharge: { type: String, required: true },
       enforcementQCSection: { type: String, required: true },
+    },
+
+    /* ---------- Results of Measures ---------- */
+    resultsOfMeasuresEffect: {
       effectDate: { type: String, required: true },
       effectResult: { type: String, required: true },
       effectJudgment: { type: String, required: true },

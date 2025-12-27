@@ -16,10 +16,7 @@ export const modifyForm = async (req, res) => {
     if (req.body.formData) {
       formData = JSON.parse(req.body.formData);
     }
-    // const supplierId = await Supplier.findOne({supplierCode: formData.supplierName}).select("_id");
-    // const partId = await Part.findOne({partCode: formData.partCode}).select("_id");
-    // const processId = await Process.findOne({processCode: formData.processCode}).select("_id");
-    // const machineId = await Machine.findOne({machineCode: formData.machineCode}).select("_id");
+    logger.info(JSON.stringify(formData, null, 2));
 
     if (!formData) {
       return res.status(404).json({ message: "Form data is required" });
@@ -71,28 +68,28 @@ export const getAllForms = async (req, res) => {
 
     const forms = await Form.find(filter)
       .populate({
-        path: "formData.issuingSection.partName",   // local field in Form
+        path: "formData.issuingSection.part",   // local field in Form
         model: "Part",                              // referenced model
         foreignField: "partCode",                   // field in Part to match
         select: "partCode partName -_id",                // fields to return
         justOne: true,                            // optional if one-to-one
       })
       .populate({
-        path: "formData.defectivenessDetail.processName",
+        path: "formData.defectivenessDetail.process",
         model: "Process",
         foreignField: "processCode",
         select: "processCode processName -_id",
         justOne: true,
       })
       .populate({
-        path: "formData.defectivenessDetail.supplierName",
+        path: "formData.defectivenessDetail.supplier",
         model: "Supplier",
         foreignField: "supplierCode",
         select: "supplierCode supplierName -_id",
         justOne: true,
       })
       .populate({
-        path: "formData.defectivenessDetail.machineName",
+        path: "formData.defectivenessDetail.machine",
         model: "Machine",
         foreignField: "machineCode",
         select: "machineCode machineName -_id",
