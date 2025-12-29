@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formDataSchema } from "../ValidateSchema/formDataValidationSchema";
 import {myData} from "../Utils/DefaultData";
@@ -77,8 +78,8 @@ const onSubmit = async (formData) => {
       console.log(formData);
       // Add all form fields
       data.append("formId", clickedForm?._id || "");
-      // data.append("filledBy", user.team.supplierCode);
-      data.append("status", user.team === "QA" ? "pending_prod" : "pending_quality");
+      // // data.append("filledBy", user.team.supplierCode);
+      // data.append("status", user.team === "QA" ? "pending_prod" : "pending_quality");
 
       // Append productImage file if selected
       if (productImageFile && productImageFile[0]) {
@@ -210,8 +211,9 @@ useEffect(()=>{
 
             <form onSubmit={handleSubmit(onSubmit)}>
               <CardContent className="flex flex-col gap-10 my-6">
-                  {/* ====================== ISSUING SECTION ====================== */}
-                  <section className="space-y-6">
+
+                {/* ====================== ISSUING SECTION ====================== */}
+                <section className="space-y-6">
                     <h2 className="text-2xl font-semibold border-b pb-2">Issuing Section</h2>
 
                     <div className="grid gap-6 md:grid-cols-2 p-4 rounded-lg border bg-card text-card-foreground shadow-sm border-blue-500">
@@ -334,7 +336,7 @@ useEffect(()=>{
                       </div>
 
                     </div>
-                  </section>
+                </section>
 
 
                 {/* ====================== DEFECTIVENESS DETAIL ====================== */}
@@ -976,31 +978,31 @@ useEffect(()=>{
               {
                 location.state?.data?.status != "approved" && (
                   <CardFooter className="flex justify-center py-6">
-                <Button type="submit" className="px-8 py-2 text-lg mx-3">
-                  {
-                    (location?.state?.data?.status === "pending_quality" && user.team === "QA") ? "Reject":"Submit"
-                  }
-                </Button>
-              {
-                (location?.state?.data?.status === "pending_quality" && user.team === "QA") && (
-                  <Button  type="button" className="px-8 py-2 text-lg mx-3" onClick={()=>{handleApprove(location.state?.data?._id)}}>
-                  Approve
-                </Button>
-                )
-              } 
-            <Dialog open={isOpen} onOpenChange={setIsOpen}>
-              <DialogContent className="sm:max-w-[400px]">
-                <DialogHeader>
-                  <DialogTitle>Form Approved ✅</DialogTitle>
-                </DialogHeader>
-                <div className="mt-2">
-                  The form has been approved and the report has been generated.
-                </div>
-                <DialogFooter>
-                  <Button onClick={() => setIsOpen(false)}>Close</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>     
+                      <Button type="submit" className="px-8 py-2 text-lg mx-3">
+                        {
+                          (location?.state?.data?.status === "pending_quality" && user.team.flag === "QA") ? "Reject":"Submit"
+                        }
+                      </Button>
+                      {
+                        (location?.state?.data?.status === "pending_quality" && user.team === "QA") && (
+                          <Button  type="button" className="px-8 py-2 text-lg mx-3" onClick={()=>{handleApprove(location.state?.data?._id)}}>
+                          Approve
+                        </Button>
+                        )
+                      } 
+                      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                        <DialogContent className="sm:max-w-[400px]">
+                          <DialogHeader>
+                            <DialogTitle>Form Approved ✅</DialogTitle>
+                          </DialogHeader>
+                          <div className="mt-2">
+                            The form has been approved and the report has been generated.
+                          </div>
+                          <DialogFooter>
+                            <Button onClick={() => setIsOpen(false)}>Close</Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>     
                   </CardFooter>
                 )
               }

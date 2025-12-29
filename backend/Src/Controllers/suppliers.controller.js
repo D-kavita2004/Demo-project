@@ -87,7 +87,7 @@ export const updateSupplier = async (req, res) => {
     const supplier = await Supplier.findOneAndUpdate(
       { supplierCode },
       { supplierName },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!supplier) {

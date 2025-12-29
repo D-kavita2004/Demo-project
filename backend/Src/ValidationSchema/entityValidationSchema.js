@@ -10,7 +10,7 @@ export const nameFieldSchema = z
   .max(50, "Name cannot exceed 50 characters")
   .regex(
     /^[a-zA-Z]+([-\s]?[a-zA-Z0-9]+)*$/,
-    "Must start with a letter. Only letters and numbers are allowed, with spaces or hyphens between words."
+    "Must start with a letter. Only letters and numbers are allowed, with spaces or hyphens between words.",
   );
 
 

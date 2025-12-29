@@ -19,7 +19,7 @@ const partSchema = new mongoose.Schema(
       lowercase: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Auto-generate partCode once

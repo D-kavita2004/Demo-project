@@ -27,7 +27,7 @@ const supplierSchema = new mongoose.Schema(
       default:"INTERNAL",     
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Auto-generate supplierCode once

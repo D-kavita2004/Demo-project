@@ -1,4 +1,4 @@
-import Machine from "../Models/machines.models.js"
+import Machine from "../Models/machines.models.js";
 import logger from "../../Config/logger.js";
 
 // =========================
@@ -64,7 +64,7 @@ export const updateMachine = async (req, res) => {
     const machine = await Machine.findOneAndUpdate(
       {machineCode},
       { machineName },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!machine) {

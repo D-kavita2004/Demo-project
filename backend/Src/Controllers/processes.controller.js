@@ -64,7 +64,7 @@ export const updateProcess = async (req, res) => {
     const process = await Process.findOneAndUpdate(
       {processCode},
       { processName },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!process) {

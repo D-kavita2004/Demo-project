@@ -3,8 +3,10 @@ import logger from "../../Config/logger.js";
 
 export const modifyForm = async (req, res) => {
   try {
-    // console.log("modify function hit")
-    const { formId,status } = req.body;
+
+    const { formId} = req.body;
+    const {team, role} = req.user;
+
     const imageUrl = req.fileUrl;
     
     let formData = {};
@@ -25,18 +27,27 @@ export const modifyForm = async (req, res) => {
         formId,
         {
           formData: {...formData, defectivenessDetail: {...formData.defectivenessDetail, productImage: imageUrl}  },
-          status: status || "pending_prod",
+          status: team.flag === "QA" || team.flag === "IT" ? "pending_prod" : "pending_quality",
           updatedAt: new Date(),
         },
         { new: true },
       );
     } else {
       // Create new form
-      form = new Form({
-        formData: {...formData, defectivenessDetail: {...formData.defectivenessDetail, productImage: imageUrl}  },
-        status: status || "pending_prod",
-      });
-      await form.save();
+      if(team.flag === "QA" || role === "admin" || team.flag === "IT"){
+        form = new Form({
+          formData: {...formData, defectivenessDetail: {...formData.defectivenessDetail, productImage: imageUrl}  },
+          status: "pending_prod",
+        });
+
+        await form.save();
+
+      }
+      else{
+        return res.status(403).json({
+          message: "Only Quality and IT team can submit new forms",
+        });
+      }
     }
 
     return res.status(201).json({

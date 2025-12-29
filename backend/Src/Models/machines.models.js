@@ -19,7 +19,7 @@ const machineSchema = new mongoose.Schema(
       lowercase: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Auto-generate machineCode once

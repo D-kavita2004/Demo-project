@@ -19,7 +19,7 @@ const processSchema = new mongoose.Schema(
       lowercase: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Auto-generate processCode once

@@ -64,7 +64,7 @@ export const updatePart = async (req, res) => {
     const part = await Part.findOneAndUpdate(
       {partCode},
       { partName },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!part) {

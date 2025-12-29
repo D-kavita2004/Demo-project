@@ -32,6 +32,24 @@ const TableView = ({ data }) => {
     pageSize: 5,
   });
 
+  const getStatusLabel = (status, teamFlag) => {
+    if (status === "approved") return "Approved";
+
+    if (status === "pending_prod") {
+      return (teamFlag === "QA" || teamFlag === "IT")
+        ? "Submitted"
+        : "Review";
+    }
+
+    if (status === "pending_quality") {
+      return teamFlag === "INTERNAL"
+        ? "Submitted"
+        : "Review";
+    }
+
+    return "Review";
+  };
+
   // Base columns
   const baseColumns = [
     {
@@ -74,9 +92,9 @@ const TableView = ({ data }) => {
             : "bg-blue-100 text-blue-700";
         const label =
           status === "pending_quality"
-            ? "Pending Quality Review"
+            ? "AWAITING QUALITY REVIEW"
             : status === "pending_prod"
-            ? "Pending Production Review"
+            ? "AWAITING PRODUCTION REVIEW"
             : "Approved";
 
         return (
@@ -101,7 +119,8 @@ const TableView = ({ data }) => {
                   : "bg-blue-600 hover:bg-blue-700"
               } text-white`}
             >
-              {row.original.status === "approved" ? "View Details" : "Preview"}
+              {getStatusLabel(row.original.status, user.team.flag)}
+
             </Button>
           )}
         </div>
