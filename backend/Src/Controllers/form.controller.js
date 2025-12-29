@@ -1,10 +1,5 @@
 import Form from "../Models/form.models.js";
 import logger from "../../Config/logger.js";
-// import Supplier from "../Models/suppliers.models.js";
-// import Part from "../Models/parts.models.js";
-// import Process from "../Models/processes.models.js";
-// import Machine from "../Models/machines.models.js";
-
 
 export const modifyForm = async (req, res) => {
   try {
@@ -16,7 +11,7 @@ export const modifyForm = async (req, res) => {
     if (req.body.formData) {
       formData = JSON.parse(req.body.formData);
     }
-    logger.info(JSON.stringify(formData, null, 2));
+    // logger.info(JSON.stringify(formData, null, 2));
 
     if (!formData) {
       return res.status(404).json({ message: "Form data is required" });
@@ -59,12 +54,14 @@ export const modifyForm = async (req, res) => {
 
 export const getAllForms = async (req, res) => {
   try {
-    const { role} = req.user; // get from auth middleware
-    const team = req.body;
+    const { role, team} = req.user; // get from auth middleware
+
     const filter =
-      team === "QA" || role === "admin"
+      team.flag === "QA" || role === "admin" || team.flag === "IT"
         ? {}
-        : { status: { $ne: "approved" } };
+        : team.flag === "INTERNAL"
+          ? { "formData.defectivenessDetail.supplier": team.supplierCode }
+          : {};
 
     const forms = await Form.find(filter)
       .populate({

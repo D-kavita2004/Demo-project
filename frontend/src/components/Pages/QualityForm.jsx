@@ -369,7 +369,7 @@ useEffect(()=>{
                           (
                             <Input
                               value={
-                                clickedForm?.formData?.issuingSection?.part?.partName || ""
+                                clickedForm?.formData?.defectivenessDetail?.supplier?.supplierName || ""
                               }
                               readOnly
                               className="bg-muted cursor-not-allowed"
@@ -498,7 +498,7 @@ useEffect(()=>{
                         (
                           <Input
                             value={
-                              clickedForm?.formData?.issuingSection?.part?.partName || ""
+                              clickedForm?.formData?.defectivenessDetail.process?.processName || ""
                             }
                             readOnly
                             className="bg-muted cursor-not-allowed"
@@ -537,7 +537,7 @@ useEffect(()=>{
                         (
                           <Input
                             value={
-                              clickedForm?.formData?.issuingSection?.part?.partName || ""
+                              clickedForm?.formData?.defectivenessDetail.machine?.machineName || ""
                             }
                             readOnly
                             className="bg-muted cursor-not-allowed"

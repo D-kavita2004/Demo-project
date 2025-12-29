@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { AlertCircle } from "lucide-react";
 import api from "@/api/axiosInstance";
 import { UserContext } from "../Utils/userContext";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginUserSchema } from "../ValidateSchema/authInputValidationShema";
@@ -51,6 +51,17 @@ const Login = () => {
         toast.error(err?.response?.data?.message || err?.response?.statusText || "Oops! Login Failed");
     } 
   };
+
+  useEffect(() => {
+    const msg = sessionStorage.getItem("sessionExpired");
+    if (msg) {
+      setTimeout(() => {
+      toast.error(msg);
+      sessionStorage.removeItem("sessionExpired");
+      }, 100);
+    }
+    
+  }, []);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 p-4">

@@ -50,7 +50,6 @@ export const handleLogin = async (req, res) => {
 
 // ------------------ LOGOUT ------------------
 export const handleLogout = (req, res) => {
-  logger.info("logout api called");
   try {
     res.clearCookie("token", {
       httpOnly: true,

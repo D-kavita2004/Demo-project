@@ -11,8 +11,9 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
 if (error?.response?.status === 302) {
-
+      sessionStorage.setItem("sessionExpired", error.response.data.message || "Session expired. Please log in again.");
       await logOutUser();
+
       window.location.href = "/login"; 
     }
     return Promise.reject(error);
@@ -20,3 +21,4 @@ if (error?.response?.status === 302) {
 );
 
 export default api;
+

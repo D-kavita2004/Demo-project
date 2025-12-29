@@ -23,7 +23,7 @@ const supplierSchema = new mongoose.Schema(
       type:String,
       required:true,
       trim:true,
-      enum:["INTERNAL","EXTERNAL","QA","IT"],
+      enum:["INTERNAL","EXTERNAL","QA","IT"],  // Internal means production here
       default:"INTERNAL",     
     },
   },
