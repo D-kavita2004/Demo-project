@@ -36,7 +36,7 @@ const QualityForm = () => {
   const myDefaultData = formFromState || myData;
   
   const [isNewForm, setIsNewForm] = useState(!clickedForm); 
-  
+
   const [suppliersList, setSuppliersList] = useState([]);
   const [partsList, setPartsList] = useState([]);
   const [machinesList, setMachinesList] = useState([]);
@@ -60,6 +60,7 @@ const QualityForm = () => {
   const navigate = useNavigate();
 
 const productImageFile = watch("defectivenessDetail.productImage");
+
 useEffect(() => {
   if (isNewForm && productImageFile?.length > 0) {
     const objectUrl = URL.createObjectURL(productImageFile[0]);
@@ -71,15 +72,11 @@ useEffect(() => {
   setPreview(clickedForm?.formData?.defectivenessDetail?.productImage || null);
 }, [productImageFile, isNewForm, clickedForm]);
 
-
 const onSubmit = async (formData) => {
     try {
       const data = new FormData();
-      console.log(formData);
-      // Add all form fields
+
       data.append("formId", clickedForm?._id || "");
-      // // data.append("filledBy", user.team.supplierCode);
-      // data.append("status", user.team === "QA" ? "pending_prod" : "pending_quality");
 
       // Append productImage file if selected
       if (productImageFile && productImageFile[0]) {
@@ -119,6 +116,50 @@ const handleApprove = async (id) => {
       console.error("Error approving form:", error.response?.data || error);
     } 
   };
+
+  
+const getPrimaryAction = () => {
+  if (!clickedForm) {
+    return {
+      label: "Submit",
+      handler: () => handleSubmit(clickedForm?._id),
+    };
+  }
+
+  const { status } = clickedForm;
+  const { flag } = user.team;
+
+  // INTERNAL — send to QA
+  if (status === "pending_prod" && flag === "INTERNAL") {
+    return {
+      label: "Submit",
+      handler: () => handleSubmit(clickedForm._id),
+    };
+  }
+
+  // QA — reject back to prod
+  if (status === "pending_quality" && flag === "QA") {
+    return {
+      label: "Reject",
+      handler: () => handleReject(clickedForm._id),
+    };
+  }
+
+  // After approval — final submission
+  if (status === "approved") {
+    return {
+      label: "Final Submit",
+      handler: () => handleFinalize(clickedForm._id),
+    };
+  }
+
+  // Default submit
+  return {
+    label: "Submit",
+    handler: () => handleSubmit(clickedForm._id),
+  };
+};
+const primaryAction = getPrimaryAction();
 
 
 // Dropdowns
@@ -975,38 +1016,33 @@ useEffect(()=>{
 
 
               </CardContent>
-              {
-                location.state?.data?.status != "approved" && (
-                  <CardFooter className="flex justify-center py-6">
-                      <Button type="submit" className="px-8 py-2 text-lg mx-3">
-                        {
-                          (location?.state?.data?.status === "pending_quality" && user.team.flag === "QA") ? "Reject":"Submit"
-                        }
+
+                <CardFooter className="flex justify-center py-6">
+
+                  {/* Primary dynamic action button */}
+                  {primaryAction && (
+                    <Button
+                      type="button"
+                      className="px-8 py-2 text-lg mx-3"
+                      onClick={primaryAction.handler}
+                    >
+                      {primaryAction.label}
+                    </Button>
+                  )}
+
+                  {/* Approve button — separate explicit action */}
+                  {clickedForm?.status === "pending_quality" &&
+                    user.team.flag === "QA" && (
+                      <Button
+                        type="button"
+                        className="px-8 py-2 text-lg mx-3"
+                        onClick={() => handleApprove(clickedForm._id)}
+                      >
+                        Approve
                       </Button>
-                      {
-                        (location?.state?.data?.status === "pending_quality" && user.team === "QA") && (
-                          <Button  type="button" className="px-8 py-2 text-lg mx-3" onClick={()=>{handleApprove(location.state?.data?._id)}}>
-                          Approve
-                        </Button>
-                        )
-                      } 
-                      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                        <DialogContent className="sm:max-w-[400px]">
-                          <DialogHeader>
-                            <DialogTitle>Form Approved ✅</DialogTitle>
-                          </DialogHeader>
-                          <div className="mt-2">
-                            The form has been approved and the report has been generated.
-                          </div>
-                          <DialogFooter>
-                            <Button onClick={() => setIsOpen(false)}>Close</Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>     
-                  </CardFooter>
-                )
-              }
-              
+                    )}
+                </CardFooter>
+
             </form>
         </Card>
     </div>

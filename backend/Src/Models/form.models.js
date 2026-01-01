@@ -8,8 +8,8 @@ const historySchema = new mongoose.Schema(
       required: true,
     },
     data: {
-      type: mongoose.Schema.Types.Mixed,
-      required: true,
+      measuresReport: { type: mongoose.Schema.Types.Mixed },
+      resultsOfMeasuresEnforcement: { type: mongoose.Schema.Types.Mixed }
     },
   },
 );
@@ -104,7 +104,7 @@ const formSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["pending_prod", "pending_quality", "approved"],
+      enum: ["pending_prod", "pending_quality", "approved", "finished"],
       default: "pending_prod",
     },
 
