@@ -4,16 +4,16 @@
     issuingSection: {
       receivingNo: "RCV-2025-001",
       referenceNo: "REF-12345",
-      partName: "", // Id of part will go here
+      part: "", // Id of part will go here
       subjectMatter: "Inspection Report",
       approved: "John Doe",
       checked: "Jane Smith",
-      issued: undefined, // can be empty string
+      issued: undefined, 
     },
 
     // ========== Defectiveness Detail ==========
     defectivenessDetail: {
-      supplierName: "", // Id of supplier will go here
+      supplier: "", // Id of supplier will go here
       groupName: "Quality Group A",
       stateOfProcess: "Machining",
       associatedLotNo: "LOT-7789",
@@ -21,8 +21,8 @@
       issueDate: "2025-10-22", // YYYY-MM-DD
       orderNo: "ORD-9988",
       drawingNo: "DRW-5567",
-      processName: "", // ObjectId of process
-      machineName: "", // ObjectId of machine
+      process: "", // ObjectId of process
+      machine: "", // ObjectId of machine
       totalQuantity: 100,
       usedQuantity: 60,
       residualQuantity: 40,

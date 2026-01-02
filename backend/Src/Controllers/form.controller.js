@@ -186,7 +186,7 @@ export const handleReject = async (req, res) => {
 };
 
 // handle final submission and ending the workflow
-export const finalSubmit = async(req, res) => {
+export const handleFinalSubmit = async(req, res) => {
   try {
     const { formId } = req.body; 
     const team = req.user.team;

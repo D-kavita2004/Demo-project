@@ -161,7 +161,6 @@ const getPrimaryAction = () => {
 };
 const primaryAction = getPrimaryAction();
 
-
 // Dropdowns
 const fetchAllSuppliers = async () => {
     try {
