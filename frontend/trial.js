@@ -10,12 +10,6 @@ const QualityForm = () => {
   
   const [isNewForm, setIsNewForm] = useState(!clickedForm); 
 
-  const [suppliersList, setSuppliersList] = useState([]);
-  const [partsList, setPartsList] = useState([]);
-  const [machinesList, setMachinesList] = useState([]);
-  const [processesList, setProcessesList] = useState([]);
-
-  const [preview, setPreview] = useState(null); // image preview state
 
   const {
     register,
@@ -25,14 +19,38 @@ const QualityForm = () => {
     formState:{errors},
   } = useForm(
     {
-      defaultValues:myDefaultData,
+      // defaultValues:myDefaultData,
       resolver:zodResolver(formDataSchema)
     });
 
   const {user} = useContext(UserContext);
   const navigate = useNavigate();
 
-const productImageFile = watch("defectivenessDetail.productImage");
+const onSubmit = async (formData) => {
+    try {
+      const data = new FormData();
+
+      data.append("formId", clickedForm?._id || "");
+
+      // Append productImage file if selected
+      if (productImageFile && productImageFile[0]) {
+        data.append("productImage", productImageFile[0]);
+      }
+
+      // Append other form fields (formData object)
+      data.append("formData", JSON.stringify(formData));
+
+      const res = await api.post(`${apiUrl}/form/modifyForm`, data, {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
+      });
+
+      console.log("Form submitted successfully:", res.data);
+      navigate("/");
+    } catch (err) {
+      console.error("Error submitting form:", err);
+    }
+  };
 
 const handleApprove = async (id) => {
 
@@ -52,50 +70,6 @@ const handleApprove = async (id) => {
       console.error("Error approving form:", error.response?.data || error);
     } 
   };
-
-  
-const getPrimaryAction = () => {
-  if (!clickedForm) {    // New form
-    return {
-      label: "Submit",
-      handler: () => handleSubmit(clickedForm?._id),
-    };
-  }
-
-  const { status } = clickedForm;
-  const { flag } = user.team;
-
-  // INTERNAL — send to QA
-  if (status === "pending_prod" && flag === "INTERNAL") {
-    return {
-      label: "Submit",
-      handler: () => handleSubmit(clickedForm._id),
-    };
-  }
-
-  // QA — reject back to prod
-  if (status === "pending_quality" && flag === "QA") {
-    return {
-      label: "Reject",
-      handler: () => handleReject(clickedForm._id),
-    };
-  }
-
-  // After approval — final submission
-  if (status === "approved") {
-    return {
-      label: "Final Submit",
-      handler: () => handleFinalize(clickedForm._id),
-    };
-  }
-
-  // Default submit
-  return {
-    label: "Submit",
-    handler: () => handleSubmit(clickedForm._id),
-  };
-};
-const primaryAction = getPrimaryAction();
 
   return (
     <div className="flex flex-col">
@@ -117,6 +91,133 @@ const primaryAction = getPrimaryAction();
             <form onSubmit={handleSubmit(onSubmit)}>
               <CardContent className="flex flex-col gap-10 my-6">
 
+                {/* ====================== ISSUING SECTION ====================== */}
+                 <PermissionedSection sectionKey="issuingSection" isNewForm={isNewForm} formStatus={clickedForm?.status} >
+                    <section className="space-y-6">
+                        <h2 className="text-2xl font-semibold border-b pb-2">Issuing Section</h2>
+
+                        <div className="grid gap-6 md:grid-cols-2 p-4 rounded-lg border bg-card text-card-foreground shadow-sm border-blue-500">
+
+                          {/* Receiving No. */}
+                          <div className="flex flex-col space-y-1.5">
+                            <Label htmlFor="receivingNo">Receiving No.</Label>
+                            <Input
+                              id="receivingNo"
+                              placeholder="Enter receiving number"
+                              {...register("issuingSection.receivingNo")}
+                            />
+                            {errors.issuingSection?.receivingNo && (
+                              <p className="text-sm text-red-500">{errors.issuingSection.receivingNo.message}</p>
+                            )}
+                          </div>
+
+                          {/* Reference No. */}
+                          <div className="flex flex-col space-y-1.5">
+                            <Label htmlFor="referenceNo">Reference No.</Label>
+                            <Input
+                              id="referenceNo"
+                              placeholder="Enter reference number"
+                              {...register("issuingSection.referenceNo")}
+                            />
+                            {errors.issuingSection?.referenceNo && (
+                              <p className="text-sm text-red-500">{errors.issuingSection.referenceNo.message}</p>
+                            )}
+                          </div>
+
+                          {/* Part Name */}
+                          <div className="flex flex-col space-y-1.5">
+                            <Label htmlFor="partName">Part Name</Label>
+                            {
+                              isNewForm ? 
+                              (
+                            <Select
+                              value={watch("issuingSection.part")}
+                              onValueChange={(v) => setValue("issuingSection.part", v)}
+                              required
+                            >
+                              <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                                <SelectValue placeholder="Select Part Name" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {partsList.map((s) => (
+                                  <SelectItem key={s.partCode} value={s.partCode}>
+                                    {s.partName}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                              ):
+                              (
+                            <Input
+                              value={
+                                clickedForm?.formData?.issuingSection?.part?.partName || ""
+                              }
+                              readOnly
+                              className="bg-muted cursor-not-allowed"
+                            />
+                              )
+                            }
+                            {errors.issuingSection?.part && (
+                              <p className="text-sm text-red-500">{errors.issuingSection.part.message}</p>
+                            )}
+                          </div>
+
+                          {/* Subject Matter */}
+                          <div className="flex flex-col space-y-1.5">
+                            <Label htmlFor="subjectMatter">Subject Matter</Label>
+                            <Input
+                              id="subjectMatter"
+                              placeholder="Enter subject matter"
+                              {...register("issuingSection.subjectMatter")}
+                            />
+                            {errors.issuingSection?.subjectMatter && (
+                              <p className="text-sm text-red-500">{errors.issuingSection.subjectMatter.message}</p>
+                            )}
+                          </div>
+
+                          {/* Approved */}
+                          <div className="flex flex-col space-y-1.5">
+                            <Label htmlFor="approved">Approved By</Label>
+                            <Input
+                              id="approved"
+                              placeholder="Enter approver name"
+                              {...register("issuingSection.approved")}
+                            />
+                            {errors.issuingSection?.approved && (
+                              <p className="text-sm text-red-500">{errors.issuingSection.approved.message}</p>
+                            )}
+                          </div>
+
+                          {/* Checked */}
+                          <div className="flex flex-col space-y-1.5">
+                            <Label htmlFor="checked">Checked By</Label>
+                            <Input
+                              id="checked"
+                              placeholder="Enter checker name"
+                              {...register("issuingSection.checked")}
+                            />
+                            {errors.issuingSection?.checked && (
+                              <p className="text-sm text-red-500">{errors.issuingSection.checked.message}</p>
+                            )}
+                          </div>
+
+                          {/* Issued */}
+                          <div className="flex flex-col space-y-1.5">
+                            <Label htmlFor="issued">Issued By</Label>
+                            <Input
+                              id="issued"
+                              defaultValue={(user?.firstName || "") + " " + (user?.lastName || "")}
+                              placeholder="Enter receiver name"
+                              {...register("issuingSection.issued")}
+                            />
+                            {errors.issuingSection?.issued && (
+                              <p className="text-sm text-red-500">{errors.issuingSection.issued.message}</p>
+                            )}
+                          </div>
+
+                        </div>
+                    </section>
+                 </PermissionedSection>
               </CardContent>
 
                 <CardFooter className="flex justify-center py-6">

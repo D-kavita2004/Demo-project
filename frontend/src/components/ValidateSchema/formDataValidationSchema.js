@@ -8,7 +8,8 @@ const dateString = z
 // Reusable non-empty string validator
 const nonEmpty = z.string().trim().min(1, "This field cannot be empty");
 
-export const formDataSchema = z.object({
+// ========== New Form Schema ==========
+export const NewFormSchema = z.object({
   // ========== Issuing Section ==========
   issuingSection: z.object({
     receivingNo: nonEmpty.regex(/^[A-Z0-9-]+$/, "Only uppercase letters, numbers and hyphens allowed"),
@@ -50,42 +51,7 @@ export const formDataSchema = z.object({
     reportTimeLimit: dateString,
   }),
 
-  // ========== Measures Report ==========
-  measuresReport: z.object({
-    causesOfOccurrence: nonEmpty,
-    causesOfOutflow: nonEmpty,
-    counterMeasuresForCauses: nonEmpty,
-    counterMeasuresForOutflow: nonEmpty,
-    enforcementDate: dateString,
-    standardization: nonEmpty,
-  }),
-
-  // ========== Results of Measures Enforcement ==========
-  resultsOfMeasuresEnforcement: z.object({
-    enforcementDateResult: dateString,
-    enforcementResult: nonEmpty,
-    enforcementJudgment: nonEmpty,
-    enforcementSecInCharge: nonEmpty,
-    enforcementQCSection: nonEmpty,
-  }),
-
-  // ========== Results of Measures Effect ==========
-  resultsOfMeasuresEffect: z.object({
-    effectDate: dateString,
-    effectResult: nonEmpty,
-    effectJudgment: nonEmpty,
-    effectSecInCharge: nonEmpty,
-    effectQCSection: nonEmpty,
-  })
 })
-  // ========== Cross-field validations ==========
-  .refine(
-    (data) => data.defectivenessDetail.usedQuantity <= data.defectivenessDetail.totalQuantity,
-    {
-      message: "Used quantity cannot exceed total quantity",
-      path: ["defectivenessDetail", "usedQuantity"],
-    }
-  )
   .refine(
     (data) =>
       data.defectivenessDetail.residualQuantity ===
@@ -104,21 +70,47 @@ export const formDataSchema = z.object({
       path: ["defectivenessDetail", "issueDate"],
     }
   )
-  // .refine(
-  //   (data) =>
-  //     new Date(data.resultsOfMeasuresEnforcement.enforcementDateResult) <=
-  //     new Date(data.resultsOfMeasuresEnforcement.enforcementDateResult),
-  //   {
-  //     message: "Measure result date must be on or after enforcement date",
-  //     path: ["resultsOfMeasuresEnforcement", "enforcementDateResult"],
-  //   }
-  // )
-  // .refine(
-  //   (data) =>
-  //     new Date(data.resultsOfMeasuresEnforcement.enforcementDateResult) <=
-  //     new Date(data.resultsOfMeasuresEffect.effectDate),
-  //   {
-  //     message: "Effect date cannot be earlier than enforcement result date",
-  //     path: ["resultsOfMeasuresEffect", "effectDate"],
-  //   }
-  // );
+  .refine(
+    (data) => data.defectivenessDetail.usedQuantity <= data.defectivenessDetail.totalQuantity,
+    {
+      message: "Used quantity cannot exceed total quantity",
+      path: ["defectivenessDetail", "usedQuantity"],
+    }
+  );
+
+// ========== Measures Report ==========
+export const ProdResponseSchema = z.object({
+    // ========== Measures Report ==========
+  measuresReport: z.object({
+    causesOfOccurrence: nonEmpty,
+    causesOfOutflow: nonEmpty,
+    counterMeasuresForCauses: nonEmpty,
+    counterMeasuresForOutflow: nonEmpty,
+    enforcementDate: dateString,
+    standardization: nonEmpty,
+  }),
+})
+
+// ========== Results of Measures Enforcement ==========
+export const QAResponseSchema = z.object({
+    // ========== Results of Measures Enforcement ==========
+  resultsOfMeasuresEnforcement: z.object({
+    enforcementDateResult: dateString,
+    enforcementResult: nonEmpty,
+    enforcementJudgment: nonEmpty,
+    enforcementSecInCharge: nonEmpty,
+    enforcementQCSection: nonEmpty,
+  }),
+})
+
+// ========== Results of Measures Effect ==========
+export const FinalResponseSchema = z.object({
+  // ========== Results of Measures Effect ==========
+  resultsOfMeasuresEffect: z.object({
+    effectDate: dateString,
+    effectResult: nonEmpty,
+    effectJudgment: nonEmpty,
+    effectSecInCharge: nonEmpty,
+    effectQCSection: nonEmpty,
+  })
+})

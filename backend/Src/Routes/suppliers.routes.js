@@ -8,25 +8,23 @@ import {
 } from "../Controllers/suppliers.controller.js";
 import { validateInput } from "../Middlewares/validateInput.middleware.js";
 import { supplierSchema } from "../ValidationSchema/entityValidationSchema.js";
+import { checkAuthorization } from "../Middlewares/checkAdmin.middleware.js";
 
 const router = express.Router();
 
 // CREATE Supplier
-router.post("/createSupplier", validateInput(supplierSchema), createSupplier);
+router.post("/createSupplier", validateInput(supplierSchema),checkAuthorization({ allowedFlags: ["IT"],allowedRoles:["admin"] }),createSupplier);
 
 // GET All Suppliers
-router.get("/", getSuppliers);
-
-// GET All Suppliers
-router.get("/", getSuppliers);
+router.get("/", checkAuthorization({ allowedFlags: ["QA","IT"],allowedRoles:["admin"] }), getSuppliers);
 
 // GET All Suppliers for User Assignment
-router.get("/forUserAssignment", getSuppliersForUserAssignment);
+router.get("/forUserAssignment",checkAuthorization({ allowedFlags: ["IT"],allowedRoles:["admin"] }), getSuppliersForUserAssignment);
 
 // UPDATE Supplier
-router.put("/updateSupplier/:supplierCode", validateInput(supplierSchema), updateSupplier);
+router.put("/updateSupplier/:supplierCode", validateInput(supplierSchema),checkAuthorization({ allowedFlags: ["IT"],allowedRoles:["admin"] }), updateSupplier);
 
 // DELETE Supplier
-router.delete("/deleteSupplier/:supplierCode", deleteSupplier);
+router.delete("/deleteSupplier/:supplierCode",checkAuthorization({ allowedFlags: ["IT"],allowedRoles:["admin"] }), deleteSupplier);
 
 export default router;
