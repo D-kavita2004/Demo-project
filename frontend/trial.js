@@ -10,6 +10,11 @@ const QualityForm = () => {
   
   const [isNewForm, setIsNewForm] = useState(!clickedForm); 
 
+  const [suppliersList, setSuppliersList] = useState([]);
+  const [partsList, setPartsList] = useState([]);
+  const [machinesList, setMachinesList] = useState([]);
+  const [processesList, setProcessesList] = useState([]);
+
   const [preview, setPreview] = useState(null); // image preview state
 
   const {
@@ -28,43 +33,6 @@ const QualityForm = () => {
   const navigate = useNavigate();
 
 const productImageFile = watch("defectivenessDetail.productImage");
-
-useEffect(() => {
-  if (isNewForm && productImageFile?.length > 0) {
-    const objectUrl = URL.createObjectURL(productImageFile[0]);
-    setPreview(objectUrl);
-
-    return () => URL.revokeObjectURL(objectUrl);
-  }
-
-  setPreview(clickedForm?.formData?.defectivenessDetail?.productImage || null);
-}, [productImageFile, isNewForm, clickedForm]);
-
-const onSubmit = async (formData) => {
-    try {
-      const data = new FormData();
-
-      data.append("formId", clickedForm?._id || "");
-
-      // Append productImage file if selected
-      if (productImageFile && productImageFile[0]) {
-        data.append("productImage", productImageFile[0]);
-      }
-
-      // Append other form fields (formData object)
-      data.append("formData", JSON.stringify(formData));
-
-      const res = await api.post(`${apiUrl}/form/modifyForm`, data, {
-        headers: { "Content-Type": "multipart/form-data" },
-        withCredentials: true,
-      });
-
-      console.log("Form submitted successfully:", res.data);
-      navigate("/");
-    } catch (err) {
-      console.error("Error submitting form:", err);
-    }
-  };
 
 const handleApprove = async (id) => {
 
@@ -87,7 +55,7 @@ const handleApprove = async (id) => {
 
   
 const getPrimaryAction = () => {
-  if (!clickedForm) {
+  if (!clickedForm) {    // New form
     return {
       label: "Submit",
       handler: () => handleSubmit(clickedForm?._id),

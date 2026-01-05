@@ -78,7 +78,7 @@ const handleLogout = async () => {
                 Reports
               </Button>
 
-              {user && (user?.team === "QA" || user?.role === "admin") && (
+              {user && (user?.team?.flag === "QA" || user?.role === "admin") && (
                 <Button
                   onClick={() => navigate("/Quality-Form")}
                   variant="outline"

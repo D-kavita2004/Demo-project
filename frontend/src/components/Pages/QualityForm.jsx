@@ -119,7 +119,7 @@ const handleApprove = async (id) => {
 
   
 const getPrimaryAction = () => {
-  if (!clickedForm) {
+  if (!clickedForm) {    // New form
     return {
       label: "Submit",
       handler: () => handleSubmit(clickedForm?._id),
@@ -143,6 +143,12 @@ const getPrimaryAction = () => {
       label: "Reject",
       handler: () => handleReject(clickedForm._id),
     };
+  }
+  if (
+    (status === "pending_prod" && flag === "QA") ||
+    (status === "pending_quality" && flag === "INTERNAL")
+  ) {
+    return null;
   }
 
   // After approval — final submission
