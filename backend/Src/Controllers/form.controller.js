@@ -156,7 +156,7 @@ export const handleReject = async (req, res) => {
 
     let data = {};
     if (req.body.data) {
-      data = JSON.parse(req.body.data);
+      data = req.body.data;
     }
 
     if (team.flag !== "QA") {
@@ -188,8 +188,8 @@ export const handleReject = async (req, res) => {
     form.history.push({
       cycle: nextCycle,
       data: {
-        measuresReport: data.measuresReport,
-        resultsOfMeasuresEnforcement: data.resultsOfMeasuresEnforcement,
+        measuresReport: form.formData.measuresReport, //data from db
+        resultsOfMeasuresEnforcement: data.resultsOfMeasuresEnforcement, // input from user
       },
     });
     form.formData = {...form.formData, resultsOfMeasuresEnforcement: data.resultsOfMeasuresEnforcement };
