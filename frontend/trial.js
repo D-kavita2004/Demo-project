@@ -10,6 +10,7 @@ const QualityForm = () => {
   
   const [isNewForm, setIsNewForm] = useState(!clickedForm); 
 
+  const [preview, setPreview] = useState(null); // image preview state
 
   const {
     register,
@@ -19,46 +20,47 @@ const QualityForm = () => {
     formState:{errors},
   } = useForm(
     {
-      // defaultValues:myDefaultData,
-      resolver:zodResolver(formDataSchema)
+      defaultValues:myDefaultData,
+      resolver:zodResolver(GetRelatedSchema(clickedForm?.status, isNewForm)),
     });
 
   const {user} = useContext(UserContext);
   const navigate = useNavigate();
 
-const onSubmit = async (formData) => {
+const productImageFile = watch("defectivenessDetail.productImage");
+
+useEffect(() => {
+  if (isNewForm && productImageFile?.length > 0) {
+    const objectUrl = URL.createObjectURL(productImageFile[0]);
+    setPreview(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }
+
+  setPreview(clickedForm?.formData?.defectivenessDetail?.productImage || null);
+}, [productImageFile, isNewForm, clickedForm]);
+
+  // ---------------- ON SUBMIT ----------------
+  const onSubmit = async (formData, handler) => {
     try {
-      const data = new FormData();
-
-      data.append("formId", clickedForm?._id || "");
-
-      // Append productImage file if selected
-      if (productImageFile && productImageFile[0]) {
-        data.append("productImage", productImageFile[0]);
+      if (handler) {
+        await handler(clickedForm?._id, formData);
+      } else {
+        console.warn("No handler defined for this action");
       }
-
-      // Append other form fields (formData object)
-      data.append("formData", JSON.stringify(formData));
-
-      const res = await api.post(`${apiUrl}/form/modifyForm`, data, {
-        headers: { "Content-Type": "multipart/form-data" },
-        withCredentials: true,
-      });
-
-      console.log("Form submitted successfully:", res.data);
-      navigate("/");
     } catch (err) {
       console.error("Error submitting form:", err);
     }
   };
 
-const handleApprove = async (id) => {
+const handleApprove = async (id,formData) => {
 
     try {
+      console.log(formData);
       // Call the API to approve the form
       const response = await api.post(
-        `${apiUrl}/form/approveForm`,
-        {formId:id},
+        `${apiUrl}/form/approve`,
+        {formId:id,data:formData},
         { withCredentials: true } // if your backend uses cookies
       );
 
@@ -70,6 +72,134 @@ const handleApprove = async (id) => {
       console.error("Error approving form:", error.response?.data || error);
     } 
   };
+const handleReject = async (id,formData) => {
+    try {
+      // Call the API to reject the form
+      const response = await api.post(
+        `${apiUrl}/form/reject`,
+        {formId:id,data:formData},
+        { withCredentials: true } // if your backend uses cookies
+      );
+
+      console.log("Form rejected:", response.data);
+      navigate("/");
+    } catch (error) {
+      console.error("Error rejecting form:", error.response?.data || error);
+    }
+  };
+const handleCreateNewIssue = async (formData) => {
+      try {
+          const data = new FormData();
+
+          // Append productImage file if selected
+          if (productImageFile && productImageFile[0]) {
+            data.append("productImage", productImageFile[0]);
+          }
+
+          // Append other form fields (formData object)
+          data.append("formData", JSON.stringify(formData));
+
+          const res = await api.post(`${apiUrl}/form/createForm`, data, {
+            headers: { "Content-Type": "multipart/form-data" },
+            withCredentials: true,
+          });
+
+          console.log("Form submitted successfully:", res.data);
+          navigate("/");
+        } 
+      catch (err) {
+          console.error("Error submitting form:", err);
+        }
+};
+const handleProdResponse = async (id,formData) => {
+   try {
+      // Call the API to approve the form
+      const response = await api.post(
+        `${apiUrl}/form/prodResponse`,
+        {formId:id,data:formData},
+        { withCredentials: true } // if your backend uses cookies
+      );
+
+      console.log("Form approved:", response.data);
+      navigate("/");
+      // Open modal after approval
+      setIsOpen(true);
+    } catch (error) {
+      console.error("Error approving form:", error.response?.data || error);
+    } 
+}
+const handleFinalSubmit = async (id,formData) => {
+
+    try {
+      // Call the API to approve the form
+      const response = await api.post(
+        `${apiUrl}/form/finalSubmit`,
+        {formId:id,data:formData},
+        { withCredentials: true } // if your backend uses cookies
+      );
+
+      console.log("Form approved:", response.data);
+      navigate("/");
+      // Open modal after approval
+      setIsOpen(true);
+    } catch (error) {
+      console.error("Error approving form:", error.response?.data || error);
+    } 
+  };
+      // Call the API to send production response
+const getPrimaryAction = () => {
+
+  // NEW FORM
+  if (!clickedForm) {
+    return {
+      label: "Create New Issue",
+      handler: (_, formData) => handleCreateNewIssue(formData),
+    };
+  }
+
+  const { status } = clickedForm;
+  const { flag } = user.team;
+
+  // INTERNAL → send to QA
+  if (status === "pending_prod" && flag === "INTERNAL") {
+    return {
+      label: "Submit",
+      handler: (id, formData) => handleProdResponse(id, formData),
+    };
+  }
+
+  // QA → reject to prod
+  if (status === "pending_quality" && flag === "QA") {
+    return {
+      label: "Reject",
+      handler: (id, formData) => handleReject(id, formData),
+    };
+  }
+
+  // Block actions when user not allowed
+  if (
+    (status === "pending_prod" && flag === "QA") ||
+    (status === "pending_quality" && flag === "INTERNAL")
+  ) {
+    return null;
+  }
+
+  // FINAL SUBMIT AFTER APPROVAL
+  if (status === "approved") {
+    return {
+      label: "Final Submit",
+      handler: (id, formData) => handleFinalSubmit(id, formData),
+    };
+  }
+
+  // DEFAULT SAVE
+  return {
+    label: "Submit",
+    handler: (id, formData) => handleProdResponse(id, formData),
+  };
+};
+
+const primaryAction = getPrimaryAction();
 
   return (
     <div className="flex flex-col">
@@ -91,133 +221,6 @@ const handleApprove = async (id) => {
             <form onSubmit={handleSubmit(onSubmit)}>
               <CardContent className="flex flex-col gap-10 my-6">
 
-                {/* ====================== ISSUING SECTION ====================== */}
-                 <PermissionedSection sectionKey="issuingSection" isNewForm={isNewForm} formStatus={clickedForm?.status} >
-                    <section className="space-y-6">
-                        <h2 className="text-2xl font-semibold border-b pb-2">Issuing Section</h2>
-
-                        <div className="grid gap-6 md:grid-cols-2 p-4 rounded-lg border bg-card text-card-foreground shadow-sm border-blue-500">
-
-                          {/* Receiving No. */}
-                          <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="receivingNo">Receiving No.</Label>
-                            <Input
-                              id="receivingNo"
-                              placeholder="Enter receiving number"
-                              {...register("issuingSection.receivingNo")}
-                            />
-                            {errors.issuingSection?.receivingNo && (
-                              <p className="text-sm text-red-500">{errors.issuingSection.receivingNo.message}</p>
-                            )}
-                          </div>
-
-                          {/* Reference No. */}
-                          <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="referenceNo">Reference No.</Label>
-                            <Input
-                              id="referenceNo"
-                              placeholder="Enter reference number"
-                              {...register("issuingSection.referenceNo")}
-                            />
-                            {errors.issuingSection?.referenceNo && (
-                              <p className="text-sm text-red-500">{errors.issuingSection.referenceNo.message}</p>
-                            )}
-                          </div>
-
-                          {/* Part Name */}
-                          <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="partName">Part Name</Label>
-                            {
-                              isNewForm ? 
-                              (
-                            <Select
-                              value={watch("issuingSection.part")}
-                              onValueChange={(v) => setValue("issuingSection.part", v)}
-                              required
-                            >
-                              <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                                <SelectValue placeholder="Select Part Name" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {partsList.map((s) => (
-                                  <SelectItem key={s.partCode} value={s.partCode}>
-                                    {s.partName}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                              ):
-                              (
-                            <Input
-                              value={
-                                clickedForm?.formData?.issuingSection?.part?.partName || ""
-                              }
-                              readOnly
-                              className="bg-muted cursor-not-allowed"
-                            />
-                              )
-                            }
-                            {errors.issuingSection?.part && (
-                              <p className="text-sm text-red-500">{errors.issuingSection.part.message}</p>
-                            )}
-                          </div>
-
-                          {/* Subject Matter */}
-                          <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="subjectMatter">Subject Matter</Label>
-                            <Input
-                              id="subjectMatter"
-                              placeholder="Enter subject matter"
-                              {...register("issuingSection.subjectMatter")}
-                            />
-                            {errors.issuingSection?.subjectMatter && (
-                              <p className="text-sm text-red-500">{errors.issuingSection.subjectMatter.message}</p>
-                            )}
-                          </div>
-
-                          {/* Approved */}
-                          <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="approved">Approved By</Label>
-                            <Input
-                              id="approved"
-                              placeholder="Enter approver name"
-                              {...register("issuingSection.approved")}
-                            />
-                            {errors.issuingSection?.approved && (
-                              <p className="text-sm text-red-500">{errors.issuingSection.approved.message}</p>
-                            )}
-                          </div>
-
-                          {/* Checked */}
-                          <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="checked">Checked By</Label>
-                            <Input
-                              id="checked"
-                              placeholder="Enter checker name"
-                              {...register("issuingSection.checked")}
-                            />
-                            {errors.issuingSection?.checked && (
-                              <p className="text-sm text-red-500">{errors.issuingSection.checked.message}</p>
-                            )}
-                          </div>
-
-                          {/* Issued */}
-                          <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="issued">Issued By</Label>
-                            <Input
-                              id="issued"
-                              defaultValue={(user?.firstName || "") + " " + (user?.lastName || "")}
-                              placeholder="Enter receiver name"
-                              {...register("issuingSection.issued")}
-                            />
-                            {errors.issuingSection?.issued && (
-                              <p className="text-sm text-red-500">{errors.issuingSection.issued.message}</p>
-                            )}
-                          </div>
-
-                        </div>
-                    </section>
-                 </PermissionedSection>
               </CardContent>
 
                 <CardFooter className="flex justify-center py-6">
@@ -225,9 +228,8 @@ const handleApprove = async (id) => {
                   {/* Primary dynamic action button */}
                   {primaryAction && (
                     <Button
-                      type="button"
+                      type="submit"
                       className="px-8 py-2 text-lg mx-3"
-                      onClick={primaryAction.handler}
                     >
                       {primaryAction.label}
                     </Button>
@@ -239,7 +241,7 @@ const handleApprove = async (id) => {
                       <Button
                         type="button"
                         className="px-8 py-2 text-lg mx-3"
-                        onClick={() => handleApprove(clickedForm._id)}
+                        onClick={(formData) => handleApprove(clickedForm._id, formData)}
                       >
                         Approve
                       </Button>

@@ -19,80 +19,80 @@ const formDataSchema = new mongoose.Schema(
   {
     /* ---------- Issuing Section ---------- */
     issuingSection: {
-      receivingNo: { type: String, required: true },
-      referenceNo: { type: String, required: true },
-      part: { type: String, required: true },
-      subjectMatter: { type: String, required: true },
-      approved: { type: String, required: true },
-      checked: { type: String, required: true },
-      issued: { type: String, required: true },
+      receivingNo: { type: String },
+      referenceNo: { type: String },
+      part: { type: String},
+      subjectMatter: { type: String},
+      approved: { type: String },
+      checked: { type: String },
+      issued: { type: String },
     },
 
     /* ---------- Defectiveness Detail ---------- */
     defectivenessDetail: {
-      supplier: { type: String, required: true },
-      groupName: { type: String, required: true },
-      stateOfProcess: { type: String, required: true },
-      associatedLotNo: { type: String, required: true },
-      discoveredDate: { type: String, required: true }, // YYYY-MM-DD
-      issueDate: { type: String, required: true },      // YYYY-MM-DD
+      supplier: { type: String },
+      groupName: { type: String },
+      stateOfProcess: { type: String },
+      associatedLotNo: { type: String },
+      discoveredDate: { type: String }, // YYYY-MM-DD
+      issueDate: { type: String },      // YYYY-MM-DD
       orderNo: { type: String },
       drawingNo: { type: String },
-      process: { type: String, required: true },
-      machine: { type: String, required: true },
+      process: { type: String },
+      machine: { type: String },
 
-      totalQuantity: { type: Number, required: true },
-      usedQuantity: { type: Number, required: true },
-      residualQuantity: { type: Number, required: true },
+      totalQuantity: { type: Number },
+      usedQuantity: { type: Number },
+      residualQuantity: { type: Number },
       defectRate: { type: Number },
 
-      managerInstructions: { type: String, required: true },
+      managerInstructions: { type: String },
       productImage: { type: String }, // stored file path
     },
 
     /* ---------- Quality Check Comment ---------- */
     qualityCheckComment: {
-      qcComment: { type: String, required: true },
-      qcInstructions: { type: String, required: true },
-      defectCost: { type: Number, required: true },
-      unit: { type: String, required: true },
+      qcComment: { type: String },
+      qcInstructions: { type: String },
+      defectCost: { type: Number },
+      unit: { type: String },
       importanceLevel: {
         type: String,
         enum: ["AA", "A", "B", "C"],
-        required: true,
       },
-      reportTimeLimit: { type: String, required: true }, // YYYY-MM-DD
+      reportTimeLimit: { type: String }, // YYYY-MM-DD
     },
 
     /* ---------- Measures Report ---------- */
     measuresReport: {
-      causesOfOccurrence: { type: String, required: true },
-      causesOfOutflow: { type: String, required: true },
-      counterMeasuresForCauses: { type: String, required: true },
-      counterMeasuresForOutflow: { type: String, required: true },
-      enforcementDate: { type: String, required: true }, // YYYY-MM-DD
-      standardization: { type: String, required: true },
+      causesOfOccurrence: { type: String },
+      causesOfOutflow: { type: String },
+      counterMeasuresForCauses: { type: String },
+      counterMeasuresForOutflow: { type: String },
+      enforcementDate: { type: String }, // YYYY-MM-DD
+      standardization: { type: String },
     },
 
     /* ---------- Results of Measures ---------- */
     resultsOfMeasuresEnforcement: {
-      enforcementDateResult: { type: String, required: true },
-      enforcementResult: { type: String, required: true },
-      enforcementJudgment: { type: String, required: true },
-      enforcementSecInCharge: { type: String, required: true },
-      enforcementQCSection: { type: String, required: true },
+      enforcementDateResult: { type: String },
+      enforcementResult: { type: String },
+      enforcementJudgment: { type: String },
+      enforcementSecInCharge: { type: String },
+      enforcementQCSection: { type: String },
     },
 
     /* ---------- Results of Measures ---------- */
     resultsOfMeasuresEffect: {
-      effectDate: { type: String, required: true },
-      effectResult: { type: String, required: true },
-      effectJudgment: { type: String, required: true },
-      effectSecInCharge: { type: String, required: true },
-      effectQCSection: { type: String, required: true },
+      effectDate: { type: String },
+      effectResult: { type: String },
+      effectJudgment: { type: String },
+      effectSecInCharge: { type: String },
+      effectQCSection: { type: String },
     },
   },
 );
+
 
 /* ===================== MAIN FORM ===================== */
 const formSchema = new mongoose.Schema(

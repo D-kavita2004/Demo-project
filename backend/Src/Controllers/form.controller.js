@@ -4,33 +4,35 @@ import logger from "../../Config/logger.js";
 // Creating new form issue
 export const createNewIssue = async(req, res) => {                
   try {
-    const {team, role} = req.user;
+    const {team} = req.user;
 
     const imageUrl = req.fileUrl;
     
-    let formData = {};
-    if (req.body.formData) {
-      formData = JSON.parse(req.body.formData);
+    let data = {};
+    if (req.body.data) {
+      data = JSON.parse(req.body.data);
     };
+    logger.info(JSON.stringify(data, null, 2));
 
-    if (!formData) {
+    if (!data) {
       return res.status(404).json({ message: "Form data is required" });
     }
 
     let form;
 
-    if(team.flag === "QA" || role === "admin" || team.flag === "IT"){
+    if(team.flag === "QA"){
       form = new Form({
         formData: {
-          issuingSection: formData.issuingSection, 
-          defectivenessDetail: {...formData.defectivenessDetail, productImage: imageUrl},qualityCheckComment:formData.qualityCheckComment },
+          issuingSection: data.issuingSection, 
+          defectivenessDetail: {...data.defectivenessDetail, productImage: imageUrl},
+          qualityCheckComment:data.qualityCheckComment },
         status: "pending_prod",
       });
 
       await form.save();
     }else{
       return res.status(403).json({
-        message: "Only Quality and IT team can submit new forms",
+        message: "Only Quality team can submit new forms",
       });
     }
 
@@ -47,36 +49,45 @@ export const createNewIssue = async(req, res) => {
   }
 };
 
-//handle response by production team
+// handle response by production team
 export const handleProdResponse = async (req, res) => {
-  try{
-    const {team} = req.user;
-    const { formId} = req.body;
+  try {
+    const { team } = req.user;
+    const { formId } = req.body;
+
+    let data = {};
+    if (req.body.data) {
+      data = JSON.parse(req.body.data);
+    }
+
     const form = await Form.findById(formId);
 
-    if(!form){
+    if (!form) {
       return res.status(404).json({ message: "Form not found" });
     }
-    if(team.flag !== "INTERNAL"){
+
+    if (team.flag !== "INTERNAL") {
       return res.status(403).json({
         message: "Only Production team can submit measures report",
       });
     }
-    const formData = await Form.findByIdAndUpdate(
-      formId,
-      {
-        formData: {...formData, measuresReport: formData.measuresReport },
-        status: "pending_quality",
-        updatedAt: new Date(),
-      },
-      { new: true },
-    );
+
+    // merge into existing formData safely
+    form.formData = {
+      ...form.formData,
+      measuresReport: data.measuresReport,
+    };
+
+    form.status = "pending_quality";
+    form.updatedAt = new Date();
+
+    await form.save();
+
     return res.status(200).json({
       message: "Production response submitted successfully",
-      form: formData,
+      form,
     });
-  }
-  catch(error){
+  } catch (error) {
     logger.error("Error handling production response:", error);
     return res.status(500).json({
       message: "Failed to handle production response",
@@ -86,35 +97,49 @@ export const handleProdResponse = async (req, res) => {
 };
 
 // handle approval of form by Quality team 
-export const handleApprove = async(req, res) => {
-  try{
-    const { formId} = req.body;
-    const {team} = req.user;
+export const handleApprove = async (req, res) => {
+  try {
+    const { formId } = req.body;
+    const { team } = req.user;
 
-    if(team.flag !== "QA" && team.flag !== "IT"){
+    let data = {};
+    if (req.body.data) {
+      data = JSON.parse(req.body.data);
+    }
+
+    if (team.flag !== "QA") {
       return res.status(403).json({
-        message: "Only Quality and IT team can approve forms",
+        message: "Only Quality team can approve forms",
       });
     }
-    if(!formId){
-      return res.status(404).json({ message: "Form ID is required" });
+
+    if (!formId) {
+      return res.status(400).json({ message: "Form ID is required" });
     }
 
-    const formData = await Form.findByIdAndUpdate(
-      formId,
-      {
-        formData: {...formData, resultsOfMeasuresEnforcement: formData.resultsOfMeasuresEnforcement },
-        status: "approved",
-        updatedAt: new Date(),
-      },
-      { new: true },
-    );
+    const form = await Form.findById(formId);
+
+    if (!form) {
+      return res.status(404).json({ message: "Form not found" });
+    }
+
+    // merge QA section safely
+    form.formData = {
+      ...form.formData,
+      resultsOfMeasuresEnforcement: data.resultsOfMeasuresEnforcement,
+    };
+
+    form.status = "approved";
+    form.updatedAt = new Date();
+
+    await form.save();
+
     return res.status(200).json({
       message: "Form approved successfully",
-      form: formData,
+      form,
     });
-  }
-  catch(error){
+
+  } catch (error) {
     logger.error("Error handling approval:", error);
     return res.status(500).json({
       message: "Failed to handle approval",
@@ -129,9 +154,14 @@ export const handleReject = async (req, res) => {
     const { formId } = req.body;
     const { team } = req.user;
 
-    if (team.flag !== "QA" && team.flag !== "IT") {
+    let data = {};
+    if (req.body.data) {
+      data = JSON.parse(req.body.data);
+    }
+
+    if (team.flag !== "QA") {
       return res.status(403).json({
-        message: "Only Quality and IT team can reject forms",
+        message: "Only Quality team can reject forms",
       });
     }
 
@@ -145,7 +175,7 @@ export const handleReject = async (req, res) => {
       return res.status(404).json({ message: "Form not found" });
     }
 
-    const formData = form.formData;
+    // const formData = form.formData;
 
     // Compute next cycle number
     const lastCycle = form.history.length
@@ -158,14 +188,12 @@ export const handleReject = async (req, res) => {
     form.history.push({
       cycle: nextCycle,
       data: {
-        measuresReport: formData.measuresReport,
-        resultsOfMeasuresEnforcement: formData.resultsOfMeasuresEnforcement,
+        measuresReport: data.measuresReport,
+        resultsOfMeasuresEnforcement: data.resultsOfMeasuresEnforcement,
       },
     });
-
-    // Update status + timestamp
+    form.formData = {...form.formData, resultsOfMeasuresEnforcement: data.resultsOfMeasuresEnforcement };
     form.status = "pending_prod";
-    form.updatedAt = new Date();
 
     //Save changes
     await form.save();
@@ -191,18 +219,25 @@ export const handleFinalSubmit = async(req, res) => {
     const { formId } = req.body; 
     const team = req.user.team;
 
-    const form = await Form.findById(formId).lean();
+    let data = {};
+    if (req.body.data) {
+      data = JSON.parse(req.body.data);
+    }
+
+    const form = await Form.findById(formId);
     if (!form) {
       return res.status(404).json({ message: "Form not found" });
     }
+
     if(form.status !== "approved" || (team.flag !== "QA" && team.flag !== "IT")){
       return res.status(400).json({
         message: "Only approved forms can be finalized",
       });
     }
+    
     const updatedForm = await Form.findByIdAndUpdate(
       formId,
-      { formData: {...form.formData, resultsOfMeasuresEffect: form.formData.resultsOfMeasuresEffect },
+      { formData: {...form.formData, resultsOfMeasuresEffect: data.resultsOfMeasuresEffect },
         status: "finished", updatedAt: new Date() },
       { new: true }, // return the updated document
     );

@@ -1,5 +1,5 @@
 import express from "express";
-import { getAllForms, createNewIssue, handleProdResponse, handleReject, handleApprove, handleFinalSubmit,} from "../Controllers/form.controller.js";
+import { getAllForms, createNewIssue, handleProdResponse, handleReject, handleApprove, handleFinalSubmit} from "../Controllers/form.controller.js";
 import { uploadImage } from "../Middlewares/upload.middleware.js";
 const router = express.Router();
 

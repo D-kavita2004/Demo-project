@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import api from "@/api/axiosInstance";
 import { useContext } from "react";
 import { UserContext } from "../Utils/userContext";
-import { useLocation } from "react-router-dom";
+import { data, useLocation } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -75,38 +75,102 @@ useEffect(() => {
 }, [productImageFile, isNewForm, clickedForm]);
 
 const onSubmit = async (formData) => {
+  try {
+    if (!clickedForm) {
+      // New form — only pass formData
+      await primaryAction.handler(formData);
+    } else {
+      // Existing form — pass id + formData
+      await primaryAction.handler(clickedForm._id, formData);
+    }
+  } catch (err) {
+    console.error("Error submitting form:", err);
+  }
+};
+
+
+const handleApprove = async (id,formData) => {
+
     try {
-      const data = new FormData();
+      console.log(formData);
+      // Call the API to approve the form
+      const response = await api.post(
+        `${apiUrl}/form/approve`,
+        {formId:id,data:formData},
+        { withCredentials: true } // if your backend uses cookies
+      );
 
-      data.append("formId", clickedForm?._id || "");
-
-      // Append productImage file if selected
-      if (productImageFile && productImageFile[0]) {
-        data.append("productImage", productImageFile[0]);
-      }
-
-      // Append other form fields (formData object)
-      data.append("formData", JSON.stringify(formData));
-
-      const res = await api.post(`${apiUrl}/form/modifyForm`, data, {
-        headers: { "Content-Type": "multipart/form-data" },
-        withCredentials: true,
-      });
-
-      console.log("Form submitted successfully:", res.data);
+      console.log("Form approved:", response.data);
       navigate("/");
-    } catch (err) {
-      console.error("Error submitting form:", err);
+      // Open modal after approval
+      setIsOpen(true);
+    } catch (error) {
+      console.error("Error approving form:", error.response?.data || error);
+    } 
+  };
+const handleReject = async (id,formData) => {
+    try {
+      // Call the API to reject the form
+      const response = await api.post(
+        `${apiUrl}/form/reject`,
+        {formId:id,data:formData},
+        { withCredentials: true } // if your backend uses cookies
+      );
+
+      console.log("Form rejected:", response.data);
+      navigate("/");
+    } catch (error) {
+      console.error("Error rejecting form:", error.response?.data || error);
     }
   };
+const handleCreateNewIssue = async (formData) => {
+      try {
+          const data = new FormData();
+          
+          // Append productImage file if selected
+          if (productImageFile && productImageFile[0]) {
+            data.append("productImage", productImageFile[0]);
+          }
 
-const handleApprove = async (id) => {
+          // Append other form fields (formData object)
+          data.append("data", JSON.stringify(formData));
+          console.log("formData:", formData);
+          const res = await api.post(`${apiUrl}/form/createForm`, data, {
+            headers: { "Content-Type": "multipart/form-data" },
+            withCredentials: true,
+          });
+
+          console.log("Form submitted successfully:", res.data);
+          navigate("/");
+        } 
+      catch (err) {
+          console.error("Error submitting form:", err);
+        }
+};
+const handleProdResponse = async (id,formData) => {
+   try {
+      // Call the API to approve the form
+      const response = await api.post(
+        `${apiUrl}/form/prodResponse`,
+        {formId:id,data:formData},
+        { withCredentials: true } // if your backend uses cookies
+      );
+
+      console.log("Form approved:", response.data);
+      navigate("/");
+      // Open modal after approval
+      setIsOpen(true);
+    } catch (error) {
+      console.error("Error approving form:", error.response?.data || error);
+    } 
+}
+const handleFinalSubmit = async (id,formData) => {
 
     try {
       // Call the API to approve the form
       const response = await api.post(
-        `${apiUrl}/form/approveForm`,
-        {formId:id},
+        `${apiUrl}/form/finalSubmit`,
+        {formId:id,data:formData},
         { withCredentials: true } // if your backend uses cookies
       );
 
@@ -119,54 +183,24 @@ const handleApprove = async (id) => {
     } 
   };
 
-  
+  // ---------------- PRIMARY ACTION ----------------
 const getPrimaryAction = () => {
+    if (!clickedForm) {
+      return { label: "Create New Issue", handler: handleCreateNewIssue };
+    }
 
-  if (!clickedForm) {    // New form
-    return {
-      label: "Submit",
-      handler: () => handleSubmit(clickedForm?._id),
-    };
-  }
+    const { status } = clickedForm;
+    const { flag } = user.team;
 
-  const { status } = clickedForm;
-  const { flag } = user.team;
+    if (status === "pending_prod" && flag === "INTERNAL") {
+      return { label: "Submit", handler: handleProdResponse };
+    }
 
-  // INTERNAL — send to QA
-  if (status === "pending_prod" && flag === "INTERNAL") {
-    return {
-      label: "Submit",
-      handler: () => handleSubmit(clickedForm._id),
-    };
-  }
+    if (status === "approved") {
+      return { label: "Final Submit", handler: handleFinalSubmit };
+    }
 
-  // QA — reject back to prod
-  if (status === "pending_quality" && flag === "QA") {
-    return {
-      label: "Reject",
-      handler: () => handleReject(clickedForm._id),
-    };
-  }
-  if (
-    (status === "pending_prod" && flag === "QA") ||
-    (status === "pending_quality" && flag === "INTERNAL")
-  ) {
     return null;
-  }
-
-  // After approval — final submission
-  if (status === "approved") {
-    return {
-      label: "Final Submit",
-      handler: () => handleFinalize(clickedForm._id),
-    };
-  }
-
-  // Default submit
-  return {
-    label: "Submit",
-    handler: () => handleSubmit(clickedForm._id),
-  };
 };
 const primaryAction = getPrimaryAction();
 
@@ -1035,31 +1069,42 @@ useEffect(()=>{
 
               </CardContent>
 
-                <CardFooter className="flex justify-center py-6">
+              <CardFooter className="flex justify-center py-6 gap-3">
+                  {/* QA Approve Button and QA Reject Button*/}
+                  {clickedForm?.status === "pending_quality" && user.team.flag === "QA" && (
+                    <div>
+                      <Button
+                      type="button"
+                      className="px-8 py-2 text-lg"
+                      onClick={() =>
+                        handleSubmit((formData) => onSubmit(formData, handleApprove))()
+                      }
+                    >
+                      Approve
+                      </Button>
 
-                  {/* Primary dynamic action button */}
+                      <Button
+                        type="button"
+                        className="px-8 py-2 text-lg"
+                        onClick={() =>
+                          handleSubmit((formData) => onSubmit(formData, handleReject))()
+                        }
+                      >
+                        Reject
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Primary action button for other stages */}
                   {primaryAction && (
                     <Button
-                      type="button"
-                      className="px-8 py-2 text-lg mx-3"
-                      onClick={primaryAction.handler}
+                      type="submit"
+                      className="px-8 py-2 text-lg"
                     >
                       {primaryAction.label}
                     </Button>
                   )}
-
-                  {/* Approve button — separate explicit action */}
-                  {clickedForm?.status === "pending_quality" &&
-                    user.team.flag === "QA" && (
-                      <Button
-                        type="button"
-                        className="px-8 py-2 text-lg mx-3"
-                        onClick={() => handleApprove(clickedForm._id)}
-                      >
-                        Approve
-                      </Button>
-                    )}
-                </CardFooter>
+              </CardFooter>
 
             </form>
         </Card>
