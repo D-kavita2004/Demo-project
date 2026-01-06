@@ -196,7 +196,7 @@ const getPrimaryAction = () => {
       return { label: "Submit", handler: handleProdResponse };
     }
 
-    if (status === "approved") {
+    if (status === "approved" && flag === "QA") {
       return { label: "Final Submit", handler: handleFinalSubmit };
     }
 
@@ -1070,28 +1070,29 @@ useEffect(()=>{
               </CardContent>
 
               <CardFooter className="flex justify-center py-6 gap-3">
-                  {/* QA Approve Button and QA Reject Button*/}
+                 
                   {clickedForm?.status === "pending_quality" && user.team.flag === "QA" && (
-                    <div>
+                    <div className="mx-auto flex gap-4">
                       <Button
-                      type="button"
-                      className="px-8 py-2 text-lg"
-                      onClick={() =>
-                        handleSubmit((formData) => onSubmit(formData, handleApprove))()
-                      }
-                    >
-                      Approve
+                          type="button"
+                          className="px-8 py-2"
+                          onClick={handleSubmit((formData) =>
+                            handleApprove(clickedForm._id, formData)
+                          )}
+                        >
+                          Approve
                       </Button>
 
                       <Button
-                        type="button"
-                        className="px-8 py-2 text-lg"
-                        onClick={() =>
-                          handleSubmit((formData) => onSubmit(formData, handleReject))()
-                        }
-                      >
-                        Reject
+                          type="button"
+                          className="px-8 py-2"
+                          onClick={handleSubmit((formData) =>
+                            handleReject(clickedForm._id, formData)
+                          )}
+                        >
+                          Reject
                       </Button>
+
                     </div>
                   )}
 

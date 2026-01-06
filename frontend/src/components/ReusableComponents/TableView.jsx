@@ -33,8 +33,9 @@ const TableView = ({ data }) => {
   });
 
   const getStatusLabel = (status, teamFlag) => {
+    console.log("Status:", status, "Team Flag:", teamFlag);
     if (status === "approved") return "Approved";
-
+    if (status === "finished") return "View";
     if (status === "pending_prod") {
       return (teamFlag === "QA" || teamFlag === "IT")
         ? "Submitted"
@@ -95,7 +96,8 @@ const TableView = ({ data }) => {
             ? "AWAITING QUALITY REVIEW"
             : status === "pending_prod"
             ? "AWAITING PRODUCTION REVIEW"
-            : "Approved";
+            : status === "approved" ? "Approved"
+            : "Finished";
 
         return (
           <span className={`px-3 py-1 text-sm font-medium rounded-full ${color}`}>

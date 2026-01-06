@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { UserContext } from "./userContext";
-import { NewFormSchema, ProdResponseSchema, QAResponseSchema, FinalResponseSchema } from "../ValidateSchema/formDataValidationSchema";   
+import { NewFormSchema, ProdResponseSchema, QAResponseSchema, FinalResponseSchema, EmptySchema } from "../ValidateSchema/formDataValidationSchema";   
 
 const sectionAccessMatrix = {
 
@@ -39,7 +39,12 @@ const sectionAccessMatrix = {
 function getSectionAccess(sectionKey, flag, status, isNewForm) {
 
   const section = sectionAccessMatrix[sectionKey];
+  
   if (!section) return "hidden";
+
+  // console.log("User role flag:", flag);
+  // console.log("Section access rules:", section);
+  // console.log("Role access rules:", section[flag]);
 
   const roleAccess = section[flag];
   if (!roleAccess) return "hidden";
@@ -69,14 +74,15 @@ export const GetRelatedSchema = (formStatus, isNewForm) => {
       if (formStatus === "approved") {
             return FinalResponseSchema;
       }
+      return EmptySchema;
 }
 
 
 export const PermissionedSection = ({ sectionKey, isNewForm, formStatus, children }) => {
   const {user} = useContext(UserContext);
-console.log(isNewForm, formStatus);
+// console.log(isNewForm, formStatus);
   const access = getSectionAccess(sectionKey, user.team.flag, formStatus, isNewForm);
-  console.log(`Section: ${sectionKey}, Access: ${access}`);
+  // console.log(`Section: ${sectionKey}, Access: ${access}`);
   if (access === "hidden") return null;
 
   return (

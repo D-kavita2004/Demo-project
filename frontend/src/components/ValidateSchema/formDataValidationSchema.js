@@ -113,4 +113,7 @@ export const FinalResponseSchema = z.object({
     effectSecInCharge: nonEmpty,
     effectQCSection: nonEmpty,
   })
-})
+});
+
+// To handle cases where no validation is needed
+export const EmptySchema = z.object({});

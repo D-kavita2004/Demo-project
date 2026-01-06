@@ -57,9 +57,9 @@ export const handleProdResponse = async (req, res) => {
 
     let data = {};
     if (req.body.data) {
-      data = JSON.parse(req.body.data);
+      data = req.body.data;
     }
-
+    logger.info(JSON.stringify(data, null, 2));
     const form = await Form.findById(formId);
 
     if (!form) {
@@ -104,7 +104,7 @@ export const handleApprove = async (req, res) => {
 
     let data = {};
     if (req.body.data) {
-      data = JSON.parse(req.body.data);
+      data = req.body.data;
     }
 
     if (team.flag !== "QA") {
@@ -221,7 +221,7 @@ export const handleFinalSubmit = async(req, res) => {
 
     let data = {};
     if (req.body.data) {
-      data = JSON.parse(req.body.data);
+      data = req.body.data;
     }
 
     const form = await Form.findById(formId);
