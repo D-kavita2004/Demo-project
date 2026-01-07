@@ -7,31 +7,37 @@ const sectionAccessMatrix = {
   issuingSection: {
     "QA":  { new: "edit", pending_quality: "read", pending_prod: "read", approved: "read", finished: "read" },
     "INTERNAL": { new: "hidden", pending_quality: "read", pending_prod: "read", approved: "read", finished: "read" },
+    "IT" : { "*":"read"}
   },
 
   defectivenessDetail: {
     "QA":  { new: "edit", pending_quality: "read", pending_prod: "read", approved: "read", finished: "read" },
     "INTERNAL": { new: "hidden", pending_quality: "read", pending_prod: "read", approved: "read", finished: "read" },
+    "IT" : { "*":"read"},
   },
 
   qualityCheckComment: {
     "QA":  { new: "edit", pending_quality: "read", pending_prod: "read", approved: "read", finished: "read" },
     "INTERNAL": { new: "hidden", pending_quality: "read", pending_prod: "read", approved: "read", finished: "read" },
+    "IT" : { "*":"read"}
   },
 
   measuresReport: {
     "QA": { new: "hidden", pending_prod:"hidden", pending_quality: "read", approved: "read", finished: "read" },
     "INTERNAL":  { new: "hidden", pending_prod: "edit", pending_quality: "read", approved: "read", finished: "read" },
+    "IT" : { pending_prod: "hidden" }
   },
 
   resultsOfMeasuresEnforcement: {
     "QA":        { new: "hidden", pending_prod:"hidden", pending_quality: "edit", approved: "read", finished: "read" },
     "INTERNAL":  { new: "hidden", pending_prod:"hidden", pending_quality: "hidden", approved:"read", finished: "read" },
+    "IT" : { pending_quality: "hidden", pending_prod: "hidden" }
   },
 
    resultsOfMeasuresEffect: {
     "QA":        { new: "hidden", approved: "edit", pending_prod:"hidden", pending_quality: "hidden", finished: "read" },
     "INTERNAL":  { "*": "hidden" },
+    "IT" : { approved: "hidden", pending_prod: "hidden",pending_quality:"hidden" }
   },
 };
 
@@ -42,11 +48,8 @@ function getSectionAccess(sectionKey, flag, status, isNewForm) {
   
   if (!section) return "hidden";
 
-  // console.log("User role flag:", flag);
-  // console.log("Section access rules:", section);
-  // console.log("Role access rules:", section[flag]);
-
   const roleAccess = section[flag];
+  if (!roleAccess[status] && flag === "IT") return "read"
   if (!roleAccess) return "hidden";
 
   // When creating new form — use role's "new" rule

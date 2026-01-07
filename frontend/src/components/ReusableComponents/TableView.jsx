@@ -34,6 +34,7 @@ const TableView = ({ data }) => {
 
   const getStatusLabel = (status, teamFlag) => {
     console.log("Status:", status, "Team Flag:", teamFlag);
+    if(teamFlag==="IT") return "View"
     if (status === "approved") return "Approved";
     if (status === "finished") return "View";
     if (status === "pending_prod") {
