@@ -12,7 +12,6 @@ export const createNewIssue = async(req, res) => {
     if (req.body.data) {
       data = JSON.parse(req.body.data);
     };
-    logger.info(JSON.stringify(data, null, 2));
 
     if (!data) {
       return res.status(404).json({ message: "Form data is required" });
@@ -59,7 +58,6 @@ export const handleProdResponse = async (req, res) => {
     if (req.body.data) {
       data = req.body.data;
     }
-    logger.info(JSON.stringify(data, null, 2));
     const form = await Form.findById(formId);
 
     if (!form) {
@@ -222,6 +220,7 @@ export const handleFinalSubmit = async(req, res) => {
     let data = {};
     if (req.body.data) {
       data = req.body.data;
+      // logger.info(JSON.stringify(data.resultsOfMeasuresEffect,null,2));
     }
 
     const form = await Form.findById(formId);
@@ -237,11 +236,17 @@ export const handleFinalSubmit = async(req, res) => {
     
     const updatedForm = await Form.findByIdAndUpdate(
       formId,
-      { formData: {...form.formData, resultsOfMeasuresEffect: data.resultsOfMeasuresEffect },
-        status: "finished", updatedAt: new Date() },
-      { new: true }, // return the updated document
+      {
+        $set: {
+          "formData.resultsOfMeasuresEffect": data.resultsOfMeasuresEffect,
+          status: "finished",
+          updatedAt: new Date(),
+        },
+      },
+      { new: true, runValidators: true },
     );
-    //     console.log(updatedForm);
+
+    logger.info(updatedForm);
     if (!updatedForm) {
       return res.status(404).json({ message: "Form not found" });
     }
