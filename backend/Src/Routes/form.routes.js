@@ -3,12 +3,12 @@ import { getAllForms, createNewIssue, handleProdResponse, handleReject, handleAp
 import { uploadImage } from "../Middlewares/upload.middleware.js";
 const router = express.Router();
 
-router.post("/createForm",uploadImage, createNewIssue);
-router.post("/reject",handleReject);
-router.post("/approve",handleApprove);
-router.post("/prodResponse",handleProdResponse);
-router.post("/finalSubmit",handleFinalSubmit);
-router.post("/allForms",getAllForms);
+router.get("/",getAllForms);
+router.post("/",uploadImage, createNewIssue);
+
+router.put("/reject",handleReject);
+router.put("/approve",handleApprove);
+router.put("/prodResponse",handleProdResponse);
+router.put("/finalSubmit",handleFinalSubmit);
 
 export default router;
-

@@ -16,8 +16,8 @@ export const FormsProvider = ({ children }) => {
 
     const fetchAllForms = async () => {
       try {
-        const res = await api.post(
-          `${apiUrl}/form/allForms`,
+        const res = await api.get(
+          `${apiUrl}/forms`,
           { Team: user.team },
           { withCredentials: true }
         );

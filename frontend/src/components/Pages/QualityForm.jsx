@@ -19,6 +19,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {myData} from "../Utils/DefaultData";
 import { PermissionedSection } from "../Utils/sectionPermissionWrapper";
 import { GetRelatedSchema } from "../Utils/sectionPermissionWrapper";
+import HistoryTracking from "../ReusableComponents/HistoryTracking";
 import {
   Select,
   SelectContent,
@@ -94,8 +95,8 @@ const handleApprove = async (id,formData) => {
     try {
       console.log(formData);
       // Call the API to approve the form
-      const response = await api.post(
-        `${apiUrl}/form/approve`,
+      const response = await api.put(
+        `${apiUrl}/forms/approve`,
         {formId:id,data:formData},
         { withCredentials: true } // if your backend uses cookies
       );
@@ -111,8 +112,8 @@ const handleApprove = async (id,formData) => {
 const handleReject = async (id,formData) => {
     try {
       // Call the API to reject the form
-      const response = await api.post(
-        `${apiUrl}/form/reject`,
+      const response = await api.put(
+        `${apiUrl}/forms/reject`,
         {formId:id,data:formData},
         { withCredentials: true } // if your backend uses cookies
       );
@@ -135,7 +136,7 @@ const handleCreateNewIssue = async (formData) => {
           // Append other form fields (formData object)
           data.append("data", JSON.stringify(formData));
           console.log("formData:", formData);
-          const res = await api.post(`${apiUrl}/form/createForm`, data, {
+          const res = await api.post(`${apiUrl}/forms`, data, {
             headers: { "Content-Type": "multipart/form-data" },
             withCredentials: true,
           });
@@ -150,8 +151,8 @@ const handleCreateNewIssue = async (formData) => {
 const handleProdResponse = async (id,formData) => {
    try {
       // Call the API to approve the form
-      const response = await api.post(
-        `${apiUrl}/form/prodResponse`,
+      const response = await api.put(
+        `${apiUrl}/forms/prodResponse`,
         {formId:id,data:formData},
         { withCredentials: true } // if your backend uses cookies
       );
@@ -168,8 +169,8 @@ const handleFinalSubmit = async (id,formData) => {
 
     try {
       // Call the API to approve the form
-      const response = await api.post(
-        `${apiUrl}/form/finalSubmit`,
+      const response = await api.put(
+        `${apiUrl}/forms/finalSubmit`,
         {formId:id,data:formData},
         { withCredentials: true } // if your backend uses cookies
       );
@@ -285,6 +286,7 @@ useEffect(()=>{
         <ArrowLeft className="w-4 h-4" />
         Back to Dashboard
       </Button>
+      
         <Card className="max-w-5xl mx-auto mt-8 shadow-lg rounded-2xl">
             <CardHeader>
               <CardTitle className="text-3xl font-semibold text-center">
@@ -835,7 +837,9 @@ useEffect(()=>{
                     </section>
                 </PermissionedSection>
 
-
+                {
+                  (clickedForm && clickedForm.history.length > 0) && <HistoryTracking historyTracks={clickedForm.history}/>
+                }
                 {/* ====================== MEASURES REPORT ====================== */}
                 <PermissionedSection sectionKey="measuresReport" isNewForm={isNewForm} formStatus={clickedForm?.status} >
                     <section className="space-y-6">

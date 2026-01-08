@@ -50,7 +50,7 @@ app.use("/api/parts", verifyToken, partRoutes);
 app.use("/api/machines", verifyToken, machineRoutes);
 app.use("/api/processes", verifyToken, processRoutes);
 
-app.use("/api/form",verifyToken,formRoutes);
+app.use("/api/forms",verifyToken,formRoutes);
 
 app.get("/api/verify-token",verifyToken,(req,res)=>{
   return res.status(200).send(req.user);
