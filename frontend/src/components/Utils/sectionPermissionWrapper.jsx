@@ -36,7 +36,7 @@ const sectionAccessMatrix = {
 
    resultsOfMeasuresEffect: {
     "QA":        { new: "hidden", approved: "edit", pending_prod:"hidden", pending_quality: "hidden", finished: "read" },
-    "INTERNAL":  { "*": "hidden" },
+    "INTERNAL":  { finished:"read","*": "hidden", },
     "IT" : { approved: "hidden", pending_prod: "hidden",pending_quality:"hidden" }
   },
 };
@@ -88,9 +88,27 @@ export const PermissionedSection = ({ sectionKey, isNewForm, formStatus, childre
   // console.log(`Section: ${sectionKey}, Access: ${access}`);
   if (access === "hidden") return null;
 
-  return (
-    <fieldset disabled={access === "read"}>
-      {children}
-    </fieldset>
-  );
+   return children(access);
 };
+
+
+// export const PermissionedSection = ({
+//   sectionKey,
+//   isNewForm,
+//   formStatus,
+//   children,
+// }) => {
+//   const { user } = useContext(UserContext);
+
+//   const access = getSectionAccess(
+//     sectionKey,
+//     user.team.flag,
+//     formStatus,
+//     isNewForm
+//   );
+
+//   if (access === "hidden") return null;
+
+//   // Pass access down via render prop
+//   return children(access);
+// };

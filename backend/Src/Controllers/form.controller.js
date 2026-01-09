@@ -36,7 +36,7 @@ export const createNewIssue = async(req, res) => {
     }
 
     return res.status(201).json({
-      message:"Form submitted successfully",
+      message:"Issue submitted successfully",
       form,
     });
   } catch (error) {
@@ -133,7 +133,7 @@ export const handleApprove = async (req, res) => {
     await form.save();
 
     return res.status(200).json({
-      message: "Form approved successfully",
+      message: "Issue approved successfully",
       form,
     });
 
@@ -197,7 +197,7 @@ export const handleReject = async (req, res) => {
     await form.save();
 
     return res.status(200).json({
-      message: "Form rejected successfully",
+      message: "Issue rejected successfully",
       form,
     });
     
@@ -252,7 +252,7 @@ export const handleFinalSubmit = async(req, res) => {
     }
 
     res.status(200).json({
-      message: "Form workflow finished successfully",
+      message: "Issue workflow finished successfully",
       form: updatedForm,
     });
   } catch (error) {
