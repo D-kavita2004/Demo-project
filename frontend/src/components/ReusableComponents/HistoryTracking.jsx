@@ -31,10 +31,10 @@ const HistoryTracking = ({ historyTracks = [] }) => {
       <h2 className="text-2xl font-semibold border-b pb-2">History</h2>
 
       <Accordion type="single" collapsible className="w-full">
-        {historyTracks.map((obj, index) => (
+        {[...historyTracks].reverse().map((obj, index) => (
           <AccordionItem key={index} value={`item-${index}`}>
-            <AccordionTrigger>
-              Cycle : {obj.cycle}
+            <AccordionTrigger className="text-md">
+              Revision : {obj.cycle}
             </AccordionTrigger>
 
             <AccordionContent className="space-y-8">
