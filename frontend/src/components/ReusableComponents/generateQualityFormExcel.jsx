@@ -2,124 +2,186 @@ import XLSX from "xlsx-js-style";
 
 const generateQualityFormExcel = (data) => {
   const formData = data.formData;
+  const historyData = data.history || []; // array of objects
 
-  // Section structure
+  // ================= REGULAR SECTIONS =================
   const sections = [
-    {
+    (formData.issuingSection) && {
       title: "1. ISSUING SECTION",
       data: {
-        "Receiving No": formData.receivingNo,
-        "Reference No": formData.referenceNo,
-        "Part Name": formData.partName,
-        "Subject Matter": formData.subjectMatter,
-        "Approved By": formData.approved,
-        "Checked By": formData.checked,
-        "Issued BY": formData.issued,
+        "Receiving No": formData.issuingSection.receivingNo,
+        "Reference No": formData.issuingSection.referenceNo,
+        "Part Name": formData.issuingSection.part.partName,
+        "Subject Matter": formData.issuingSection.subjectMatter,
+        "Approved By": formData.issuingSection.approved,
+        "Checked By": formData.issuingSection.checked,
+        "Issued BY": formData.issuingSection.issued,
       },
     },
-    {
+    (formData.defectivenessDetail) && {
       title: "2. DEFECTIVENESS DETAILS",
       data: {
-        "Supplier Name": formData.supplierName,
-        "Group Name": formData.groupName,
-        "State of Process": formData.stateOfProcess,
-        "Associated Lot No": formData.associatedLotNo,
-        "Discovered Date": formData.discoveredDate,
-        "Issue Date": formData.issueDate,
-        "Order No": formData.orderNo,
-        "Drawing No": formData.drawingNo,
-        "Process Name": formData.processName,
-        "Machine Name": formData.machineName,
-        "Total Quantity": formData.totalQuantity,
-        "Used Quantity": formData.usedQuantity,
-        "Residual Quantity": formData.residualQuantity,
-        "Defect Rate (%)": formData.defectRate,
-        "Product Image": formData.productImage ? "Click to View Image" : "-",
-        "Manager Instructions": formData.managerInstructions,
+        "Supplier Name": formData.defectivenessDetail.supplier.supplierName,
+        "Group Name": formData.defectivenessDetail.groupName,
+        "State of Process": formData.defectivenessDetail.stateOfProcess,
+        "Associated Lot No": formData.defectivenessDetail.associatedLotNo,
+        "Discovered Date": formData.defectivenessDetail.discoveredDate,
+        "Issue Date": formData.defectivenessDetail.issueDate,
+        "Order No": formData.defectivenessDetail.orderNo,
+        "Drawing No": formData.defectivenessDetail.drawingNo,
+        "Process Name": formData.defectivenessDetail.process.processName,
+        "Machine Name": formData.defectivenessDetail.machine.machineName,
+        "Total Quantity": formData.defectivenessDetail.totalQuantity,
+        "Used Quantity": formData.defectivenessDetail.usedQuantity,
+        "Residual Quantity": formData.defectivenessDetail.residualQuantity,
+        "Defect Rate (%)": formData.defectivenessDetail.defectRate,
+        "Product Image": formData.defectivenessDetail.productImage ? "Click to View Image" : "-",
+        "Manager Instructions": formData.defectivenessDetail.managerInstructions,
       },
     },
-    {
+   (formData.qualityCheckComment) &&  {
       title: "3. QUALITY CHECK COMMENTS",
       data: {
-        "QC Comment": formData.qcComment,
-        "Approval Status": formData.approvalStatus,
-        "Checked By QC": formData.checkedByQC,
-        "QC Instructions": formData.qcInstructions,
-        "Defect Cost": `${formData.defectCost} / ${formData.unit}`,
-        "Occurrence Section": formData.occurrenceSection,
-        "Importance Level": formData.importanceLevel,
-        "Report Time Limit": formData.reportTimeLimit,
+        "QC Comment": formData.qualityCheckComment.qcComment,
+        "QC Instructions": formData.qualityCheckComment.qcInstructions,
+        "Defect Cost": `${formData.qualityCheckComment.defectCost} / ${formData.unit}`,
+        "Unit": formData.qualityCheckComment.unit,
+        "Importance Level": formData.qualityCheckComment.importanceLevel,
+        "Report Time Limit": formData.qualityCheckComment.reportTimeLimit,
       },
     },
-    {
+    (formData.measuresReport) && {
       title: "4. MEASURES REPORT",
       data: {
-        "Measures Report": formData.measuresReport,
-        "Responsible Section": formData.responsibleSection,
-        "Cause Details": formData.causeDetails,
-        "Countermeasures": formData.countermeasures,
-        "Enforcement Date": formData.enforcementDate,
-        "Standardization": formData.standardization,
+        "Causes of Occurance": formData.measuresReport.causesOfOccurrence,
+        "Causes Of Outflow": formData.measuresReport.causesOfOutflow,
+        "Counter Measures For Causes": formData.measuresReport.counterMeasuresForCauses,
+        "Counter Measures For Outflow": formData.measuresReport.counterMeasuresForOutflow,
+        "Enforcement Date": formData.measuresReport.enforcementDate,
+        "Standardization": formData.measuresReport.standardization,
       },
     },
-    {
-      title: "5. RESULTS OF MEASURES",
+    (formData.resultsOfMeasuresEnforcement) && {
+      title: "5. RESULTS OF MEASURES ENFORCEMENT",
       data: {
-        "Enforcement Date (Result)": formData.enforcementDateResult,
-        "Result": formData.enforcementResult,
-        "Judgment": formData.enforcementJudgment,
-        "Section In-Charge": formData.enforcementSecInCharge,
-        "QC Section": formData.enforcementQCSection,
-        Approved: formData.enforcementApproved ? "Yes" : "No",
-        "Effect Date": formData.effectDate,
-        "Effect Result": formData.effectResult,
-        "Effect Judgment": formData.effectJudgment,
-        "Effect Section In-Charge": formData.effectSecInCharge,
-        "Effect QC Section": formData.effectQCSection,
-        "Effect Approved": formData.effectApproved ? "Yes" : "No",
+        "Enforcement Date (Result)": formData.resultsOfMeasuresEnforcement.enforcementDateResult,
+        "Result": formData.resultsOfMeasuresEnforcement.enforcementResult,
+        "Judgment": formData.resultsOfMeasuresEnforcement.enforcementJudgment,
+        "Section In-Charge": formData.resultsOfMeasuresEnforcement.enforcementSecInCharge,
+        "QC Section": formData.resultsOfMeasuresEnforcement.enforcementQCSection,
+      },
+    },
+    (formData.resultsOfMeasuresEffect) && {
+      title: "6. RESULTS OF MEASURES EFFECT",
+      data: {
+        "Effect Date": formData.resultsOfMeasuresEffect.effectDate,
+        "Effect Result": formData.resultsOfMeasuresEffect.effectResult,
+        "Effect Judgment": formData.resultsOfMeasuresEffect.effectJudgment,
+        "Effect Section In-Charge": formData.resultsOfMeasuresEffect.effectSecInCharge,
+        "Effect QC Section": formData.resultsOfMeasuresEffect.effectQCSection,
       },
     },
   ];
 
-  // Prepare sheet data
+  // ================= PREPARE SHEET DATA =================
   const sheetData = [["QUALITY CHECK REPORT", ""]];
   sheetData.push(["", ""]);
   sheetData.push(["", ""]);
+
+  // Add main sections
   sections.forEach((section) => {
     sheetData.push([section.title, ""]);
     Object.entries(section.data).forEach(([key, value]) => {
       sheetData.push([key, value ?? "-"]);
     });
-    sheetData.push(["", ""]); // spacing row
+    sheetData.push(["", ""]); // spacing
   });
 
-  const ws = XLSX.utils.aoa_to_sheet(sheetData);
+  // Add history
+// ================= HISTORY =================
+if (historyData.length > 0) {
+  const historyHeaderRow = sheetData.length;
+  sheetData.push(["HISTORY", ""]);
+  sheetData.push(["", ""]);
+  historyData.forEach((entry, index) => {
+    // Revision title stays in column 1
+    sheetData.push([`Revision ${index + 1}`, "MEASURES REPORT"]);
 
+    // ---------- MEASURES REPORT ----------
+
+    const mr = entry.data.measuresReport || {};
+
+    Object.entries({
+      "Causes of Occurance": mr.causesOfOccurrence,
+      "Causes Of Outflow": mr.causesOfOutflow,
+      "Counter Measures For Causes": mr.counterMeasuresForCauses,
+      "Counter Measures For Outflow": mr.counterMeasuresForOutflow,
+      "Enforcement Date": mr.enforcementDate,
+      "Standardization": mr.standardization,
+    }).forEach(([key, value]) => {
+      sheetData.push(["", `${key}: ${value ?? "-"}`]);
+    });
+
+    sheetData.push(["", ""]);
+
+    // ---------- RESULTS OF MEASURES ENFORCEMENT ----------
+    sheetData.push(["", "RESULTS OF MEASURES ENFORCEMENT"]);
+    const rm = entry.data.resultsOfMeasuresEnforcement || {};
+
+    Object.entries({
+      "Enforcement Date (Result)": rm.enforcementDateResult,
+      "Result": rm.enforcementResult,
+      "Judgment": rm.enforcementJudgment,
+      "Section In-Charge": rm.enforcementSecInCharge,
+      "QC Section": rm.enforcementQCSection,
+    }).forEach(([key, value]) => {
+      sheetData.push(["", `${key}: ${value ?? "-"}`]);
+    });
+
+    sheetData.push(["", ""]); // spacing after each revision
+  });
+  let merges = [];
+  // Merge HISTORY heading into 2 columns
+  merges.push({
+  s: { r: historyHeaderRow, c: 0 },
+  e: { r: historyHeaderRow, c: 1 },
+});
+
+}
+
+
+  // ================= CREATE WORKSHEET =================
+  const ws = XLSX.utils.aoa_to_sheet(sheetData);
+  
   // Merge main title
   ws["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
 
   // Column widths
   ws["!cols"] = [{ wch: 30 }, { wch: 50 }];
 
-  // Styling
+  // ================= APPLY STYLING =================
   sheetData.forEach((row, r) => {
     row.forEach((cellValue, c) => {
       const cellRef = XLSX.utils.encode_cell({ r, c });
       const cell = ws[cellRef];
       if (!cell) return;
 
-      // Main Title
+      // Main title
       if (r === 0) {
         cell.s = {
           font: { bold: true, sz: 18, color: { rgb: "004AAD" } },
           alignment: { horizontal: "center" },
         };
       }
-      // Section Headers
-      else if (cellValue && Object.keys(sections.reduce((a, s) => ({ ...a, [s.title]: 1 }), {})).includes(cellValue)) {
+      // Section headers
+      else if (
+        cellValue &&
+        ["HISTORY", ...sections.map((s) => s.title), "MEASURES REPORT", "RESULTS OF MEASURES ENFORCEMENT"].includes(cellValue) ||
+        /^Revision \d+$/.test(cellValue)
+      ) {
         cell.s = {
           font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
-          fill: { fgColor: { rgb: "004AAD" } },
+          fill: { fgColor: { rgb: "004BBC" } },
           alignment: { horizontal: "left" },
         };
       }
@@ -139,6 +201,7 @@ const generateQualityFormExcel = (data) => {
       // Values
       else if (c === 1) {
         cell.s = {
+          font: { italic: true },
           border: {
             top: { style: "thin", color: { rgb: "999999" } },
             bottom: { style: "thin", color: { rgb: "999999" } },
@@ -151,18 +214,19 @@ const generateQualityFormExcel = (data) => {
   });
 
   // Hyperlink for Product Image
-  if (formData.productImage) {
+  if (formData.defectivenessDetail.productImage) {
     const row = sheetData.findIndex((r) => r[0] === "Product Image");
     if (row !== -1) {
       const ref = XLSX.utils.encode_cell({ r: row, c: 1 });
-      ws[ref].l = { Target: formData.productImage, Tooltip: "Click to open image" };
+      ws[ref].l = { Target: formData.defectivenessDetail.productImage, Tooltip: "Click to open image" };
     }
   }
 
+  // ================= CREATE WORKBOOK =================
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Quality Form");
 
-  XLSX.writeFile(wb, `${formData.partName || "Quality_Form"}_Report.xlsx`);
+  XLSX.writeFile(wb, `${formData.issuingSection.part.partName || "Quality_Form"}_Report.xlsx`);
 };
 
 export default generateQualityFormExcel;
