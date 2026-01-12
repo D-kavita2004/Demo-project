@@ -81,7 +81,7 @@ const generateQualityFormExcel = (data) => {
         "Effect QC Section": formData.resultsOfMeasuresEffect.effectQCSection,
       },
     },
-  ];
+  ].filter(Boolean);
 
   // ================= PREPARE SHEET DATA =================
   const sheetData = [["QUALITY CHECK REPORT", ""]];

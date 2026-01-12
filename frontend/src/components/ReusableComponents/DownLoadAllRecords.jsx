@@ -41,7 +41,7 @@ const getImageAsPngBase64 = async (imageUrl) => {
 // ======================================================
 const buildSingleRecord = (formData, productImageBase64) => {
   return [
-    { text: `QUALITY CHECK REPORT (${formData.partName.toUpperCase()})`, style: "mainHeader" },
+    { text: `QUALITY CHECK REPORT (${formData.issuingSection.part.partName.toUpperCase()})`, style: "mainHeader" },
     { text: "\n" },
 
     // -------- 1. Issuing Section --------
@@ -50,13 +50,13 @@ const buildSingleRecord = (formData, productImageBase64) => {
       table: {
         widths: ["35%", "65%"],
         body: Object.entries({
-          "Receiving No": formData.receivingNo,
-          "Reference No": formData.referenceNo,
-          "Part Name": formData.partName,
-          "Subject Matter": formData.subjectMatter,
-          "Approved By": formData.approved,
-          "Checked By": formData.checked,
-          "Issued By": formData.issued,
+          "Receiving No": formData.issuingSection.receivingNo,
+          "Reference No": formData.issuingSection.referenceNo,
+          "Part Name": formData.issuingSection.part.partName,
+          "Subject Matter": formData.issuingSection.subjectMatter,
+          "Approved By": formData.issuingSection.approved,
+          "Checked By": formData.issuingSection.checked,
+          "Issued BY": formData.issuingSection.issued,
         }).map(([key, value]) => [
           { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
           { text: value ?? "-", margin: [2, 4, 2, 4] },
@@ -72,24 +72,22 @@ const buildSingleRecord = (formData, productImageBase64) => {
       table: {
         widths: ["35%", "65%"],
         body: Object.entries({
-          "Supplier Name": formData.supplierName,
-          "Group Name": formData.groupName,
-          "State of Process": formData.stateOfProcess,
-          "Associated Lot No": formData.associatedLotNo,
-          "Discovered Date": formData.discoveredDate,
-          "Issue Date": formData.issueDate,
-          "Order No": formData.orderNo,
-          "Drawing No": formData.drawingNo,
-          "Process Name": formData.processName,
-          "Machine Name": formData.machineName,
-          "Total Quantity": formData.totalQuantity,
-          "Used Quantity": formData.usedQuantity,
-          "Residual Quantity": formData.residualQuantity,
-          "Defect Rate (%)": formData.defectRate,
-          "Product Image": productImageBase64
-            ? { image: productImageBase64, width: 200, height: 150, alignment: "center" }
-            : "-",
-          "Manager Instructions": formData.managerInstructions,
+          "Supplier Name": formData.defectivenessDetail.supplier.supplierName,
+        "Group Name": formData.defectivenessDetail.groupName,
+        "State of Process": formData.defectivenessDetail.stateOfProcess,
+        "Associated Lot No": formData.defectivenessDetail.associatedLotNo,
+        "Discovered Date": formData.defectivenessDetail.discoveredDate,
+        "Issue Date": formData.defectivenessDetail.issueDate,
+        "Order No": formData.defectivenessDetail.orderNo,
+        "Drawing No": formData.defectivenessDetail.drawingNo,
+        "Process Name": formData.defectivenessDetail.process.processName,
+        "Machine Name": formData.defectivenessDetail.machine.machineName,
+        "Total Quantity": formData.defectivenessDetail.totalQuantity,
+        "Used Quantity": formData.defectivenessDetail.usedQuantity,
+        "Residual Quantity": formData.defectivenessDetail.residualQuantity,
+        "Defect Rate (%)": formData.defectivenessDetail.defectRate,
+        "Product Image": formData.defectivenessDetail.productImage ? "Click to View Image" : "-",
+        "Manager Instructions": formData.defectivenessDetail.managerInstructions,
         }).map(([key, value]) => [
           { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
           typeof value === "object" && value.image
@@ -107,15 +105,13 @@ const buildSingleRecord = (formData, productImageBase64) => {
       table: {
         widths: ["35%", "65%"],
         body: Object.entries({
-          "QC Comment": formData.qcComment,
-          "Approval Status": formData.approvalStatus,
-          "Checked By QC": formData.checkedByQC,
-          "QC Instructions": formData.qcInstructions,
-          "Defect Cost": `${formData.defectCost} / ${formData.unit}`,
-          "Occurrence Section": formData.occurrenceSection,
-          "Importance Level": formData.importanceLevel,
-          "Report Time Limit": formData.reportTimeLimit,
-        }).map(([key, value]) => [
+          "QC Comment": formData.qualityCheckComment.qcComment,
+          "QC Instructions": formData.qualityCheckComment.qcInstructions,
+          "Defect Cost": `${formData.qualityCheckComment.defectCost} / ${formData.unit}`,
+          "Unit": formData.qualityCheckComment.unit,
+          "Importance Level": formData.qualityCheckComment.importanceLevel,
+          "Report Time Limit": formData.qualityCheckComment.reportTimeLimit,
+          }).map(([key, value]) => [
           { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
           { text: value ?? "-", margin: [2, 4, 2, 4] },
         ]),
@@ -130,12 +126,12 @@ const buildSingleRecord = (formData, productImageBase64) => {
       table: {
         widths: ["35%", "65%"],
         body: Object.entries({
-          "Measures Report": formData.measuresReport,
-          "Responsible Section": formData.responsibleSection,
-          "Cause Details": formData.causeDetails,
-          "Countermeasures": formData.countermeasures,
-          "Enforcement Date": formData.enforcementDate,
-          "Standardization": formData.standardization,
+          "Causes of Occurance": formData.measuresReport.causesOfOccurrence,
+          "Causes Of Outflow": formData.measuresReport.causesOfOutflow,
+          "Counter Measures For Causes": formData.measuresReport.counterMeasuresForCauses,
+          "Counter Measures For Outflow": formData.measuresReport.counterMeasuresForOutflow,
+          "Enforcement Date": formData.measuresReport.enforcementDate,
+          "Standardization": formData.measuresReport.standardization,
         }).map(([key, value]) => [
           { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
           { text: value ?? "-", margin: [2, 4, 2, 4] },
@@ -146,23 +142,16 @@ const buildSingleRecord = (formData, productImageBase64) => {
     { text: "\n" },
 
     // -------- 5. Results of Measures --------
-    { text: "5️ Results of Measures", style: "sectionHeader", color: "#000" },
+    { text: "5️ Results of Measures Enforcement", style: "sectionHeader", color: "#000" },
     {
       table: {
         widths: ["35%", "65%"],
         body: Object.entries({
-          "Enforcement Date (Result)": formData.enforcementDateResult,
-          "Result": formData.enforcementResult,
-          "Judgment": formData.enforcementJudgment,
-          "Section In-Charge": formData.enforcementSecInCharge,
-          "QC Section": formData.enforcementQCSection,
-          "Approved": formData.enforcementApproved ? "Yes" : "No",
-          "Effect Date": formData.effectDate,
-          "Effect Result": formData.effectResult,
-          "Effect Judgment": formData.effectJudgment,
-          "Effect Section In-Charge": formData.effectSecInCharge,
-          "Effect QC Section": formData.effectQCSection,
-          "Effect Approved": formData.effectApproved ? "Yes" : "No",
+         "Enforcement Date (Result)": formData.resultsOfMeasuresEnforcement.enforcementDateResult,
+        "Result": formData.resultsOfMeasuresEnforcement.enforcementResult,
+        "Judgment": formData.resultsOfMeasuresEnforcement.enforcementJudgment,
+        "Section In-Charge": formData.resultsOfMeasuresEnforcement.enforcementSecInCharge,
+        "QC Section": formData.resultsOfMeasuresEnforcement.enforcementQCSection,
         }).map(([key, value]) => [
           { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
           { text: value ?? "-", margin: [2, 4, 2, 4] },
@@ -170,6 +159,25 @@ const buildSingleRecord = (formData, productImageBase64) => {
       },
       layout: "lightHorizontalLines",
     },
+
+    { text: "5️ Results of Measures Effect", style: "sectionHeader", color: "#000" },
+    {
+      table: {
+        widths: ["35%", "65%"],
+        body: Object.entries({
+        "Effect Date": formData.resultsOfMeasuresEffect.effectDate,
+        "Effect Result": formData.resultsOfMeasuresEffect.effectResult,
+        "Effect Judgment": formData.resultsOfMeasuresEffect.effectJudgment,
+        "Effect Section In-Charge": formData.resultsOfMeasuresEffect.effectSecInCharge,
+        "Effect QC Section": formData.resultsOfMeasuresEffect.effectQCSection,
+        }).map(([key, value]) => [
+          { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
+          { text: value ?? "-", margin: [2, 4, 2, 4] },
+        ]),
+      },
+      layout: "lightHorizontalLines",
+    },
+
 
     { text: "\n\n" },
   ];
@@ -228,8 +236,8 @@ const DownLoadAllRecords = async (recordsArray) => {
     }),
   };
 
-  pdfMake.createPdf(docDefinition).download("Quality_Forms_Report.pdf");
-//      pdfMake.createPdf(docDefinition).open();
+  // pdfMake.createPdf(docDefinition).download("Quality_Forms_Report.pdf");
+     pdfMake.createPdf(docDefinition).open();
 };
 
 export default DownLoadAllRecords;
