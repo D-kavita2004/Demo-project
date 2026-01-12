@@ -248,7 +248,8 @@ const DownLoadAllRecords = async (formArray) => {
     }),
   };
 
-  pdfMake.createPdf(docDefinition).open();
+ pdfMake.createPdf(docDefinition).download("Quality_Forms_Report.pdf");
+  // pdfMake.createPdf(docDefinition).open();
 };
 
 export default DownLoadAllRecords;
