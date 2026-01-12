@@ -166,7 +166,7 @@ const TableView = ({ data }) => {
               <DropdownMenuItem
                 onClick={() =>
                   DownLoadAllRecords([
-                    row.original.formData,
+                    row.original,
                   ])
                 }
               >

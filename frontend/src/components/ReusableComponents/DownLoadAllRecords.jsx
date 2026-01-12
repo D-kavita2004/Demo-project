@@ -8,7 +8,7 @@ pdfMake.vfs = pdfFonts?.default?.vfs || pdfFonts.vfs;
 // ======================================================
 const getImageAsPngBase64 = async (imageUrl) => {
   if (!imageUrl) return null;
-
+  // const formData = form.formData
   try {
     const img = new Image();
     img.crossOrigin = "Anonymous";
@@ -39,40 +39,25 @@ const getImageAsPngBase64 = async (imageUrl) => {
 // ======================================================
 // BUILD SINGLE RECORD CONTENT
 // ======================================================
-const buildSingleRecord = (formData, productImageBase64) => {
-  return [
-    { text: `QUALITY CHECK REPORT (${formData.issuingSection.part.partName.toUpperCase()})`, style: "mainHeader" },
-    { text: "\n" },
-
-    // -------- 1. Issuing Section --------
-    { text: "1️ Issuing Section", style: "sectionHeader", color: "#000" },
-    {
-      table: {
-        widths: ["35%", "65%"],
-        body: Object.entries({
-          "Receiving No": formData.issuingSection.receivingNo,
-          "Reference No": formData.issuingSection.referenceNo,
-          "Part Name": formData.issuingSection.part.partName,
-          "Subject Matter": formData.issuingSection.subjectMatter,
-          "Approved By": formData.issuingSection.approved,
-          "Checked By": formData.issuingSection.checked,
-          "Issued BY": formData.issuingSection.issued,
-        }).map(([key, value]) => [
-          { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
-          { text: value ?? "-", margin: [2, 4, 2, 4] },
-        ]),
+const buildSingleRecord = (form, productImageBase64) => {
+  const formData = form.formData;
+  const sections = [
+    formData?.issuingSection && {
+      title: "1️ Issuing Section",
+      data: {
+        "Receiving No": formData.issuingSection.receivingNo,
+        "Reference No": formData.issuingSection.referenceNo,
+        "Part Name": formData.issuingSection.part.partName,
+        "Subject Matter": formData.issuingSection.subjectMatter,
+        "Approved By": formData.issuingSection.approved,
+        "Checked By": formData.issuingSection.checked,
+        "Issued BY": formData.issuingSection.issued,
       },
-      layout: "lightHorizontalLines",
     },
-    { text: "\n" },
-
-    // -------- 2. Defectiveness Details --------
-    { text: "2️ Defectiveness Details", style: "sectionHeader", color: "#000" },
-    {
-      table: {
-        widths: ["35%", "65%"],
-        body: Object.entries({
-          "Supplier Name": formData.defectivenessDetail.supplier.supplierName,
+    formData?.defectivenessDetail && {
+      title: "2️ Defectiveness Details",
+      data: {
+        "Supplier Name": formData.defectivenessDetail.supplier.supplierName,
         "Group Name": formData.defectivenessDetail.groupName,
         "State of Process": formData.defectivenessDetail.stateOfProcess,
         "Associated Lot No": formData.defectivenessDetail.associatedLotNo,
@@ -86,116 +71,137 @@ const buildSingleRecord = (formData, productImageBase64) => {
         "Used Quantity": formData.defectivenessDetail.usedQuantity,
         "Residual Quantity": formData.defectivenessDetail.residualQuantity,
         "Defect Rate (%)": formData.defectivenessDetail.defectRate,
-        "Product Image": formData.defectivenessDetail.productImage ? "Click to View Image" : "-",
+        "Product Image": productImageBase64
+          ? { image: productImageBase64, width: 200, height: 150, alignment: "center" }
+          : "-",
         "Manager Instructions": formData.defectivenessDetail.managerInstructions,
-        }).map(([key, value]) => [
-          { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
-          typeof value === "object" && value.image
-            ? value
-            : { text: value ?? "-", margin: [2, 4, 2, 4] },
-        ]),
       },
-      layout: "lightHorizontalLines",
     },
-    { text: "\n" },
-
-    // -------- 3. Quality Check Comments --------
-    { text: "3️ Quality Check Comments", style: "sectionHeader", color: "#000" },
-    {
-      table: {
-        widths: ["35%", "65%"],
-        body: Object.entries({
-          "QC Comment": formData.qualityCheckComment.qcComment,
-          "QC Instructions": formData.qualityCheckComment.qcInstructions,
-          "Defect Cost": `${formData.qualityCheckComment.defectCost} / ${formData.unit}`,
-          "Unit": formData.qualityCheckComment.unit,
-          "Importance Level": formData.qualityCheckComment.importanceLevel,
-          "Report Time Limit": formData.qualityCheckComment.reportTimeLimit,
-          }).map(([key, value]) => [
-          { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
-          { text: value ?? "-", margin: [2, 4, 2, 4] },
-        ]),
+    formData?.qualityCheckComment && {
+      title: "3️ Quality Check Comments",
+      data: {
+        "QC Comment": formData.qualityCheckComment.qcComment,
+        "QC Instructions": formData.qualityCheckComment.qcInstructions,
+        "Defect Cost": `${formData.qualityCheckComment.defectCost} / ${formData.unit}`,
+        "Unit": formData.qualityCheckComment.unit,
+        "Importance Level": formData.qualityCheckComment.importanceLevel,
+        "Report Time Limit": formData.qualityCheckComment.reportTimeLimit,
       },
-      layout: "lightHorizontalLines",
     },
-    { text: "\n" },
-
-    // -------- 4. Measures Report --------
-    { text: "4️ Measures Report", style: "sectionHeader", color: "#000" },
-    {
-      table: {
-        widths: ["35%", "65%"],
-        body: Object.entries({
-          "Causes of Occurance": formData.measuresReport.causesOfOccurrence,
-          "Causes Of Outflow": formData.measuresReport.causesOfOutflow,
-          "Counter Measures For Causes": formData.measuresReport.counterMeasuresForCauses,
-          "Counter Measures For Outflow": formData.measuresReport.counterMeasuresForOutflow,
-          "Enforcement Date": formData.measuresReport.enforcementDate,
-          "Standardization": formData.measuresReport.standardization,
-        }).map(([key, value]) => [
-          { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
-          { text: value ?? "-", margin: [2, 4, 2, 4] },
-        ]),
+    formData?.measuresReport && {
+      title: "4️ Measures Report",
+      data: {
+        "Causes of Occurance": formData.measuresReport.causesOfOccurrence,
+        "Causes Of Outflow": formData.measuresReport.causesOfOutflow,
+        "Counter Measures For Causes": formData.measuresReport.counterMeasuresForCauses,
+        "Counter Measures For Outflow": formData.measuresReport.counterMeasuresForOutflow,
+        "Enforcement Date": formData.measuresReport.enforcementDate,
+        "Standardization": formData.measuresReport.standardization,
       },
-      layout: "lightHorizontalLines",
     },
-    { text: "\n" },
-
-    // -------- 5. Results of Measures --------
-    { text: "5️ Results of Measures Enforcement", style: "sectionHeader", color: "#000" },
-    {
-      table: {
-        widths: ["35%", "65%"],
-        body: Object.entries({
-         "Enforcement Date (Result)": formData.resultsOfMeasuresEnforcement.enforcementDateResult,
+    formData?.resultsOfMeasuresEnforcement && {
+      title: "5️ Results of Measures Enforcement",
+      data: {
+        "Enforcement Date (Result)": formData.resultsOfMeasuresEnforcement.enforcementDateResult,
         "Result": formData.resultsOfMeasuresEnforcement.enforcementResult,
         "Judgment": formData.resultsOfMeasuresEnforcement.enforcementJudgment,
         "Section In-Charge": formData.resultsOfMeasuresEnforcement.enforcementSecInCharge,
         "QC Section": formData.resultsOfMeasuresEnforcement.enforcementQCSection,
-        }).map(([key, value]) => [
-          { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
-          { text: value ?? "-", margin: [2, 4, 2, 4] },
-        ]),
       },
-      layout: "lightHorizontalLines",
     },
-
-    { text: "5️ Results of Measures Effect", style: "sectionHeader", color: "#000" },
-    {
-      table: {
-        widths: ["35%", "65%"],
-        body: Object.entries({
+    formData?.resultsOfMeasuresEffect && {
+      title: "6️ Results of Measures Effect",
+      data: {
         "Effect Date": formData.resultsOfMeasuresEffect.effectDate,
         "Effect Result": formData.resultsOfMeasuresEffect.effectResult,
         "Effect Judgment": formData.resultsOfMeasuresEffect.effectJudgment,
         "Effect Section In-Charge": formData.resultsOfMeasuresEffect.effectSecInCharge,
         "Effect QC Section": formData.resultsOfMeasuresEffect.effectQCSection,
-        }).map(([key, value]) => [
+      },
+    },
+  ].filter(Boolean);
+
+  // ================= BUILD PDF CONTENT =================
+  const content = [
+    { text: `QUALITY CHECK REPORT (${formData?.issuingSection?.part?.partName.toUpperCase()})`, style: "mainHeader" },
+    { text: "\n" },
+  ];
+
+  // Add main sections
+  sections.forEach((section) => {
+    content.push({ text: section.title, style: "sectionHeader", color: "#000" });
+    content.push({
+      table: {
+        widths: ["35%", "65%"],
+        body: Object.entries(section.data).map(([key, value]) => [
           { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
-          { text: value ?? "-", margin: [2, 4, 2, 4] },
+          typeof value === "object" && value.image ? value : { text: value ?? "-", margin: [2, 4, 2, 4] },
         ]),
       },
       layout: "lightHorizontalLines",
-    },
+    });
+    content.push({ text: "\n" });
+  });
 
+  // ================= HISTORY / REVISIONS =================
+  if (form.history && form.history.length > 0) {
+    content.push({ text: "HISTORY / REVISIONS", style: "sectionHeader", color: "#000", alignment: "center", fontSize: 18, bold: true});
 
-    { text: "\n\n" },
-  ];
+    form.history.forEach((entry, index) => {
+
+      content.push({ text: `Revision ${entry.cycle}`, style: "subHeader", margin: [0, 6, 0, 2],alignment: "center", fontSize: 14,  });
+      content.push({ text: "\n" });
+
+      // Measures Report in revision
+      if (entry.data.measuresReport) {
+        content.push({ text: "Measures Report", style: "sectionHeader", color: "#000" });
+        content.push({
+          table: {
+            widths: ["35%", "65%"],
+            body: Object.entries(entry.data.measuresReport).map(([key, value]) => [
+              { text: key, bold: true, fillColor: "#f2f2f2", margin: [2, 3, 2, 3] },
+              { text: value ?? "-", margin: [2, 3, 2, 3] },
+            ]),
+          },
+          layout: "lightHorizontalLines",
+        });
+        content.push({ text: "\n" });
+      }
+
+      // Results of Measures Enforcement in revision
+      if (entry.data.resultsOfMeasuresEnforcement) {
+        content.push({ text: "Results of Measures Enforcement", style: "sectionHeader", color: "#000" });
+        content.push({
+          table: {
+            widths: ["35%", "65%"],
+            body: Object.entries(entry.data.resultsOfMeasuresEnforcement).map(([key, value]) => [
+              { text: key, bold: true, fillColor: "#f2f2f2", margin: [2, 3, 2, 3] },
+              { text: value ?? "-", margin: [2, 3, 2, 3] },
+            ]),
+          },
+          layout: "lightHorizontalLines",
+        });
+        content.push({ text: "\n" });
+      }
+    });
+  }
+
+  content.push({ text: "\n\n" });
+  return content;
 };
 
 // ======================================================
 // MAIN FUNCTION: MULTIPLE RECORDS SUPPORT
 // ======================================================
-const DownLoadAllRecords = async (recordsArray) => {
+const DownLoadAllRecords = async (formArray) => {
   let content = [];
+  for (let i = 0; i < formArray.length; i++) {
+    const form = formArray[i];
+    const productImageBase64 = await getImageAsPngBase64(form?.formData?.defectivenessDetail?.productImage);
 
-  for (let i = 0; i < recordsArray.length; i++) {
-    const formData = recordsArray[i];
-    const productImageBase64 = await getImageAsPngBase64(formData.productImage);
+    content.push(...buildSingleRecord(form, productImageBase64));
 
-    content.push(...buildSingleRecord(formData, productImageBase64));
-
-    if (i !== recordsArray.length - 1) {
+    if (i !== formArray.length - 1) {
       content.push({ text: "", pageBreak: "after" });
     }
   }
@@ -221,6 +227,12 @@ const DownLoadAllRecords = async (recordsArray) => {
         fillColor: "#004aad",
         margin: [0, 10, 0, 6],
       },
+      subHeader: {
+        fontSize: 14,
+        bold: true,
+        color: "#004aad",
+        margin: [0, 6, 0, 2],
+      },
     },
 
     defaultStyle: {
@@ -236,8 +248,7 @@ const DownLoadAllRecords = async (recordsArray) => {
     }),
   };
 
-  // pdfMake.createPdf(docDefinition).download("Quality_Forms_Report.pdf");
-     pdfMake.createPdf(docDefinition).open();
+  pdfMake.createPdf(docDefinition).open();
 };
 
 export default DownLoadAllRecords;

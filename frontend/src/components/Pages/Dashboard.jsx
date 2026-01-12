@@ -114,8 +114,8 @@ const handleLogout = async () => {
           <Button
             className="mb-5"
             onClick={() => {
-              const list = formsList.map((obj) => obj.formData);
-              DownloadAllRecords(list);
+              // const list = formsList.map((obj) => obj.formData);
+              DownloadAllRecords(formsList);
             }}
           >
             Download All Records
