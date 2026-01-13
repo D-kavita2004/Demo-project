@@ -51,7 +51,8 @@ const QualityForm = () => {
   const [machinesList, setMachinesList] = useState([]);
   const [processesList, setProcessesList] = useState([]);
 
-  const [preview, setPreview] = useState(null); // image preview state
+  const [ImagePreview, setImagePreview] = useState(null); // image preview state
+  const [ProdFilePreview, setProdFilePreview] = useState(null);
 
   const {
     register,
@@ -69,20 +70,41 @@ const QualityForm = () => {
   const navigate = useNavigate();
 
 const productImageFile = watch("defectivenessDetail.productImage");
+const prodFile = watch("measuresReport.prodFile");
 
 useEffect(() => {
-  if (isNewForm && productImageFile?.length > 0) {
-    const objectUrl = URL.createObjectURL(productImageFile[0]);
-    setPreview(objectUrl);
+  let imgUrl;
+  let pdfUrl;
 
-    return () => URL.revokeObjectURL(objectUrl);
+  // --------- Image Preview ----------
+  if (isNewForm && productImageFile?.length > 0 && productImageFile[0] instanceof File) {
+    imgUrl = URL.createObjectURL(productImageFile[0]);
+    setImagePreview(imgUrl);
+  } else {
+    console.log(clickedForm?.formData?.defectivenessDetail?.productImage);
+    setImagePreview(clickedForm?.formData?.defectivenessDetail?.productImage || null);
   }
 
-  setPreview(clickedForm?.formData?.defectivenessDetail?.productImage || null);
-}, [productImageFile, isNewForm, clickedForm]);
+  // --------- PDF Preview ----------
+  if (isNewForm && prodFile?.length > 0 && prodFile[0] instanceof File) {
+    pdfUrl = URL.createObjectURL(prodFile[0]);
+    setProdFilePreview(pdfUrl);
+  } else {
+    setProdFilePreview(clickedForm?.formData?.measuresReport?.prodFile || null);
+  }
+
+  // Cleanup function to revoke object URLs when component unmounts or files change
+  return () => {
+    if (imgUrl) URL.revokeObjectURL(imgUrl);
+    if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+  };
+}, [productImageFile, prodFile, isNewForm, clickedForm]);
+
+
 
 const onSubmit = async (formData) => {
   try {
+    
     if (!clickedForm) {
       // New form — only pass formData
       await primaryAction.handler(formData);
@@ -94,7 +116,6 @@ const onSubmit = async (formData) => {
     console.error("Error submitting form:", err);
   }
 };
-
 
 const handleApprove = async (id,formData) => {
 
@@ -145,7 +166,7 @@ const handleCreateNewIssue = async (formData) => {
 
           // Append other form fields (formData object)
           data.append("data", JSON.stringify(formData));
-          console.log("formData:", formData);
+
           const res = await api.post(`${apiUrl}/forms`, data, {
             headers: { "Content-Type": "multipart/form-data" },
             withCredentials: true,
@@ -160,25 +181,46 @@ const handleCreateNewIssue = async (formData) => {
           console.error("Error submitting form:", err);
         }
 };
-const handleProdResponse = async (id,formData) => {
-   try {
-      // Call the API to approve the form
-      const response = await api.put(
-        `${apiUrl}/forms/prodResponse`,
-        {formId:id,data:formData},
-        { withCredentials: true } // if your backend uses cookies
-      );
+const handleProdResponse = async (id, formData) => {
+  try {
+    const fd = new FormData();
 
-      console.log("Form approved:", response.data);
-      navigate("/");
-      toast.success(response?.data?.message || "Response submitted sucessfully");
-      // Open modal after approval
-      setIsOpen(true);
-    } catch (error) {
-      toast.error(error?.response?.data?.message || error?.response?.statusText || "Oops! Response could not be submitted");
-      console.error("Error approving form:", error.response?.data || error);
-    } 
-}
+    fd.append("data", JSON.stringify(formData));
+    console.log(prodFile[0]);
+
+    // optional PDF upload
+    if (prodFile && prodFile[0]) {
+      fd.append("prodFile", prodFile[0]); 
+    }
+
+    const response = await api.put(
+      `${apiUrl}/forms/prodResponse/${id}`,
+      fd,
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("Form response submitted:", response.data);
+    navigate("/");
+    toast.success(
+      response?.data?.message || "Response submitted successfully"
+    );
+    setIsOpen(true);
+
+  } catch (error) {
+    toast.error(
+      error?.response?.data?.message ||
+      error?.response?.statusText ||
+      "Oops! Response could not be submitted"
+    );
+    console.error("Error submitting response:", error.response?.data || error);
+  }
+};
+
 const handleFinalSubmit = async (id,formData) => {
 
     try {
@@ -774,11 +816,11 @@ useEffect(()=>{
                                 )}
 
                                 {/* Image preview */}
-                                {preview && (
+                                {ImagePreview && (
                                   <div className="mt-3 flex justify-center">
-                                    <a href={preview} target="_blank" rel="noopener noreferrer">
+                                    <a href={ImagePreview} target="_blank" rel="noopener noreferrer">
                                       <img
-                                        src={preview}
+                                        src={ImagePreview}
                                         alt="Preview"
                                         className="max-w-full max-h-40 object-contain rounded-md border border-gray-300 shadow-sm hover:scale-105 transition-transform duration-200"
                                       />
@@ -928,6 +970,41 @@ useEffect(()=>{
                           </AccordionTrigger>
                           <AccordionContent className="w-full">
                             <div className="w-full grid md:grid-cols-2 gap-6 p-4 rounded-lg border bg-card text-card-foreground shadow-sm col-span-2 border-blue-500">
+
+
+                               {/* File Upload By Production Team*/}
+                              <div className="flex flex-col space-y-1.5 md:col-span-2">
+                                <Label htmlFor="prodFile">Upload File Here : </Label>
+                                <Input
+                                  id="prodFile"
+                                  type="file"
+                                  accept="application/pdf"
+                                  {...register("measuresReport.prodFile")}
+                                  disabled={access === "read"}
+                                />
+                                {errors.measuresReport?.prodFile && (
+                                  <p className="text-sm text-red-500">{errors.measuresReport?.prodFile.message}</p>
+                                )}
+
+                               {/* PDF Preview */}
+                              {/* {ProdFilePreview && (
+                                <iframe
+                                  src={ProdFilePreview}
+                                  title="PDF Preview"
+                                  className="w-full h-96 border"
+                                />
+                              )} */}
+                               {ProdFilePreview && (
+                                  <a
+                                    href={ProdFilePreview}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 underline mt-2 w-fit"
+                                  >
+                                    📄 View uploaded file
+                                  </a>
+                                )}
+                              </div>
 
                               {/* Causes of Occurrence */}
                               <div className="flex flex-col space-y-1.5 md:col-span-2">

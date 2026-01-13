@@ -6,7 +6,7 @@ export const createNewIssue = async(req, res) => {
   try {
     const {team} = req.user;
 
-    const imageUrl = req.fileUrl;
+    const imageUrl = req.productImageUrl;
     
     let data = {};
     if (req.body.data) {
@@ -52,14 +52,17 @@ export const createNewIssue = async(req, res) => {
 export const handleProdResponse = async (req, res) => {
   try {
     const { team } = req.user;
-    const { formId } = req.body;
+    const formId = req.params.id;
+    const prodFile = req.prodFileUrl;
+
+    console.log(prodFile);
 
     let data = {};
     if (req.body.data) {
-      data = req.body.data;
+      data = JSON.parse(req.body.data); 
     }
     const form = await Form.findById(formId);
-
+                   
     if (!form) {
       return res.status(404).json({ message: "Form not found" });
     }
@@ -73,7 +76,7 @@ export const handleProdResponse = async (req, res) => {
     // merge into existing formData safely
     form.formData = {
       ...form.formData,
-      measuresReport: data.measuresReport,
+      measuresReport: {...data.measuresReport, prodFile},
     };
 
     form.status = "pending_quality";
@@ -86,7 +89,8 @@ export const handleProdResponse = async (req, res) => {
       form,
     });
   } catch (error) {
-    logger.error("Error handling production response:", error);
+    console.log(error);
+    logger.error(error);
     return res.status(500).json({
       message: "Failed to handle production response",
       error: error.message,

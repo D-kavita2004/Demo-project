@@ -35,7 +35,9 @@ app.use(cors({
 
 app.use(cookieParser());
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
+
+app.use("/image-uploads", express.static("image-uploads"));
+app.use("/production-docs", express.static("production-docs"));
 
 app.get("/", (req, res) => {
   res.status(200).json({ status: "OK" });

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { optional, z } from "zod";
 
 // Reusable date validator (YYYY-MM-DD)
 const dateString = z
@@ -88,6 +88,7 @@ export const ProdResponseSchema = z.object({
     counterMeasuresForOutflow: nonEmpty,
     enforcementDate: dateString,
     standardization: nonEmpty,
+    prodFile:z.any().optional()
   }),
 })
 

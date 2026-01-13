@@ -21,6 +21,32 @@ const Field = ({ label, value }) => {
   );
 };
 
+const FileField = ({ label, fileUrl }) => {
+  return (
+    <div className="flex flex-col space-y-1">
+      <span className="text-sm font-medium text-muted-foreground">
+        {label}
+      </span>
+
+      {fileUrl ? (
+        <a
+          href={fileUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 underline text-sm w-fit"
+        >
+          📄 View file
+        </a>
+      ) : (
+        <div className="rounded-md border bg-muted px-3 py-2 text-sm">
+          —
+        </div>
+      )}
+    </div>
+  );
+};
+
+
 /* =======================
    History Tracking View
 ======================= */
@@ -44,8 +70,14 @@ const HistoryTracking = ({ historyTracks = [] }) => {
                 <h3 className="text-xl font-semibold border-b pb-1">
                   Measures Report
                 </h3>
+                
 
                 <div className="grid gap-4 md:grid-cols-2 border rounded-lg p-4">
+
+                  <FileField
+                    label="File"
+                    fileUrl={obj.data.measuresReport?.prodFile}
+                  />
                   <Field
                     label="Causes of Occurrence"
                     value={obj.data.measuresReport?.causesOfOccurrence}

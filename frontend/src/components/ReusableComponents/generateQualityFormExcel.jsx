@@ -105,7 +105,7 @@ if (historyData.length > 0) {
   sheetData.push(["", ""]);
   historyData.forEach((entry, index) => {
     // Revision title stays in column 1
-    sheetData.push([`Revision ${index + 1}`, "MEASURES REPORT"]);
+    sheetData.push([`Revision ${entry.cycle}`, "MEASURES REPORT"]);
 
     // ---------- MEASURES REPORT ----------
 
@@ -118,6 +118,8 @@ if (historyData.length > 0) {
       "Counter Measures For Outflow": mr.counterMeasuresForOutflow,
       "Enforcement Date": mr.enforcementDate,
       "Standardization": mr.standardization,
+      "File": mr.prodFile,
+
     }).forEach(([key, value]) => {
       sheetData.push(["", `${key}: ${value ?? "-"}`]);
     });

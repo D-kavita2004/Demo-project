@@ -19,7 +19,7 @@ export default defineConfig([
 
     rules: {
       // Allow console logs in dev
-      "no-console": "error",
+      // "no-console": "error",
 
       // Custom rule for unused variables
       "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],

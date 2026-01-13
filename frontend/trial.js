@@ -1,254 +1,279 @@
-import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
+const QualityForm = () => {
 
-pdfMake.vfs = pdfFonts?.default?.vfs || pdfFonts.vfs;
+  const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+ 
+  const clickedForm = location.state?.data;
+  const formFromState = clickedForm?.formData;  //preview existing data
+  const myDefaultData = formFromState || myData;
+  
+  const [isNewForm, setIsNewForm] = useState(!clickedForm); 
 
-// ======================================================
-// UNIVERSAL IMAGE → PNG BASE64 CONVERTER
-// ======================================================
-const getImageAsPngBase64 = async (imageUrl) => {
-  if (!imageUrl) return null;
-  // const formData = form.formData
-  try {
-    const img = new Image();
-    img.crossOrigin = "Anonymous";
-    img.src = imageUrl;
+  const [ImagePreview, setImagePreview] = useState(null); // image preview state
+  const [ProdFilePreview, setProdFilePreview] = useState(null);
 
-    return new Promise((resolve, reject) => {
-      img.onload = () => {
-        try {
-          const canvas = document.createElement("canvas");
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0);
-          const pngBase64 = canvas.toDataURL("image/png");
-          resolve(pngBase64);
-        } catch (error) {
-          reject(error);
-        }
-      };
-      img.onerror = reject;
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState:{errors},
+  } = useForm(
+    {
+      defaultValues:myDefaultData,
+      resolver:zodResolver(GetRelatedSchema(clickedForm?.status, isNewForm)),
     });
-  } catch (err) {
-    console.error("Image conversion error:", err);
-    return null;
-  }
-};
 
-// ======================================================
-// BUILD SINGLE RECORD CONTENT
-// ======================================================
-const buildSingleRecord = (form, productImageBase64) => {
-  const formData = form.formData;
-  const sections = [
-    formData?.issuingSection && {
-      title: "1️ Issuing Section",
-      data: {
-        "Receiving No": formData.issuingSection.receivingNo,
-        "Reference No": formData.issuingSection.referenceNo,
-        "Part Name": formData.issuingSection.part.partName,
-        "Subject Matter": formData.issuingSection.subjectMatter,
-        "Approved By": formData.issuingSection.approved,
-        "Checked By": formData.issuingSection.checked,
-        "Issued BY": formData.issuingSection.issued,
-      },
-    },
-    formData?.defectivenessDetail && {
-      title: "2️ Defectiveness Details",
-      data: {
-        "Supplier Name": formData.defectivenessDetail.supplier.supplierName,
-        "Group Name": formData.defectivenessDetail.groupName,
-        "State of Process": formData.defectivenessDetail.stateOfProcess,
-        "Associated Lot No": formData.defectivenessDetail.associatedLotNo,
-        "Discovered Date": formData.defectivenessDetail.discoveredDate,
-        "Issue Date": formData.defectivenessDetail.issueDate,
-        "Order No": formData.defectivenessDetail.orderNo,
-        "Drawing No": formData.defectivenessDetail.drawingNo,
-        "Process Name": formData.defectivenessDetail.process.processName,
-        "Machine Name": formData.defectivenessDetail.machine.machineName,
-        "Total Quantity": formData.defectivenessDetail.totalQuantity,
-        "Used Quantity": formData.defectivenessDetail.usedQuantity,
-        "Residual Quantity": formData.defectivenessDetail.residualQuantity,
-        "Defect Rate (%)": formData.defectivenessDetail.defectRate,
-        "Product Image": productImageBase64
-          ? { image: productImageBase64, width: 200, height: 150, alignment: "center" }
-          : "-",
-        "Manager Instructions": formData.defectivenessDetail.managerInstructions,
-      },
-    },
-    formData?.qualityCheckComment && {
-      title: "3️ Quality Check Comments",
-      data: {
-        "QC Comment": formData.qualityCheckComment.qcComment,
-        "QC Instructions": formData.qualityCheckComment.qcInstructions,
-        "Defect Cost": `${formData.qualityCheckComment.defectCost} / ${formData.unit}`,
-        "Unit": formData.qualityCheckComment.unit,
-        "Importance Level": formData.qualityCheckComment.importanceLevel,
-        "Report Time Limit": formData.qualityCheckComment.reportTimeLimit,
-      },
-    },
-    formData?.measuresReport && {
-      title: "4️ Measures Report",
-      data: {
-        "Causes of Occurance": formData.measuresReport.causesOfOccurrence,
-        "Causes Of Outflow": formData.measuresReport.causesOfOutflow,
-        "Counter Measures For Causes": formData.measuresReport.counterMeasuresForCauses,
-        "Counter Measures For Outflow": formData.measuresReport.counterMeasuresForOutflow,
-        "Enforcement Date": formData.measuresReport.enforcementDate,
-        "Standardization": formData.measuresReport.standardization,
-      },
-    },
-    formData?.resultsOfMeasuresEnforcement && {
-      title: "5️ Results of Measures Enforcement",
-      data: {
-        "Enforcement Date (Result)": formData.resultsOfMeasuresEnforcement.enforcementDateResult,
-        "Result": formData.resultsOfMeasuresEnforcement.enforcementResult,
-        "Judgment": formData.resultsOfMeasuresEnforcement.enforcementJudgment,
-        "Section In-Charge": formData.resultsOfMeasuresEnforcement.enforcementSecInCharge,
-        "QC Section": formData.resultsOfMeasuresEnforcement.enforcementQCSection,
-      },
-    },
-    formData?.resultsOfMeasuresEffect && {
-      title: "6️ Results of Measures Effect",
-      data: {
-        "Effect Date": formData.resultsOfMeasuresEffect.effectDate,
-        "Effect Result": formData.resultsOfMeasuresEffect.effectResult,
-        "Effect Judgment": formData.resultsOfMeasuresEffect.effectJudgment,
-        "Effect Section In-Charge": formData.resultsOfMeasuresEffect.effectSecInCharge,
-        "Effect QC Section": formData.resultsOfMeasuresEffect.effectQCSection,
-      },
-    },
-  ].filter(Boolean);
+  const {user} = useContext(UserContext);
+  const navigate = useNavigate();
 
-  // ================= BUILD PDF CONTENT =================
-  const content = [
-    { text: `QUALITY CHECK REPORT (${formData?.issuingSection?.part?.partName.toUpperCase()})`, style: "mainHeader" },
-    { text: "\n" },
-  ];
+const productImageFile = watch("defectivenessDetail.productImage");
+const prodFile = watch("measuresReport.prodFile");
 
-  // Add main sections
-  sections.forEach((section) => {
-    content.push({ text: section.title, style: "sectionHeader", color: "#000" });
-    content.push({
-      table: {
-        widths: ["35%", "65%"],
-        body: Object.entries(section.data).map(([key, value]) => [
-          { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
-          typeof value === "object" && value.image ? value : { text: value ?? "-", margin: [2, 4, 2, 4] },
-        ]),
-      },
-      layout: "lightHorizontalLines",
-    });
-    content.push({ text: "\n" });
-  });
+useEffect(() => {
+  let imgUrl;
+  let pdfUrl;
 
-  // ================= HISTORY / REVISIONS =================
-  if (form.history && form.history.length > 0) {
-    content.push({ text: "HISTORY / REVISIONS", style: "sectionHeader", color: "#000", alignment: "center", fontSize: 18, bold: true});
-
-    form.history.forEach((entry, index) => {
-
-      content.push({ text: `Revision ${entry.cycle}`, style: "subHeader", margin: [0, 6, 0, 2],alignment: "center", fontSize: 14,  });
-      content.push({ text: "\n" });
-
-      // Measures Report in revision
-      if (entry.data.measuresReport) {
-        content.push({ text: "Measures Report", style: "sectionHeader", color: "#000" });
-        content.push({
-          table: {
-            widths: ["35%", "65%"],
-            body: Object.entries(entry.data.measuresReport).map(([key, value]) => [
-              { text: key, bold: true, fillColor: "#f2f2f2", margin: [2, 3, 2, 3] },
-              { text: value ?? "-", margin: [2, 3, 2, 3] },
-            ]),
-          },
-          layout: "lightHorizontalLines",
-        });
-        content.push({ text: "\n" });
-      }
-
-      // Results of Measures Enforcement in revision
-      if (entry.data.resultsOfMeasuresEnforcement) {
-        content.push({ text: "Results of Measures Enforcement", style: "sectionHeader", color: "#000" });
-        content.push({
-          table: {
-            widths: ["35%", "65%"],
-            body: Object.entries(entry.data.resultsOfMeasuresEnforcement).map(([key, value]) => [
-              { text: key, bold: true, fillColor: "#f2f2f2", margin: [2, 3, 2, 3] },
-              { text: value ?? "-", margin: [2, 3, 2, 3] },
-            ]),
-          },
-          layout: "lightHorizontalLines",
-        });
-        content.push({ text: "\n" });
-      }
-    });
+  // --------- Image Preview ----------
+  if (isNewForm && productImageFile?.length > 0 && productImageFile[0] instanceof File) {
+    imgUrl = URL.createObjectURL(productImageFile[0]);
+    setImagePreview(imgUrl);
+  } else {
+    console.log(clickedForm?.formData?.defectivenessDetail?.productImage);
+    setImagePreview(clickedForm?.formData?.defectivenessDetail?.productImage || null);
   }
 
-  content.push({ text: "\n\n" });
-  return content;
-};
-
-// ======================================================
-// MAIN FUNCTION: MULTIPLE RECORDS SUPPORT
-// ======================================================
-const DownLoadAllRecords = async (formArray) => {
-  let content = [];
-  for (let i = 0; i < formArray.length; i++) {
-    const form = formArray[i];
-    const productImageBase64 = await getImageAsPngBase64(form?.formData?.defectivenessDetail?.productImage);
-
-    content.push(...buildSingleRecord(form, productImageBase64));
-
-    if (i !== formArray.length - 1) {
-      content.push({ text: "", pageBreak: "after" });
-    }
+  // --------- PDF Preview ----------
+  if (isNewForm && prodFile?.length > 0 && prodFile[0] instanceof File) {
+    pdfUrl = URL.createObjectURL(prodFile[0]);
+    setProdFilePreview(pdfUrl);
+  } else {
+    setProdFilePreview(clickedForm?.formData?.measuresReport?.prodFile || null);
   }
 
-  const docDefinition = {
-    pageSize: "A4",
-    pageMargins: [40, 60, 40, 60],
-    content,
-
-    styles: {
-      mainHeader: {
-        fontSize: 22,
-        bold: true,
-        color: "#004aad",
-        alignment: "center",
-        margin: [0, 0, 0, 20],
-        decoration: "underline",
-      },
-      sectionHeader: {
-        fontSize: 16,
-        bold: true,
-        color: "#fff",
-        fillColor: "#004aad",
-        margin: [0, 10, 0, 6],
-      },
-      subHeader: {
-        fontSize: 14,
-        bold: true,
-        color: "#004aad",
-        margin: [0, 6, 0, 2],
-      },
-    },
-
-    defaultStyle: {
-      fontSize: 10,
-      lineHeight: 1.3,
-    },
-
-    footer: (currentPage, pageCount) => ({
-      text: `Page ${currentPage} of ${pageCount}`,
-      alignment: "center",
-      fontSize: 9,
-      margin: [0, 0, 0, 10],
-    }),
+  // Cleanup function to revoke object URLs when component unmounts or files change
+  return () => {
+    if (imgUrl) URL.revokeObjectURL(imgUrl);
+    if (pdfUrl) URL.revokeObjectURL(pdfUrl);
   };
+}, [productImageFile, prodFile, isNewForm, clickedForm]);
 
-  pdfMake.createPdf(docDefinition).open();
+
+
+const onSubmit = async (formData) => {
+  try {
+    
+    if (!clickedForm) {
+      // New form — only pass formData
+      await primaryAction.handler(formData);
+    } else {
+      // Existing form — pass id + formData
+      await primaryAction.handler(clickedForm._id, formData);
+    }
+  } catch (err) {
+    console.error("Error submitting form:", err);
+  }
 };
 
-export default DownLoadAllRecords;
+
+const handleCreateNewIssue = async (formData) => {
+      try {
+          const data = new FormData();
+          
+          // Append productImage file if selected
+          if (productImageFile && productImageFile[0]) {
+            data.append("productImage", productImageFile[0]);
+          }
+
+          // Append other form fields (formData object)
+          data.append("data", JSON.stringify(formData));
+
+          const res = await api.post(`${apiUrl}/forms`, data, {
+            headers: { "Content-Type": "multipart/form-data" },
+            withCredentials: true,
+          });
+
+          console.log("Form submitted successfully:", res.data);
+          navigate("/");
+          toast.success(res?.data?.message || "Issue Created sucessfully");
+        } 
+      catch (err) {
+        toast.error(err?.response?.data?.message || err?.response?.statusText || "Oops! Issue could not be created");
+          console.error("Error submitting form:", err);
+        }
+};
+const handleProdResponse = async (id, formData, prodFile) => {
+  try {
+    const fd = new FormData();
+
+    fd.append("data", JSON.stringify(formData));
+    console.log(prodFile[0]);
+    
+    // optional PDF upload
+    if (prodFile && prodFile[0]) {
+      fd.append("prodFile", prodFile[0]); 
+    }
+
+    const response = await api.put(
+      `${apiUrl}/forms/prodResponse/${id}`,
+      fd,
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("Form response submitted:", response.data);
+    navigate("/");
+    toast.success(
+      response?.data?.message || "Response submitted successfully"
+    );
+    setIsOpen(true);
+
+  } catch (error) {
+    toast.error(
+      error?.response?.data?.message ||
+      error?.response?.statusText ||
+      "Oops! Response could not be submitted"
+    );
+    console.error("Error submitting response:", error.response?.data || error);
+  }
+};
+
+
+
+
+  return (
+    <div className="flex flex-col">
+      <Button
+        variant="outline"
+        className="w-fit ml-5 mt-5 flex items-center gap-2 text-sm font-medium border-gray-300 hover:bg-gray-100 transition-all"
+        onClick={() => navigate("/")}
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to Dashboard
+      </Button>
+      
+        <Card className="w-[90%] lg:w-[70%] mx-auto mt-8 shadow-lg rounded-2xl">
+            <CardHeader>
+              <CardTitle className="text-3xl font-semibold text-center">
+                Product Review Form
+              </CardTitle>
+            </CardHeader>
+
+            <form onSubmit={handleSubmit(onSubmit)}>
+              
+           
+              <CardContent>
+                  <Accordion type="multiple" className="w-full flex flex-col gap-5 my-6">
+
+                  {/* ====================== DEFECTIVENESS DETAIL ====================== */}
+                  <PermissionedSection
+                    sectionKey="defectivenessDetail"
+                    isNewForm={isNewForm}
+                    formStatus={clickedForm?.status}
+                  >
+                    {(access) => (
+                      <section className="space-y-6 border-4 shadow-sm shadow-gray-700 px-3 rounded-2xl bg-gray-200">
+                        <AccordionItem value="item-2" className="w-full">
+                          <AccordionTrigger>
+                            <h2 className="text-2xl font-semibold border-b pb-2">Defectiveness Detail</h2>
+                          </AccordionTrigger>
+                          <AccordionContent className="w-full">
+                            <div className="w-full grid md:grid-cols-2 gap-6 p-4 rounded-lg border bg-card text-card-foreground shadow-sm border-blue-500">
+
+                              {/* Product Image Upload */}
+                              <div className="flex flex-col space-y-1.5 md:col-span-2">
+                                <Label htmlFor="productImage">Product Image</Label>
+                                <Input
+                                  id="productImage"
+                                  type="file"
+                                  accept="image/*"
+                                  {...register("defectivenessDetail.productImage")}
+                                  disabled={access === "read"}
+                                />
+                                {errors.defectivenessDetail?.productImage && (
+                                  <p className="text-sm text-red-500">{errors.defectivenessDetail.productImage.message}</p>
+                                )}
+
+                                {/* Image preview */}
+                                {ImagePreview && (
+                                  <div className="mt-3 flex justify-center">
+                                    <a href={ImagePreview} target="_blank" rel="noopener noreferrer">
+                                      <img
+                                        src={ImagePreview}
+                                        alt="Preview"
+                                        className="max-w-full max-h-40 object-contain rounded-md border border-gray-300 shadow-sm hover:scale-105 transition-transform duration-200"
+                                      />
+                                    </a>
+                                  </div>
+                                )}
+                              </div>
+
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </section>
+                    )}
+                  </PermissionedSection>
+
+                  {/* ====================== MEASURES REPORT ====================== */}
+                  <PermissionedSection
+                    sectionKey="measuresReport"
+                    isNewForm={isNewForm}
+                    formStatus={clickedForm?.status}
+                  >
+                    {(access) => (
+                      <section className="space-y-6 border-4 shadow-sm shadow-gray-700 px-3 rounded-2xl bg-gray-200">
+                        <AccordionItem value="item-4" className="w-full">
+                          <AccordionTrigger>
+                            <h2 className="text-2xl font-semibold border-b pb-2">Measures Report</h2>
+                          </AccordionTrigger>
+                          <AccordionContent className="w-full">
+                            <div className="w-full grid md:grid-cols-2 gap-6 p-4 rounded-lg border bg-card text-card-foreground shadow-sm col-span-2 border-blue-500">
+
+
+                               {/* File Upload By Production Team*/}
+                              <div className="flex flex-col space-y-1.5 md:col-span-2">
+                                <Label htmlFor="prodFile">Upload File Here : </Label>
+                                <Input
+                                  id="prodFile"
+                                  type="file"
+                                  accept="application/pdf"
+                                  {...register("measuresReport.prodFile")}
+                                  disabled={access === "read"}
+                                />
+                                {errors.measuresReport?.prodFile && (
+                                  <p className="text-sm text-red-500">{errors.measuresReport?.prodFile.message}</p>
+                                )}
+
+                               {/* PDF Preview */}
+                              {ProdFilePreview && (
+                                <iframe
+                                  src={ProdFilePreview}
+                                  title="PDF Preview"
+                                  className="w-full h-96 border"
+                                />
+                              )}
+                              </div>
+
+                        
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </section>
+                    )}
+                  </PermissionedSection>
+        
+                  </Accordion>
+              </CardContent>
+            
+            </form>
+        </Card>
+    </div>
+  );
+};
+export default QualityForm;

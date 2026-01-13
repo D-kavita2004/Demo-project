@@ -71,6 +71,7 @@ const formDataSchema = new mongoose.Schema(
       counterMeasuresForOutflow: { type: String },
       enforcementDate: { type: String }, // YYYY-MM-DD
       standardization: { type: String },
+      prodFile: { type: String },
     },
 
     /* ---------- Results of Measures ---------- */
