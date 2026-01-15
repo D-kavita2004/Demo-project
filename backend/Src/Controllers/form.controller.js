@@ -9,9 +9,10 @@ export const createNewIssue = async(req, res) => {
     const imageUrl = req.productImageUrl;
     
     let data = {};
-    if (req.body.data) {
-      data = JSON.parse(req.body.data);
+    if (req.body) {
+      data = req.body;
     };
+
 
     if (!data) {
       return res.status(404).json({ message: "Form data is required" });
@@ -58,8 +59,8 @@ export const handleProdResponse = async (req, res) => {
     console.log(prodFile);
 
     let data = {};
-    if (req.body.data) {
-      data = JSON.parse(req.body.data); 
+    if (req.body) {
+      data = req.body; 
     }
     const form = await Form.findById(formId);
                    
@@ -105,8 +106,8 @@ export const handleApprove = async (req, res) => {
     const { team } = req.user;
 
     let data = {};
-    if (req.body.data) {
-      data = req.body.data;
+    if (req.body) {
+      data = req.body;
     }
 
     if (team.flag !== "QA") {

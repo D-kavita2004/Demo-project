@@ -65,7 +65,7 @@ export const NewFormSchema = z.object({
     {
       message: "Residual quantity should be totalQuantity - usedQuantity",
       path: ["defectivenessDetail", "residualQuantity"],
-    }
+    },
   )
   .refine(
     (data) =>
@@ -74,14 +74,14 @@ export const NewFormSchema = z.object({
     {
       message: "Issue date cannot be earlier than discovered date",
       path: ["defectivenessDetail", "issueDate"],
-    }
+    },
   )
   .refine(
     (data) => data.defectivenessDetail.usedQuantity <= data.defectivenessDetail.totalQuantity,
     {
       message: "Used quantity cannot exceed total quantity",
       path: ["defectivenessDetail", "usedQuantity"],
-    }
+    },
   );
 
 // ========== Measures Report ==========
@@ -107,7 +107,6 @@ export const ProdResponseSchema = z.object({
 
 // ========== Results of Measures Enforcement ==========
 export const QAResponseSchema = z.object({
-    // ========== Results of Measures Enforcement ==========
   resultsOfMeasuresEnforcement: z.object({
     enforcementDateResult:  z
       .string()
@@ -142,7 +141,7 @@ export const FinalResponseSchema = z.object({
     effectJudgment: nonEmpty,
     effectSecInCharge: nonEmpty,
     effectQCSection: nonEmpty,
-  })
+  }),
 });
 
 // To handle cases where no validation is needed

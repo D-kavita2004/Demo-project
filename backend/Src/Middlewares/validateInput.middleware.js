@@ -26,3 +26,35 @@ export const validateInput = (schema) => (req, res, next) => {
     });
   }
 };
+
+export const validateFormFieldsInput = (schema) => (req, res, next) => {
+  const result = schema.safeParse(req.body);
+
+  if (!result.success) {
+    const errors = {};
+
+    result.error.issues.forEach((issue) => {
+      // Build nested path: issuingSection.receivingNo
+      const path = issue.path.join(".");
+
+      // If root-level error
+      const key = path || "root";
+
+      // Preserve first error per field
+      if (!errors[key]) {
+        errors[key] = issue.message;
+      }
+    });
+
+    return res.status(400).json({
+      success: false,
+      errors,
+    });
+  }
+
+  // Attach validated & coerced data
+  req.body = result.data;
+
+  next();
+};
+

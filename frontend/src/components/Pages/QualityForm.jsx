@@ -59,11 +59,14 @@ const QualityForm = () => {
     handleSubmit,
     setValue,
     watch,
+    setError,
+    reset,
+    clearErrors,
     formState:{errors},
   } = useForm(
     {
       defaultValues:myDefaultData,
-      resolver:zodResolver(GetRelatedSchema(clickedForm?.status, isNewForm)),
+      // resolver:zodResolver(GetRelatedSchema(clickedForm?.status, isNewForm)),
     });
 
   const {user} = useContext(UserContext);
@@ -104,14 +107,18 @@ useEffect(() => {
 
 const onSubmit = async (formData) => {
   try {
-    
+    // console.log("Clearinggggg....");
+    // clearErrors();
     if (!clickedForm) {
       // New form — only pass formData
       await primaryAction.handler(formData);
-    } else {
+    } 
+    else {
+      
       // Existing form — pass id + formData
       await primaryAction.handler(clickedForm._id, formData);
     }
+    
   } catch (err) {
     console.error("Error submitting form:", err);
   }
@@ -133,9 +140,19 @@ const handleApprove = async (id,formData) => {
       toast.success(response?.data?.message || "Issue Approved sucessfully");
       // Open modal after approval
       setIsOpen(true);
-    } catch (error) {
-       toast.error(error?.response?.data?.message || error?.response?.statusText || "Oops! Issue could not be approved");
-      console.error("Error approving form:", error.response?.data || error);
+    } catch (err) {
+       if (err?.response?.status === 400) {
+            const backendErrors = err?.response?.data?.errors;
+            if (backendErrors) {
+              Object.keys(backendErrors).forEach((field) => {
+                setError(field, { message: backendErrors[field] });
+              });
+            }
+            
+            return;
+        }  
+        toast.error(err?.response?.data?.message || err?.response?.statusText || "Oops! Issue could not be approved");
+      console.error("Error approving form:", err.response?.data || err);
     } 
   };
 const handleReject = async (id,formData) => {
@@ -150,9 +167,19 @@ const handleReject = async (id,formData) => {
       console.log("Form rejected:", response.data);
       navigate("/");
       toast.success(response?.data?.message || "Issue Rejected sucessfully");
-    } catch (error) {
-       toast.error(error?.response?.data?.message || error?.response?.statusText || "Oops! Issue could not be rejected");
-      console.error("Error rejecting form:", error.response?.data || error);
+    } catch (err) {
+       if (err?.response?.status === 400) {
+            const backendErrors = err?.response?.data?.errors;
+            if (backendErrors) {
+              Object.keys(backendErrors).forEach((field) => {
+                setError(field, { message: backendErrors[field] });
+              });
+            }
+            
+            return;
+        }  
+        toast.error(err?.response?.data?.message || err?.response?.statusText || "Oops! Issue could not be rejected");
+      console.error("Error rejecting form:", err.response?.data || err);
     }
   };
 const handleCreateNewIssue = async (formData) => {
@@ -177,6 +204,16 @@ const handleCreateNewIssue = async (formData) => {
           toast.success(res?.data?.message || "Issue Created sucessfully");
         } 
       catch (err) {
+         if (err?.response?.status === 400) {
+            const backendErrors = err?.response?.data?.errors;
+            if (backendErrors) {
+              Object.keys(backendErrors).forEach((field) => {
+                setError(field, { message: backendErrors[field] });
+              });
+            }
+            
+            return;
+        }  
         toast.error(err?.response?.data?.message || err?.response?.statusText || "Oops! Issue could not be created");
           console.error("Error submitting form:", err);
         }
@@ -211,16 +248,23 @@ const handleProdResponse = async (id, formData) => {
     );
     setIsOpen(true);
 
-  } catch (error) {
-    toast.error(
-      error?.response?.data?.message ||
-      error?.response?.statusText ||
+  } catch (err) {
+     if (err?.response?.status === 400) {
+            const backendErrors = err?.response?.data?.errors;
+            if (backendErrors) {
+              Object.keys(backendErrors).forEach((field) => {
+                setError(field, { message: backendErrors[field] });
+              });
+            }
+            
+            return;
+        }  
+        toast.error(err?.response?.data?.message || err?.response?.statusText ||
       "Oops! Response could not be submitted"
     );
-    console.error("Error submitting response:", error.response?.data || error);
+    console.error("Error submitting response:", err.response?.data || err);
   }
 };
-
 const handleFinalSubmit = async (id,formData) => {
 
     try {
@@ -236,9 +280,19 @@ const handleFinalSubmit = async (id,formData) => {
        toast.success(response?.data?.message || "Final submit is sucessfully");
       // Open modal after approval
       setIsOpen(true);
-    } catch (error) {
-       toast.error(error?.response?.data?.message || error?.response?.statusText || "Oops! could not be submit");
-      console.error("Error approving form:", error.response?.data || error);
+    } catch (err) {
+        if (err?.response?.status === 400) {
+            const backendErrors = err?.response?.data?.errors;
+            if (backendErrors) {
+              Object.keys(backendErrors).forEach((field) => {
+                setError(field, { message: backendErrors[field] });
+              });
+            }
+            
+            return;
+        }  
+        toast.error(err?.response?.data?.message || err?.response?.statusText ||"Oops! could not be submit");
+      console.error("Error approving form:", err.response?.data || err);
     } 
   };
 
@@ -334,6 +388,7 @@ useEffect(()=>{
   }
 },[]);
 
+
   return (
     <div className="flex flex-col">
       <Button
@@ -376,7 +431,10 @@ useEffect(()=>{
                                       id="receivingNo"
                                       readOnly={access=="read"}
                                       placeholder="Enter receiving number"
-                                      {...register("issuingSection.receivingNo")}
+                                      
+                                      {...register("issuingSection.receivingNo",{
+                                        onChange: () => clearErrors("issuingSection.receivingNo")
+                                      })}
                                     />
                                     {errors.issuingSection?.receivingNo && (
                                       <p className="text-sm text-red-500">{errors.issuingSection.receivingNo.message}</p>
@@ -390,7 +448,9 @@ useEffect(()=>{
                                       id="referenceNo"
                                        readOnly={access=="read"}
                                       placeholder="Enter reference number"
-                                      {...register("issuingSection.referenceNo")}
+                                      {...register("issuingSection.referenceNo",{
+                                        onChange: () => clearErrors("issuingSection.referenceNo")
+                                      })}
                                     />
                                     {errors.issuingSection?.referenceNo && (
                                       <p className="text-sm text-red-500">{errors.issuingSection.referenceNo.message}</p>
@@ -406,7 +466,10 @@ useEffect(()=>{
                                     <Select
                                       value={watch("issuingSection.part")}
                                       readOnly={access=="read"}
-                                      onValueChange={(v) => setValue("issuingSection.part", v)}
+                                      onValueChange={(v) => {
+                                        setValue("issuingSection.part", v);
+                                        clearErrors("issuingSection.part");
+                                      }}
                                       required
                                     >
                                       <SelectTrigger className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
@@ -443,7 +506,9 @@ useEffect(()=>{
                                       id="subjectMatter"
                                       placeholder="Enter subject matter"
                                       readOnly={access=="read"}
-                                      {...register("issuingSection.subjectMatter")}
+                                      {...register("issuingSection.subjectMatter",{
+                                        onChange:()=>clearErrors("issuingSection.subjectMatter")
+                                      })}
                                     />
                                     {errors.issuingSection?.subjectMatter && (
                                       <p className="text-sm text-red-500">{errors.issuingSection.subjectMatter.message}</p>
@@ -457,7 +522,9 @@ useEffect(()=>{
                                       id="approved"
                                       readOnly={access=="read"}
                                       placeholder="Enter approver name"
-                                      {...register("issuingSection.approved")}
+                                      {...register("issuingSection.approved",{
+                                         onChange:()=>clearErrors("issuingSection.approved")
+                                      })}
                                     />
                                     {errors.issuingSection?.approved && (
                                       <p className="text-sm text-red-500">{errors.issuingSection.approved.message}</p>
@@ -471,7 +538,9 @@ useEffect(()=>{
                                       id="checked"
                                        readOnly={access=="read"}
                                       placeholder="Enter checker name"
-                                      {...register("issuingSection.checked")}
+                                      {...register("issuingSection.checked",{
+                                        onChange:()=>clearErrors("issuingSection.checked")
+                                      })}
                                     />
                                     {errors.issuingSection?.checked && (
                                       <p className="text-sm text-red-500">{errors.issuingSection.checked.message}</p>
@@ -483,10 +552,12 @@ useEffect(()=>{
                                     <Label htmlFor="issued">Issued By</Label>
                                     <Input
                                       id="issued"
-                                       readOnly={access=="read"}
+                                      readOnly
                                       defaultValue={(user?.firstName || "") + " " + (user?.lastName || "")}
                                       placeholder="Enter receiver name"
-                                      {...register("issuingSection.issued")}
+                                      {...register("issuingSection.issued",{
+                                        onChange:()=>clearErrors("issuingSection.issued")
+                                      })}
                                     />
                                     {errors.issuingSection?.issued && (
                                       <p className="text-sm text-red-500">{errors.issuingSection.issued.message}</p>
@@ -523,7 +594,10 @@ useEffect(()=>{
                                 {isNewForm ? (
                                   <Select
                                     value={watch("defectivenessDetail.supplier")}
-                                    onValueChange={(v) => setValue("defectivenessDetail.supplier", v)}
+                                    onValueChange={(v) => {
+                                      setValue("defectivenessDetail.supplier", v);
+                                      clearErrors("defectivenessDetail.supplier");
+                                    }}
                                     required
                                     disabled={access === "read"}
                                   >
@@ -556,7 +630,9 @@ useEffect(()=>{
                                 <Input
                                   id="groupName"
                                   placeholder="Enter group name"
-                                  {...register("defectivenessDetail.groupName")}
+                                  {...register("defectivenessDetail.groupName",{
+                                    onChange:()=>clearErrors("defectivenessDetail.groupName")
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -571,7 +647,9 @@ useEffect(()=>{
                                 <Input
                                   id="stateOfProcess"
                                   placeholder="Enter state of process"
-                                  {...register("defectivenessDetail.stateOfProcess")}
+                                  {...register("defectivenessDetail.stateOfProcess",{
+                                    onChange:()=>clearErrors("defectivenessDetail.stateOfProcess")
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -586,7 +664,9 @@ useEffect(()=>{
                                 <Input
                                   id="associatedLotNo"
                                   placeholder="Enter associated lot number"
-                                  {...register("defectivenessDetail.associatedLotNo")}
+                                  {...register("defectivenessDetail.associatedLotNo",{
+                                    onChange:()=>clearErrors("defectivenessDetail.associatedLotNo")
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -601,7 +681,9 @@ useEffect(()=>{
                                 <Input
                                   id="discoveredDate"
                                   type="date"
-                                  {...register("defectivenessDetail.discoveredDate")}
+                                  {...register("defectivenessDetail.discoveredDate",{
+                                    onChange:()=>clearErrors("defectivenessDetail.discoveredDate")
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -616,7 +698,9 @@ useEffect(()=>{
                                 <Input
                                   id="issueDate"
                                   type="date"
-                                  {...register("defectivenessDetail.issueDate")}
+                                  {...register("defectivenessDetail.issueDate",{
+                                     onChange:()=>clearErrors("defectivenessDetail.discoveredDate")
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -631,7 +715,9 @@ useEffect(()=>{
                                 <Input
                                   id="orderNo"
                                   placeholder="Enter order or lot number"
-                                  {...register("defectivenessDetail.orderNo")}
+                                  {...register("defectivenessDetail.orderNo",{
+                                     onChange:()=>clearErrors("defectivenessDetail.discoveredDate")
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -646,7 +732,9 @@ useEffect(()=>{
                                 <Input
                                   id="drawingNo"
                                   placeholder="Enter drawing number"
-                                  {...register("defectivenessDetail.drawingNo")}
+                                  {...register("defectivenessDetail.drawingNo",{
+                                     onChange:()=>clearErrors("defectivenessDetail.discoveredDate")
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -661,7 +749,10 @@ useEffect(()=>{
                                 {isNewForm ? (
                                   <Select
                                     value={watch("defectivenessDetail.process")}
-                                    onValueChange={(v) => setValue("defectivenessDetail.process", v)}
+                                    onValueChange={(v) => {
+                                      setValue("defectivenessDetail.process", v);
+                                      clearErrors("defectivenessDetail.process");
+                                    }}
                                     required
                                     disabled={access === "read"}
                                   >
@@ -694,7 +785,10 @@ useEffect(()=>{
                                 {isNewForm ? (
                                   <Select
                                     value={watch("defectivenessDetail.machine")}
-                                    onValueChange={(v) => setValue("defectivenessDetail.machine", v)}
+                                    onValueChange={(v) => {
+                                      setValue("defectivenessDetail.machine", v);
+                                      clearErrors("defectivenessDetail.machine");
+                                    }}
                                     required
                                     disabled={access === "read"}
                                   >
@@ -728,7 +822,9 @@ useEffect(()=>{
                                   id="totalQuantity"
                                   type="number"
                                   placeholder="Enter total quantity"
-                                  {...register("defectivenessDetail.totalQuantity")}
+                                  {...register("defectivenessDetail.totalQuantity",{
+                                     onChange:()=>clearErrors("defectivenessDetail.totalQuantity")
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -744,7 +840,9 @@ useEffect(()=>{
                                   id="usedQuantity"
                                   type="number"
                                   placeholder="Enter used quantity"
-                                  {...register("defectivenessDetail.usedQuantity")}
+                                  {...register("defectivenessDetail.usedQuantity",{
+                                    onChange:()=>clearErrors("defectivenessDetail.usedQuantity")
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -760,7 +858,9 @@ useEffect(()=>{
                                   id="residualQuantity"
                                   type="number"
                                   placeholder="Enter residual quantity"
-                                  {...register("defectivenessDetail.residualQuantity")}
+                                  {...register("defectivenessDetail.residualQuantity",{
+                                    onChange:()=>clearErrors("defectivenessDetail.residualQuantity")
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -777,7 +877,9 @@ useEffect(()=>{
                                   type="number"
                                   step="0.01"
                                   placeholder="Enter defect rate"
-                                  {...register("defectivenessDetail.defectRate")}
+                                  {...register("defectivenessDetail.defectRate",{
+                                    onChange:()=>clearErrors("defectivenessDetail.defectRate")
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -792,7 +894,9 @@ useEffect(()=>{
                                 <Textarea
                                   id="managerInstructions"
                                   placeholder="Enter temporary treatment and manager instructions..."
-                                  {...register("defectivenessDetail.managerInstructions")}
+                                  {...register("defectivenessDetail.managerInstructions",{
+                                    onChange:()=>clearErrors("defectivenessDetail.managerInstructions")
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -808,7 +912,9 @@ useEffect(()=>{
                                   id="productImage"
                                   type="file"
                                   accept="image/*"
-                                  {...register("defectivenessDetail.productImage")}
+                                  {...register("defectivenessDetail.productImage",{
+                                    onChange:()=>clearErrors("defectivenessDetail.productImage")
+                                  })}
                                   disabled={access === "read"}
                                 />
                                 {errors.defectivenessDetail?.productImage && (
@@ -857,7 +963,9 @@ useEffect(()=>{
                                 <Textarea
                                   id="qcComment"
                                   placeholder="Enter QC comment..."
-                                  {...register("qualityCheckComment.qcComment")}
+                                  {...register("qualityCheckComment.qcComment", {
+                                    onChange: () => clearErrors("qualityCheckComment.qcComment"),
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -872,7 +980,9 @@ useEffect(()=>{
                                 <Textarea
                                   id="qcInstructions"
                                   placeholder="e.g., First need 100% sorting, then use if OK..."
-                                  {...register("qualityCheckComment.qcInstructions")}
+                                  {...register("qualityCheckComment.qcInstructions", {
+                                    onChange: () => clearErrors("qualityCheckComment.qcInstructions"),
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -890,7 +1000,9 @@ useEffect(()=>{
                                     type="number"
                                     step="0.01"
                                     placeholder="Enter cost"
-                                    {...register("qualityCheckComment.defectCost")}
+                                    {...register("qualityCheckComment.defectCost", {
+                                      onChange: () => clearErrors("qualityCheckComment.defectCost"),
+                                    })}
                                     readOnly={access === "read"}
                                     className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                   />
@@ -904,7 +1016,9 @@ useEffect(()=>{
                                   <Input
                                     id="unit"
                                     placeholder="Enter unit (e.g., kg or piece)"
-                                    {...register("qualityCheckComment.unit")}
+                                    {...register("qualityCheckComment.unit", {
+                                      onChange: () => clearErrors("qualityCheckComment.unit"),
+                                    })}
                                     readOnly={access === "read"}
                                     className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                   />
@@ -920,7 +1034,9 @@ useEffect(()=>{
                                 <select
                                   id="importanceLevel"
                                   className={`border rounded-md p-2 bg-background ${access === "read" ? "bg-muted cursor-not-allowed" : ""}`}
-                                  {...register("qualityCheckComment.importanceLevel")}
+                                  {...register("qualityCheckComment.importanceLevel", {
+                                    onChange: () => clearErrors("qualityCheckComment.importanceLevel"),
+                                  })}
                                   disabled={access === "read"}
                                 >
                                   <option value="">Select level</option>
@@ -940,7 +1056,9 @@ useEffect(()=>{
                                 <Input
                                   id="reportTimeLimit"
                                   type="date"
-                                  {...register("qualityCheckComment.reportTimeLimit")}
+                                  {...register("qualityCheckComment.reportTimeLimit", {
+                                    onChange: () => clearErrors("qualityCheckComment.reportTimeLimit"),
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -955,6 +1073,7 @@ useEffect(()=>{
                       </section>
                     )}
                   </PermissionedSection>
+
                   
                   {/* ====================== MEASURES REPORT ====================== */}
                   <PermissionedSection
@@ -971,30 +1090,23 @@ useEffect(()=>{
                           <AccordionContent className="w-full">
                             <div className="w-full grid md:grid-cols-2 gap-6 p-4 rounded-lg border bg-card text-card-foreground shadow-sm col-span-2 border-blue-500">
 
-
-                               {/* File Upload By Production Team*/}
+                              {/* File Upload By Production Team */}
                               <div className="flex flex-col space-y-1.5 md:col-span-2">
                                 <Label htmlFor="prodFile">Upload File Here : </Label>
                                 <Input
                                   id="prodFile"
                                   type="file"
                                   accept="application/pdf"
-                                  {...register("measuresReport.prodFile")}
+                                  {...register("measuresReport.prodFile", {
+                                    onChange: () => clearErrors("measuresReport.prodFile"),
+                                  })}
                                   disabled={access === "read"}
                                 />
                                 {errors.measuresReport?.prodFile && (
                                   <p className="text-sm text-red-500">{errors.measuresReport?.prodFile.message}</p>
                                 )}
 
-                               {/* PDF Preview */}
-                              {/* {ProdFilePreview && (
-                                <iframe
-                                  src={ProdFilePreview}
-                                  title="PDF Preview"
-                                  className="w-full h-96 border"
-                                />
-                              )} */}
-                               {ProdFilePreview && (
+                                {ProdFilePreview && (
                                   <a
                                     href={ProdFilePreview}
                                     target="_blank"
@@ -1012,7 +1124,9 @@ useEffect(()=>{
                                 <Textarea
                                   id="causesOfOccurrence"
                                   placeholder="Describe causes of occurrence..."
-                                  {...register("measuresReport.causesOfOccurrence")}
+                                  {...register("measuresReport.causesOfOccurrence", {
+                                    onChange: () => clearErrors("measuresReport.causesOfOccurrence"),
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -1027,7 +1141,9 @@ useEffect(()=>{
                                 <Textarea
                                   id="causesOfOutflow"
                                   placeholder="Describe causes of outflow..."
-                                  {...register("measuresReport.causesOfOutflow")}
+                                  {...register("measuresReport.causesOfOutflow", {
+                                    onChange: () => clearErrors("measuresReport.causesOfOutflow"),
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -1042,7 +1158,9 @@ useEffect(()=>{
                                 <Textarea
                                   id="counterMeasuresForCauses"
                                   placeholder="Describe temporary and permanent countermeasures..."
-                                  {...register("measuresReport.counterMeasuresForCauses")}
+                                  {...register("measuresReport.counterMeasuresForCauses", {
+                                    onChange: () => clearErrors("measuresReport.counterMeasuresForCauses"),
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -1057,7 +1175,9 @@ useEffect(()=>{
                                 <Textarea
                                   id="counterMeasuresForOutflow"
                                   placeholder="Describe temporary and permanent countermeasures..."
-                                  {...register("measuresReport.counterMeasuresForOutflow")}
+                                  {...register("measuresReport.counterMeasuresForOutflow", {
+                                    onChange: () => clearErrors("measuresReport.counterMeasuresForOutflow"),
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -1072,7 +1192,9 @@ useEffect(()=>{
                                 <Input
                                   id="enforcementDate"
                                   type="date"
-                                  {...register("measuresReport.enforcementDate")}
+                                  {...register("measuresReport.enforcementDate", {
+                                    onChange: () => clearErrors("measuresReport.enforcementDate"),
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -1089,7 +1211,9 @@ useEffect(()=>{
                                 <Textarea
                                   id="standardization"
                                   placeholder="Describe how measures are standardized or deployed widely..."
-                                  {...register("measuresReport.standardization")}
+                                  {...register("measuresReport.standardization", {
+                                    onChange: () => clearErrors("measuresReport.standardization"),
+                                  })}
                                   readOnly={access === "read"}
                                   className={access === "read" ? "bg-muted cursor-not-allowed" : ""}
                                 />
@@ -1104,6 +1228,7 @@ useEffect(()=>{
                       </section>
                     )}
                   </PermissionedSection>
+
 
                   {/* ====================== Results of Measures Enforcement ====================== */}
                   <PermissionedSection
@@ -1128,7 +1253,9 @@ useEffect(()=>{
                                   <Input
                                     id="enforcementDateResult"
                                     type="date"
-                                    {...register("resultsOfMeasuresEnforcement.enforcementDateResult")}
+                                    {...register("resultsOfMeasuresEnforcement.enforcementDateResult", {
+                                      onChange: () => clearErrors("resultsOfMeasuresEnforcement.enforcementDateResult"),
+                                    })}
                                     readOnly={access === "read"}
                                     className={`w-full ${access === "read" ? "bg-muted cursor-not-allowed" : ""}`}
                                   />
@@ -1145,7 +1272,9 @@ useEffect(()=>{
                                   <Textarea
                                     id="enforcementResult"
                                     placeholder="Describe result of measures enforcement..."
-                                    {...register("resultsOfMeasuresEnforcement.enforcementResult")}
+                                    {...register("resultsOfMeasuresEnforcement.enforcementResult", {
+                                      onChange: () => clearErrors("resultsOfMeasuresEnforcement.enforcementResult"),
+                                    })}
                                     readOnly={access === "read"}
                                     className={`w-full min-h-[120px] ${access === "read" ? "bg-muted cursor-not-allowed" : ""}`}
                                   />
@@ -1164,7 +1293,9 @@ useEffect(()=>{
                                   <Input
                                     id="enforcementJudgment"
                                     placeholder="Enter judgment"
-                                    {...register("resultsOfMeasuresEnforcement.enforcementJudgment")}
+                                    {...register("resultsOfMeasuresEnforcement.enforcementJudgment", {
+                                      onChange: () => clearErrors("resultsOfMeasuresEnforcement.enforcementJudgment"),
+                                    })}
                                     readOnly={access === "read"}
                                     className={`w-full ${access === "read" ? "bg-muted cursor-not-allowed" : ""}`}
                                   />
@@ -1175,7 +1306,9 @@ useEffect(()=>{
                                   <Input
                                     id="enforcementSecInCharge"
                                     placeholder="Enter section in charge"
-                                    {...register("resultsOfMeasuresEnforcement.enforcementSecInCharge")}
+                                    {...register("resultsOfMeasuresEnforcement.enforcementSecInCharge", {
+                                      onChange: () => clearErrors("resultsOfMeasuresEnforcement.enforcementSecInCharge"),
+                                    })}
                                     readOnly={access === "read"}
                                     className={`w-full ${access === "read" ? "bg-muted cursor-not-allowed" : ""}`}
                                   />
@@ -1186,7 +1319,9 @@ useEffect(()=>{
                                   <Input
                                     id="enforcementQCSection"
                                     placeholder="Enter QC section"
-                                    {...register("resultsOfMeasuresEnforcement.enforcementQCSection")}
+                                    {...register("resultsOfMeasuresEnforcement.enforcementQCSection", {
+                                      onChange: () => clearErrors("resultsOfMeasuresEnforcement.enforcementQCSection"),
+                                    })}
                                     readOnly={access === "read"}
                                     className={`w-full ${access === "read" ? "bg-muted cursor-not-allowed" : ""}`}
                                   />
@@ -1194,7 +1329,6 @@ useEffect(()=>{
                               </div>
 
                             </div>
-
                           </AccordionContent>
                         </AccordionItem>
                       </section>
@@ -1227,7 +1361,9 @@ useEffect(()=>{
                                   <Input
                                     id="effectDate"
                                     type="date"
-                                    {...register("resultsOfMeasuresEffect.effectDate")}
+                                    {...register("resultsOfMeasuresEffect.effectDate", {
+                                      onChange: () => clearErrors("resultsOfMeasuresEffect.effectDate"),
+                                    })}
                                     readOnly={access === "read"}
                                     className={`w-full ${access === "read" ? "bg-muted cursor-not-allowed" : ""}`}
                                   />
@@ -1244,7 +1380,9 @@ useEffect(()=>{
                                   <Textarea
                                     id="effectResult"
                                     placeholder="Describe result of measures effect..."
-                                    {...register("resultsOfMeasuresEffect.effectResult")}
+                                    {...register("resultsOfMeasuresEffect.effectResult", {
+                                      onChange: () => clearErrors("resultsOfMeasuresEffect.effectResult"),
+                                    })}
                                     readOnly={access === "read"}
                                     className={`w-full min-h-[120px] ${access === "read" ? "bg-muted cursor-not-allowed" : ""}`}
                                   />
@@ -1263,7 +1401,9 @@ useEffect(()=>{
                                   <Input
                                     id="effectJudgment"
                                     placeholder="Enter judgment"
-                                    {...register("resultsOfMeasuresEffect.effectJudgment")}
+                                    {...register("resultsOfMeasuresEffect.effectJudgment", {
+                                      onChange: () => clearErrors("resultsOfMeasuresEffect.effectJudgment"),
+                                    })}
                                     readOnly={access === "read"}
                                     className={`w-full ${access === "read" ? "bg-muted cursor-not-allowed" : ""}`}
                                   />
@@ -1274,7 +1414,9 @@ useEffect(()=>{
                                   <Input
                                     id="effectSecInCharge"
                                     placeholder="Enter section in charge"
-                                    {...register("resultsOfMeasuresEffect.effectSecInCharge")}
+                                    {...register("resultsOfMeasuresEffect.effectSecInCharge", {
+                                      onChange: () => clearErrors("resultsOfMeasuresEffect.effectSecInCharge"),
+                                    })}
                                     readOnly={access === "read"}
                                     className={`w-full ${access === "read" ? "bg-muted cursor-not-allowed" : ""}`}
                                   />
@@ -1285,7 +1427,9 @@ useEffect(()=>{
                                   <Input
                                     id="effectQCSection"
                                     placeholder="Enter QC section"
-                                    {...register("resultsOfMeasuresEffect.effectQCSection")}
+                                    {...register("resultsOfMeasuresEffect.effectQCSection", {
+                                      onChange: () => clearErrors("resultsOfMeasuresEffect.effectQCSection"),
+                                    })}
                                     readOnly={access === "read"}
                                     className={`w-full ${access === "read" ? "bg-muted cursor-not-allowed" : ""}`}
                                   />
@@ -1298,6 +1442,7 @@ useEffect(()=>{
                       </section>
                     )}
                   </PermissionedSection>
+
         
                   </Accordion>
               </CardContent>
