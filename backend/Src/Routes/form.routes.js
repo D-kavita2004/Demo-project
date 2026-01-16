@@ -3,16 +3,19 @@ import { getAllForms, createNewIssue, handleProdResponse, handleReject, handleAp
 import { uploadFile } from "../Middlewares/upload.middleware.js";
 import { validateFormFieldsInput } from "../Middlewares/validateInput.middleware.js";
 import { parseMultipartJSON } from "../Middlewares/parseFormData.middleware.js";
+import { checkAuthorization } from "../Middlewares/checkAdmin.middleware.js";
 import { NewFormSchema, ProdResponseSchema, QAResponseSchema, FinalResponseSchema } from "../ValidationSchema/formValidationSchema.js";
 
 const router = express.Router();
 
-router.get("/",getAllForms);
-router.post("/", uploadFile, parseMultipartJSON, validateFormFieldsInput(NewFormSchema), createNewIssue);
+router.get("/",getAllForms,checkAuthorization({ allowedFlags: ["IT","INTERNAL","QA"], allowedRoles: ["admin"] }));
+router.post("/", checkAuthorization({ allowedFlags: ["QA"] }), uploadFile, parseMultipartJSON, validateFormFieldsInput(NewFormSchema), createNewIssue);
 
-router.put("/reject", validateFormFieldsInput(QAResponseSchema), handleReject);
-router.put("/approve", validateFormFieldsInput(QAResponseSchema), handleApprove);
-router.put("/prodResponse/:id", uploadFile, parseMultipartJSON, validateFormFieldsInput(ProdResponseSchema), handleProdResponse);
-router.put("/finalSubmit",validateFormFieldsInput(FinalResponseSchema), handleFinalSubmit);
+router.put("/reject", checkAuthorization({ allowedFlags: ["QA"] }), validateFormFieldsInput(QAResponseSchema), handleReject);
+router.put("/approve", checkAuthorization({ allowedFlags: ["QA"] }), validateFormFieldsInput(QAResponseSchema),  handleApprove);
+
+router.put("/prodResponse/:id", checkAuthorization({ allowedFlags: ["INTERNAL"] }), uploadFile, parseMultipartJSON, validateFormFieldsInput(ProdResponseSchema),  handleProdResponse);
+
+router.put("/finalSubmit", checkAuthorization({ allowedFlags: ["QA"] }), validateFormFieldsInput(FinalResponseSchema), handleFinalSubmit);
 
 export default router;

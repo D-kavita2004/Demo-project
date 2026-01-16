@@ -28,7 +28,10 @@ export const validateInput = (schema) => (req, res, next) => {
 };
 
 export const validateFormFieldsInput = (schema) => (req, res, next) => {
-  const result = schema.safeParse(req.body.data);
+  
+  if(!req.body?.data) return res.status(400).json({message:"Data not found"});
+
+  const result = schema.safeParse(req.body?.data);
 
   if (!result.success) {
     const errors = {};
