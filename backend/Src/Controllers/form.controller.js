@@ -9,8 +9,8 @@ export const createNewIssue = async(req, res) => {
     const imageUrl = req.productImageUrl;
     
     let data = {};
-    if (req.body) {
-      data = req.body;
+    if (req.body.data) {
+      data = req.body.data;
     };
 
 
@@ -59,8 +59,8 @@ export const handleProdResponse = async (req, res) => {
     console.log(prodFile);
 
     let data = {};
-    if (req.body) {
-      data = req.body; 
+    if (req.body.data) {
+      data = req.body.data; 
     }
     const form = await Form.findById(formId);
                    
@@ -106,8 +106,8 @@ export const handleApprove = async (req, res) => {
     const { team } = req.user;
 
     let data = {};
-    if (req.body) {
-      data = req.body;
+    if (req.body.data) {
+      data = req.body.data;
     }
 
     if (team.flag !== "QA") {

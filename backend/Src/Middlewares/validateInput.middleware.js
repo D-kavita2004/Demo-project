@@ -28,7 +28,7 @@ export const validateInput = (schema) => (req, res, next) => {
 };
 
 export const validateFormFieldsInput = (schema) => (req, res, next) => {
-  const result = schema.safeParse(req.body);
+  const result = schema.safeParse(req.body.data);
 
   if (!result.success) {
     const errors = {};
@@ -53,7 +53,7 @@ export const validateFormFieldsInput = (schema) => (req, res, next) => {
   }
 
   // Attach validated & coerced data
-  req.body = result.data;
+  req.body.data = result.data;
 
   next();
 };

@@ -1299,6 +1299,11 @@ useEffect(()=>{
                                     readOnly={access === "read"}
                                     className={`w-full ${access === "read" ? "bg-muted cursor-not-allowed" : ""}`}
                                   />
+                                  {errors.resultsOfMeasuresEnforcement?.enforcementJudgment && (
+                                    <p className="text-sm text-red-500">
+                                      {errors.resultsOfMeasuresEnforcement.enforcementJudgment.message}
+                                    </p>
+                                  )}
                                 </div>
 
                                 <div className="flex flex-col space-y-2">
@@ -1312,6 +1317,11 @@ useEffect(()=>{
                                     readOnly={access === "read"}
                                     className={`w-full ${access === "read" ? "bg-muted cursor-not-allowed" : ""}`}
                                   />
+                                  {errors.resultsOfMeasuresEnforcement?.enforcementSecInCharge && (
+                                    <p className="text-sm text-red-500">
+                                      {errors.resultsOfMeasuresEnforcement.enforcementSecInCharge.message}
+                                    </p>
+                                  )}
                                 </div>
 
                                 <div className="flex flex-col space-y-2">
@@ -1325,6 +1335,11 @@ useEffect(()=>{
                                     readOnly={access === "read"}
                                     className={`w-full ${access === "read" ? "bg-muted cursor-not-allowed" : ""}`}
                                   />
+                                  {errors.resultsOfMeasuresEnforcement?.enforcementQCSection && (
+                                    <p className="text-sm text-red-500">
+                                      {errors.resultsOfMeasuresEnforcement.enforcementQCSection.message}
+                                    </p>
+                                  )}
                                 </div>
                               </div>
 
@@ -1407,6 +1422,11 @@ useEffect(()=>{
                                     readOnly={access === "read"}
                                     className={`w-full ${access === "read" ? "bg-muted cursor-not-allowed" : ""}`}
                                   />
+                                  {errors.resultsOfMeasuresEffect?.effectJudgment && (
+                                    <p className="text-sm text-red-500">
+                                      {errors.resultsOfMeasuresEffect.effectJudgment.message}
+                                    </p>
+                                  )}
                                 </div>
 
                                 <div className="flex flex-col space-y-2">
@@ -1420,6 +1440,11 @@ useEffect(()=>{
                                     readOnly={access === "read"}
                                     className={`w-full ${access === "read" ? "bg-muted cursor-not-allowed" : ""}`}
                                   />
+                                  {errors.resultsOfMeasuresEffect?.effectSecInCharge && (
+                                    <p className="text-sm text-red-500">
+                                      {errors.resultsOfMeasuresEffect?.effectSecInCharge.message}
+                                    </p>
+                                  )}
                                 </div>
 
                                 <div className="flex flex-col space-y-2">
@@ -1433,6 +1458,11 @@ useEffect(()=>{
                                     readOnly={access === "read"}
                                     className={`w-full ${access === "read" ? "bg-muted cursor-not-allowed" : ""}`}
                                   />
+                                  {errors.resultsOfMeasuresEffect?.effectQCSection && (
+                                    <p className="text-sm text-red-500">
+                                      {errors.resultsOfMeasuresEffect?.effectQCSection.message}
+                                    </p>
+                                  )}
                                 </div>
                               </div>
 
