@@ -1,5 +1,6 @@
 import Machine from "../Models/machines.models.js";
 import logger from "../../Config/logger.js";
+import Form from "../Models/form.models.js";
 
 // =========================
 // CREATE machine
@@ -87,12 +88,22 @@ export const updateMachine = async (req, res) => {
 // =========================
 export const deleteMachine = async (req, res) => {
   try {
-    const machine = await Machine.findOneAndDelete(req.params.machineCode);
+
+    const isIssueAvailable = await Form.exists({"formData.defectivenessDetail.machine" : req.params.machineCode});
+    if(isIssueAvailable){
+      return res.status(409).json({ message: "Some Issues are raised with this machine" });
+    }
+
+    const machine = await Machine.findOneAndDelete({
+      machineCode : req.params.machineCode,
+    });
+    
     if (!machine) {
       return res.status(404).json({ message: "Machine not found" });
     }
 
     res.status(200).json({ message: "Machine deleted successfully" });
+
   } catch (error) {
     logger.error("Delete Machine Error:", error);
     res.status(500).json({ message: "Internal server error" });

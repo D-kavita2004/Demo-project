@@ -5,12 +5,12 @@ import { machineSchema } from "../ValidationSchema/entityValidationSchema.js";
 import { checkAuthorization } from "../Middlewares/checkAdmin.middleware.js";
 const router = express.Router();
 
-router.post("/createMachine", validateInput(machineSchema), checkAuthorization({ allowedFlags: ["IT"], allowedRoles: ["admin"] }), createMachine);
+router.post("/", validateInput(machineSchema), checkAuthorization({ allowedFlags: ["IT"], allowedRoles: ["admin"] }), createMachine);
 
 router.get("/", checkAuthorization({ allowedFlags: ["QA", "IT"], allowedRoles: ["admin"] }), getMachines);
 
-router.put("/updateMachine/:machineCode", checkAuthorization({ allowedFlags: ["IT"], allowedRoles: ["admin"] }), validateInput(machineSchema), updateMachine);
+router.put("/:machineCode", checkAuthorization({ allowedFlags: ["IT"], allowedRoles: ["admin"] }), validateInput(machineSchema), updateMachine);
 
-router.delete("/deleteMachine/:machineCode", checkAuthorization({ allowedFlags: ["IT"], allowedRoles: ["admin"] }), deleteMachine);
+router.delete("/:machineCode", checkAuthorization({ allowedFlags: ["IT"], allowedRoles: ["admin"] }), deleteMachine);
 
 export default router;

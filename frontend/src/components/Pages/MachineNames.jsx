@@ -43,7 +43,7 @@ const Machines = () => {
   const createMachine = async (machineName) => {
     try {
       const res = await api.post(
-        "/machines/createMachine",
+        "/machines",
         { machineName },
         { withCredentials: true }
       );
@@ -62,7 +62,7 @@ const Machines = () => {
   const updateMachine = async (id, machineName) => {
     try {
       const res = await api.put(
-        `machines/updateMachine/${id}`,
+        `/machines/${id}`,
         { machineName },
         { withCredentials: true }
       );
@@ -83,7 +83,7 @@ const Machines = () => {
   const deleteMachine = async(id)=>{
     try {
       const res = await api.delete(
-        `machines/deleteMachine/${id}`,
+        `/machines/${id}`,
         { withCredentials: true }
       );
       setMachinesList((prev) => prev.filter((s) => s.machineCode !== id));

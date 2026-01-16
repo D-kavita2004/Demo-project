@@ -43,7 +43,7 @@ const Parts = () => {
   const createPart = async (partName) => {
     try {
       const res = await api.post(
-        "/parts/createPart",
+        "/parts",
         { partName },
         { withCredentials: true }
       );
@@ -62,7 +62,7 @@ const Parts = () => {
   const updatePart = async (id, partName) => {
     try {
       const res = await api.put(
-        `parts/updatePart/${id}`,
+        `/parts/${id}`,
         { partName },
         { withCredentials: true }
       );
@@ -83,7 +83,7 @@ const Parts = () => {
   const deletePart = async(id)=>{
     try {
       const res = await api.delete(
-        `parts/deletePart/${id}`,
+        `/parts/${id}`,
         { withCredentials: true }
       );
       setpartsList((prev) => prev.filter((s) => s.partCode !== id));

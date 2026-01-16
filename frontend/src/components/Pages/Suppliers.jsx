@@ -43,7 +43,7 @@ const Suppliers = () => {
   const createSupplier = async (supplierName) => {
     try {
       const res = await api.post(
-        "/suppliers/createSupplier",
+        "/suppliers",
         { supplierName },
         { withCredentials: true }
       );
@@ -62,7 +62,7 @@ const Suppliers = () => {
   const updateSupplier = async (id, supplierName) => {
     try {
       const res = await api.put(
-        `suppliers/updateSupplier/${id}`,
+        `/suppliers/${id}`,
         { supplierName },
         { withCredentials: true }
       );
@@ -83,7 +83,7 @@ const Suppliers = () => {
   const deleteSupplier = async(id)=>{
     try {
       const res = await api.delete(
-        `suppliers/deleteSupplier/${id}`,
+        `/suppliers/${id}`,
         { withCredentials: true }
       );
       setSuppliersList((prev) => prev.filter((s) => s.supplierCode !== id));

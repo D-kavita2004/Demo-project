@@ -13,7 +13,7 @@ import { checkAuthorization } from "../Middlewares/checkAdmin.middleware.js";
 const router = express.Router();
 
 // CREATE Supplier
-router.post("/createSupplier", validateInput(supplierSchema),checkAuthorization({ allowedFlags: ["IT"],allowedRoles:["admin"] }),createSupplier);
+router.post("/", validateInput(supplierSchema),checkAuthorization({ allowedFlags: ["IT"],allowedRoles:["admin"] }),createSupplier);
 
 // GET All Suppliers
 router.get("/", checkAuthorization({ allowedFlags: ["QA","IT"],allowedRoles:["admin"] }), getSuppliers);
@@ -22,9 +22,9 @@ router.get("/", checkAuthorization({ allowedFlags: ["QA","IT"],allowedRoles:["ad
 router.get("/forUserAssignment",checkAuthorization({ allowedFlags: ["IT"],allowedRoles:["admin"] }), getSuppliersForUserAssignment);
 
 // UPDATE Supplier
-router.put("/updateSupplier/:supplierCode", validateInput(supplierSchema),checkAuthorization({ allowedFlags: ["IT"],allowedRoles:["admin"] }), updateSupplier);
+router.put("/:supplierCode", validateInput(supplierSchema),checkAuthorization({ allowedFlags: ["IT"],allowedRoles:["admin"] }), updateSupplier);
 
 // DELETE Supplier
-router.delete("/deleteSupplier/:supplierCode",checkAuthorization({ allowedFlags: ["IT"],allowedRoles:["admin"] }), deleteSupplier);
+router.delete("/:supplierCode",checkAuthorization({ allowedFlags: ["IT"],allowedRoles:["admin"] }), deleteSupplier);
 
 export default router;

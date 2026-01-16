@@ -1,5 +1,6 @@
 import Process from "../Models/processes.models.js";
 import logger from "../../Config/logger.js";
+import Form from "../Models/form.models.js";
 
 // =========================
 // CREATE process
@@ -87,7 +88,15 @@ export const updateProcess = async (req, res) => {
 // =========================
 export const deleteProcess = async (req, res) => {
   try {
-    const process = await Process.findOneAndDelete(req.params.processCode);
+
+    const isIssueAvailable = await Form.exists({"formData.defectivenessDetail.process" : req.params.processCode});
+    if(isIssueAvailable){
+      return res.status(409).json({ message: "Some Issues are raised with this process" });
+    }
+
+    const process = await Process.findOneAndDelete({
+      processCode : req.params.processCode,
+    });
     if (!process) {
       return res.status(404).json({ message: "Process not found" });
     }

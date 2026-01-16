@@ -1,6 +1,7 @@
 import Supplier from "../Models/suppliers.models.js";
 import logger from "../../Config/logger.js";
 import User from "../Models/users.models.js";
+import Form from "../Models/form.models.js";
 
 // =========================
 // CREATE SUPPLIER
@@ -105,7 +106,6 @@ export const updateSupplier = async (req, res) => {
   }
 };
 
-
 // =========================
 // DELETE SUPPLIER
 // =========================
@@ -118,9 +118,14 @@ export const deleteSupplier = async (req, res) => {
     if(!team){
       return res.status(404).json({ message: "Supplier not found" });
     }
+    
     const isAssigned = await User.exists({ team: team._id });
     if(isAssigned){
       return res.status(409).json({ message: "Cannot delete supplier assigned to users" });
+    }
+    const isIssueAvailable = await Form.exists({"formData.defectivenessDetail.supplier" : code});
+    if(isIssueAvailable){
+      return res.status(409).json({ message: "Some Issues are raised with this supplier" });
     }
 
     await Supplier.findByIdAndDelete({ _id :team._id});

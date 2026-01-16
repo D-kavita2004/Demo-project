@@ -43,7 +43,7 @@ const Processes = () => {
   const createProcess = async (processName) => {
     try {
       const res = await api.post(
-        "/processes/createProcess",
+        "/processes",
         { processName },
         { withCredentials: true }
       );
@@ -62,7 +62,7 @@ const Processes = () => {
   const updateProcess = async (id, processName) => {
     try {
       const res = await api.put(
-        `processes/updateProcess/${id}`,
+        `/processes/${id}`,
         { processName },
         { withCredentials: true }
       );
@@ -83,7 +83,7 @@ const Processes = () => {
   const deleteProcess = async(id)=>{
     try {
       const res = await api.delete(
-        `processes/deleteProcess/${id}`,
+        `/processes/${id}`,
         { withCredentials: true }
       );
       setProcessesList((prev) => prev.filter((s) => s.processCode !== id));

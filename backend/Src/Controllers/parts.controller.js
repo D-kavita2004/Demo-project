@@ -1,6 +1,6 @@
 import Part from "../Models/parts.models.js";
 import logger from "../../Config/logger.js";
-
+import Form from "../Models/form.models.js";
 // =========================
 // CREATE part
 // =========================
@@ -87,7 +87,15 @@ export const updatePart = async (req, res) => {
 // =========================
 export const deletePart = async (req, res) => {
   try {
-    const part = await Part.findOneAndDelete(req.params.partCode);
+
+    const isIssueAvailable = await Form.exists({"formData.issuingSection.part" : req.params.partCode});
+    if(isIssueAvailable){
+      return res.status(409).json({ message: "Some Issues are raised with this part" });
+    }
+
+    const part = await Part.findOneAndDelete({
+      partCode : req.params.partCode,
+    });
     if (!part) {
       return res.status(404).json({ message: "Part not found" });
     }
