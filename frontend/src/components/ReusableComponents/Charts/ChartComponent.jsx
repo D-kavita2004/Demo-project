@@ -43,7 +43,7 @@ export const workflowData = [
   { date: "2025-11-05", total: 70, quality: 25, production: 20, approved: 25 },
 ]
 
-// ===================== 🎨 CHART CONFIG =====================
+// ===================== CHART CONFIG =====================
 
 const chartConfig = {
   total: { label: "Total Forms", color: "hsl(var(--chart-1))" },
@@ -52,7 +52,7 @@ const chartConfig = {
   approved: { label: "Approved", color: "hsl(var(--chart-4))" },
 }
 
-// ===================== 📈 MAIN COMPONENT =====================
+// ===================== MAIN COMPONENT =====================
 export function WorkflowChart() {
   const [timeRange, setTimeRange] = React.useState("Last 3 months")
 

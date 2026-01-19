@@ -101,9 +101,9 @@ export const ProdResponseSchema = z.object({
         message: "Enforcement date cannot be in the past",
       }),
     standardization: nonEmpty,
-    prodFile:z.any().optional()
+    prodFile:z.any().optional(),
   }),
-})
+});
 
 // ========== Results of Measures Enforcement ==========
 export const QAResponseSchema = z.object({
@@ -122,7 +122,7 @@ export const QAResponseSchema = z.object({
     enforcementSecInCharge: nonEmpty,
     enforcementQCSection: nonEmpty,
   }),
-})
+});
 
 // ========== Results of Measures Effect ==========
 export const FinalResponseSchema = z.object({

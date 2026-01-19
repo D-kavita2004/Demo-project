@@ -19,14 +19,14 @@ const Reports = () => {
       <div className="flex flex-col gap-10">
 
         {/* Workflow Chart */}
-        <div className="bg-white dark:bg-gray-900 border shadow-sm rounded-2xl p-6">
+        {/* <div className="bg-white dark:bg-gray-900 border shadow-sm rounded-2xl p-6">
           <h2 className="text-xl text-center font-bold mb-4 text-gray-800 dark:text-gray-200">
             Workflow Status Overview
           </h2>
           <div className="overflow-x-auto">
             <WorkflowChart />
           </div>
-        </div>
+        </div> */}
 
         {/* Grid Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">

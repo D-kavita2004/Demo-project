@@ -1,34 +1,38 @@
 import React, { useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import api from "@/api/axiosInstance";
+import axios from "axios";
+import { useEffect } from "react";
 
 const COLORS = ["#F472B6", "#34D399", "#FBBF24", "#A78BFA"];
 const RADIAN = Math.PI / 180;
 
 // Example datasets for different time ranges
-const chartData = {
-  lastWeek: [
-    { name: "Part Area", value: 3 },
-    { name: "Fit Area", value: 1 },
-    { name: "Final Assembly", value: 4 },
-  ],
-  lastMonth: [
-    { name: "Part Area", value: 10 },
-    { name: "Fit Area", value: 5 },
-    { name: "Final Assembly", value: 8 },
-  ],
-  lastYear: [
-    { name: "Part Area", value: 50 },
-    { name: "Fit Area", value: 30 },
-    { name: "Final Assembly", value: 80 },
-  ],
-};
+// const chartData = {
+//   lastWeek: [
+//     { name: "Part Area", value: 3 },
+//     { name: "Fit Area", value: 1 },
+//     { name: "Final Assembly", value: 4 },
+//   ],
+//   lastMonth: [
+//     { name: "Part Area", value: 10 },
+//     { name: "Fit Area", value: 5 },
+//     { name: "Final Assembly", value: 8 },
+//   ],
+//   lastYear: [
+//     { name: "Part Area", value: 50 },
+//     { name: "Fit Area", value: 30 },
+//     { name: "Final Assembly", value: 80 },
+//   ],
+// };
 
 const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, index, data }) => {
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
   const { name, value } = data[index];
+
 
   return (
     <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fill="#1E293B" className="text-[13px]">
@@ -62,9 +66,25 @@ const CustomTooltip = ({ active, payload }) => {
 };
 
 const DepartmentPieChart = ({ isAnimationActive = true }) => {
-  const [timeRange, setTimeRange] = useState("lastWeek");
 
-  const data = chartData[timeRange];
+  const [timeRange, setTimeRange] = useState("lastWeek");
+  const [chartData,setChartData] = useState({});
+
+  const getDepartmentWiseData = async()=>{
+    try{
+      const res = await api.get("/charts/department-wise-data",{withCredentials:true});
+      console.log(res.data);
+      setChartData(res.data);
+    
+    }
+    catch(err){
+      console.log(err);
+    }
+  }
+  useEffect(()=>{
+    getDepartmentWiseData();
+  },[]);
+  const data = chartData[timeRange] || [];
   const total = data.reduce((sum, item) => sum + item.value, 0);
   const dataWithTotal = data.map((item) => ({ ...item, total }));
 

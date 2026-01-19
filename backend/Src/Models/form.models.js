@@ -9,7 +9,7 @@ const historySchema = new mongoose.Schema(
     },
     data: {
       measuresReport: { type: mongoose.Schema.Types.Mixed },
-      resultsOfMeasuresEnforcement: { type: mongoose.Schema.Types.Mixed }
+      resultsOfMeasuresEnforcement: { type: mongoose.Schema.Types.Mixed },
     },
   },
 );

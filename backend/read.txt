@@ -1,0 +1,39 @@
+import Form from "../Models/form.models.js";
+import logger from "../../Config/logger.js";
+import Supplier from "../Models/suppliers.models.js";
+
+export const getChartsData = async (req, res) => {
+  try{
+
+    const departentWiseCounts = {};
+
+    const forms = await Form.find() 
+      .populate({
+        path: "formData.defectivenessDetail.supplier",
+        model: "Supplier",
+        foreignField: "supplierCode",
+        select: "supplierCode supplierName -_id",
+        justOne: true,
+      }).lean();
+
+    const suppliers = await Supplier.find().lean();
+    suppliers.forEach((supp)=>{
+      if(supp.flag==="INTERNAL"){
+        departentWiseCounts[supp.supplierName] = 0;
+      }
+    });
+
+    forms.forEach((form)=>{
+      const department = form.formData.defectivenessDetail.supplier;
+      Object.keys(departentWiseCounts).includes(department.supplierName) ? 
+        departentWiseCounts[department.supplierName] = departentWiseCounts[department.supplierName]+1 :
+        departentWiseCounts[department.supplierName] = 1;
+    });
+
+    res.status(200).json(departentWiseCounts);
+  }
+  catch (error) {
+    logger.error(`Error fetching charts data: ${error.message}`);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};

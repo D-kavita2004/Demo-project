@@ -23,6 +23,7 @@ import partRoutes from "./Src/Routes/parts.routes.js";
 import processRoutes from "./Src/Routes/processes.routes.js";
 import machineRoutes from "./Src/Routes/machines.routes.js";
 import { checkAuthorization } from "./Src/Middlewares/checkAdmin.middleware.js";
+import chartsRoutes from "./Src/Routes/charts.routes.js";
 
 dotenv.config();
 
@@ -44,6 +45,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth",authRoutes);
+app.use("/api/charts",chartsRoutes);
 
 app.use("/api/user", verifyToken, checkAuthorization({allowedFlags: ["IT"], allowedRoles: ["admin"] }), userRoutes);
 
