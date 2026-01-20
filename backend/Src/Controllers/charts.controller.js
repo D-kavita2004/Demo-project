@@ -93,7 +93,7 @@ export const getStatusWiseData = async (req, res) => {
 
     // Base status list
     const baseStatusList = [
-      { category: "Quality Review", count: 0 },
+      { category: "QA Review", count: 0 },
       { category: "Finished", count: 0 },
       { category: "Approved", count: 0 },
     ];
@@ -130,7 +130,7 @@ export const getStatusWiseData = async (req, res) => {
       let categoryToUpdate;
 
       if (form.status === "pending_quality") {
-        categoryToUpdate = "Quality Review";
+        categoryToUpdate = "QA Review";
       } else if (form.status === "finished") {
         categoryToUpdate = "Finished";
       } else if (form.status === "approved") {
@@ -173,4 +173,3 @@ export const getStatusWiseData = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-

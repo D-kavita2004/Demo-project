@@ -87,7 +87,7 @@ const FormsBarChart = () => {
         </select>
       </CardHeader>
       <CardContent className="flex-1">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" >
           <BarChart data={chartData[timeRange] || []} margin={{ top: 20, right: 20, left: 20, bottom: 60 }}>
             <defs>
               {gradientColors.map((grad, index) => (
