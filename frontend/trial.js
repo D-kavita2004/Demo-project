@@ -1,372 +1,208 @@
+import React, { useEffect, useState } from "react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import api from "@/api/axiosInstance";
+import { Label } from "@radix-ui/react-label";
 
-const QualityForm = () => {
+const COLORS = ["#F472B6", "#34D399", "#FBBF24", "#A78BFA"];
+const RADIAN = Math.PI / 180;
 
-  const location = useLocation();
-  const [isOpen, setIsOpen] = useState(false);
-  const apiUrl = import.meta.env.VITE_API_BASE_URL;
- 
-  const clickedForm = location.state?.data;
-  const formFromState = clickedForm?.formData;  //preview existing data
-  const myDefaultData = formFromState || myData;
-  
-  const [isNewForm, setIsNewForm] = useState(!clickedForm); 
-
-  const [ImagePreview, setImagePreview] = useState(null); // image preview state
-  const [ProdFilePreview, setProdFilePreview] = useState(null);
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    setError,
-    reset,
-    clearErrors,
-    formState:{errors},
-  } = useForm(
-    {
-      defaultValues:myDefaultData,
-    });
-
-  const {user} = useContext(UserContext);
-  const navigate = useNavigate();
-
-const productImageFile = watch("defectivenessDetail.productImage");
-const prodFile = watch("measuresReport.prodFile");
-
-useEffect(() => {
-  let imgUrl;
-  let pdfUrl;
-
-  // --------- Image Preview ----------
-  if (isNewForm && productImageFile?.length > 0 && productImageFile[0] instanceof File) {
-    imgUrl = URL.createObjectURL(productImageFile[0]);
-    setImagePreview(imgUrl);
-  } else {
-    console.log(clickedForm?.formData?.defectivenessDetail?.productImage);
-    setImagePreview(clickedForm?.formData?.defectivenessDetail?.productImage || null);
-  }
-
-  // --------- PDF Preview ----------
-  if (isNewForm && prodFile?.length > 0 && prodFile[0] instanceof File) {
-    pdfUrl = URL.createObjectURL(prodFile[0]);
-    setProdFilePreview(pdfUrl);
-  } else {
-    setProdFilePreview(clickedForm?.formData?.measuresReport?.prodFile || null);
-  }
-
-  // Cleanup function to revoke object URLs when component unmounts or files change
-  return () => {
-    if (imgUrl) URL.revokeObjectURL(imgUrl);
-    if (pdfUrl) URL.revokeObjectURL(pdfUrl);
-  };
-}, [productImageFile, prodFile, isNewForm, clickedForm]);
-
-
-
-const onSubmit = async (formData) => {
-  try {
-    clearErrors();
-    if (!clickedForm) {
-      // New form — only pass formData
-      await primaryAction.handler(formData);
-    } 
-    else {
-      
-      // Existing form — pass id + formData
-      await primaryAction.handler(clickedForm._id, formData);
-    }
-    
-  } catch (err) {
-    console.error("Error submitting form:", err);
-  }
-};
-
-const handleApprove = async (id,formData) => {
-
-    try {
-      console.log(formData);
-      // Call the API to approve the form
-      const response = await api.put(
-        `${apiUrl}/forms/approve`,
-        {formId:id,data:formData},
-        { withCredentials: true } // if your backend uses cookies
-      );
-
-      console.log("Form approved:", response.data);
-      navigate("/");
-      toast.success(response?.data?.message || "Issue Approved sucessfully");
-      // Open modal after approval
-      setIsOpen(true);
-    } catch (err) {
-       if (err?.response?.status === 400) {
-            const backendErrors = err?.response?.data?.errors;
-            if (backendErrors) {
-              Object.keys(backendErrors).forEach((field) => {
-                setError(field, { message: backendErrors[field] });
-              });
-            }
-            
-            return;
-        }  
-        toast.error(err?.response?.data?.message || err?.response?.statusText || "Oops! Issue could not be approved");
-      console.error("Error approving form:", err.response?.data || err);
-    } 
-  };
-const handleReject = async (id,formData) => {
-    try {
-      // Call the API to reject the form
-      const response = await api.put(
-        `${apiUrl}/forms/reject`,
-        {formId:id,data:formData},
-        { withCredentials: true } // if your backend uses cookies
-      );
-
-      console.log("Form rejected:", response.data);
-      navigate("/");
-      toast.success(response?.data?.message || "Issue Rejected sucessfully");
-    } catch (err) {
-       if (err?.response?.status === 400) {
-            const backendErrors = err?.response?.data?.errors;
-            if (backendErrors) {
-              Object.keys(backendErrors).forEach((field) => {
-                setError(field, { message: backendErrors[field] });
-              });
-            }
-            
-            return;
-        }  
-        toast.error(err?.response?.data?.message || err?.response?.statusText || "Oops! Issue could not be rejected");
-      console.error("Error rejecting form:", err.response?.data || err);
-    }
-  };
-const handleCreateNewIssue = async (formData) => {
-      try {
-          const data = new FormData();
-          
-          // Append productImage file if selected
-          if (productImageFile && productImageFile[0]) {
-            data.append("productImage", productImageFile[0]);
-          }
-
-          // Append other form fields (formData object)
-          data.append("data", JSON.stringify(formData));
-
-          const res = await api.post(`${apiUrl}/forms`, data, {
-            headers: { "Content-Type": "multipart/form-data" },
-            withCredentials: true,
-          });
-
-          console.log("Form submitted successfully:", res.data);
-          navigate("/");
-          toast.success(res?.data?.message || "Issue Created sucessfully");
-        } 
-      catch (err) {
-         if (err?.response?.status === 400) {
-            const backendErrors = err?.response?.data?.errors;
-            if (backendErrors) {
-              Object.keys(backendErrors).forEach((field) => {
-                setError(field, { message: backendErrors[field] });
-              });
-            }
-            
-            return;
-        }  
-        toast.error(err?.response?.data?.message || err?.response?.statusText || "Oops! Issue could not be created");
-          console.error("Error submitting form:", err);
-        }
-};
-const handleProdResponse = async (id, formData) => {
-  try {
-    const fd = new FormData();
-
-    fd.append("data", JSON.stringify(formData));
-    console.log(prodFile[0]);
-
-    // optional PDF upload
-    if (prodFile && prodFile[0]) {
-      fd.append("prodFile", prodFile[0]); 
-    }
-
-    const response = await api.put(
-      `${apiUrl}/forms/prodResponse/${id}`,
-      fd,
-      {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    console.log("Form response submitted:", response.data);
-    navigate("/");
-    toast.success(
-      response?.data?.message || "Response submitted successfully"
-    );
-    setIsOpen(true);
-
-  } catch (err) {
-     if (err?.response?.status === 400) {
-            const backendErrors = err?.response?.data?.errors;
-            if (backendErrors) {
-              Object.keys(backendErrors).forEach((field) => {
-                setError(field, { message: backendErrors[field] });
-              });
-            }
-            
-            return;
-        }  
-        toast.error(err?.response?.data?.message || err?.response?.statusText ||
-      "Oops! Response could not be submitted"
-    );
-    console.error("Error submitting response:", err.response?.data || err);
-  }
-};
-const handleFinalSubmit = async (id,formData) => {
-
-    try {
-      // Call the API to approve the form
-      const response = await api.put(
-        `${apiUrl}/forms/finalSubmit`,
-        {formId:id,data:formData},
-        { withCredentials: true } // if your backend uses cookies
-      );
-
-      console.log("Form approved:", response.data);
-      navigate("/");
-       toast.success(response?.data?.message || "Final submit is sucessfully");
-      // Open modal after approval
-      setIsOpen(true);
-    } catch (err) {
-        if (err?.response?.status === 400) {
-            const backendErrors = err?.response?.data?.errors;
-            if (backendErrors) {
-              Object.keys(backendErrors).forEach((field) => {
-                setError(field, { message: backendErrors[field] });
-              });
-            }
-            
-            return;
-        }  
-        toast.error(err?.response?.data?.message || err?.response?.statusText ||"Oops! could not be submit");
-      console.error("Error approving form:", err.response?.data || err);
-    } 
-  };
-
-  // ---------------- PRIMARY ACTION ----------------
-const getPrimaryAction = () => {
-    if (!clickedForm) {
-      return { label: "Create New Issue", handler: handleCreateNewIssue };
-    }
-
-    const { status } = clickedForm;
-    const { flag } = user.team;
-
-    if (status === "pending_prod" && flag === "INTERNAL") {
-      return { label: "Submit", handler: handleProdResponse };
-    }
-
-    if (status === "approved" && flag === "QA") {
-      return { label: "Final Submit", handler: handleFinalSubmit };
-    }
-
-    return null;
-};
-const primaryAction = getPrimaryAction();
+const renderCustomizedLabel = ({
+  cx,
+  cy,
+  midAngle,
+  innerRadius,
+  outerRadius,
+  index,
+  data,
+}) => {
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  const { name, value } = data[index];
 
   return (
-    <div className="flex flex-col">
-      <Button
-        variant="outline"
-        className="w-fit ml-5 mt-5 flex items-center gap-2 text-sm font-medium border-gray-300 hover:bg-gray-100 transition-all"
-        onClick={() => navigate("/")}
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Dashboard
-      </Button>
-      
-        <Card className="w-[90%] lg:w-[70%] mx-auto mt-8 shadow-lg rounded-2xl">
-            <CardHeader>
-              <CardTitle className="text-3xl font-semibold text-center">
-                Product Review Form
-              </CardTitle>
-            </CardHeader>
-
-            <form onSubmit={handleSubmit(onSubmit)}>
-              
-           
-              <CardContent>
-                  <Accordion type="multiple" className="w-full flex flex-col gap-5 my-6">
-
-                  {/* ====================== ISSUING SECTION ====================== */}
-                  <PermissionedSection sectionKey="issuingSection" isNewForm={isNewForm} formStatus={clickedForm?.status} >
-                       {
-                        (access)=>{
-                          return(
-                        <section className="space-y-6 border-4 shadow-sm shadow-gray-700 px-3 rounded-2xl bg-gray-200">
-                          <AccordionItem value="item-1" className="w-full">
-                            <AccordionTrigger><h2 className="text-2xl font-semibold border-b pb-2">Issuing Section</h2></AccordionTrigger>
-
-                            <AccordionContent className="w-full">
-                                <div className="w-full grid md:grid-cols-2 gap-6 p-4 rounded-lg border bg-card text-card-foreground shadow-sm border-blue-500">
-                                  {/* Receiving No. */}
-                                  <div className="flex flex-col space-y-1.5">
-                                    <Label htmlFor="receivingNo">Receiving No.</Label>
-                                    <Input
-                                      id="receivingNo"
-                                      readOnly={access=="read"}
-                                      placeholder="Enter receiving number"
-                                      {...register("issuingSection.receivingNo")}
-                                    />
-                                    {errors.issuingSection?.receivingNo && (
-                                      <p className="text-sm text-red-500">{errors.issuingSection.receivingNo.message}</p>
-                                    )}
-                                  </div>
-                  </Accordion>
-              </CardContent>
-             
-              <CardFooter className="flex justify-center py-6 gap-3">
-                 
-                  {clickedForm?.status === "pending_quality" && user.team.flag === "QA" && (
-                    <div className="mx-auto flex gap-4">
-                      <Button
-                          type="button"
-                          className="px-8 py-2"
-                          onClick={handleSubmit((formData) =>
-                            handleApprove(clickedForm._id, formData)
-                          )}
-                        >
-                          Approve
-                      </Button>
-
-                      <Button
-                          type="button"
-                          className="px-8 py-2"
-                          onClick={handleSubmit((formData) =>
-                            handleReject(clickedForm._id, formData)
-                          )}
-                        >
-                          Reject
-                      </Button>
-
-                    </div>
-                  )}
-
-                  {/* Primary action button for other stages */}
-                  {primaryAction && (
-                    <Button
-                      type="submit"
-                      className="px-8 py-2 text-lg"
-                    >
-                      {primaryAction.label}
-                    </Button>
-                  )}
-              </CardFooter>
-
-            </form>
-        </Card>
-    </div>
+    <text
+      x={x}
+      y={y}
+      textAnchor="middle"
+      dominantBaseline="central"
+      fill="#1E293B"
+      className="text-[13px]"
+    >
+      <tspan x={x} dy="-0.3em" className="italic font-semibold">
+        {name}
+      </tspan>
+      <tspan x={x} dy="1.2em" className="font-bold text-[12px]">
+        {value}
+      </tspan>
+    </text>
   );
 };
-export default QualityForm;
+
+const CustomTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const { name, value, total } = payload[0].payload;
+    const percent = ((value / total) * 100).toFixed(1);
+
+    return (
+      <div className="bg-white shadow-xl rounded-lg px-3 py-2 border border-gray-100 text-[13px]">
+        <p className="font-semibold text-slate-700">{name}</p>
+        <p className="text-slate-600">
+          Issues: <span className="font-medium">{value}</span>
+        </p>
+        <p className="text-slate-500 text-xs">({percent}%)</p>
+      </div>
+    );
+  }
+  return null;
+};
+
+const DepartmentPieChart = ({ isAnimationActive = true }) => {
+  const [chartData, setChartData] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const today = new Date();
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(today.getMonth() - 1);
+
+  // Format as YYYY-MM-DD for input[type="date"]
+  const formatDate = (date) => date.toISOString().split("T")[0];
+
+  const [startDate, setStartDate] = useState(formatDate(oneMonthAgo));
+  const [endDate, setEndDate] = useState(formatDate(today));
+
+  const getDepartmentWiseData = async () => {
+    try {
+      setLoading(true);
+
+      const res = await api.get("/charts/department-wise", {
+        params: {
+          startDate,
+          endDate,
+        },
+        withCredentials: true,
+      });
+
+      setChartData(res.data || []);
+    } catch (err) {
+      console.error("Error fetching department chart data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getDepartmentWiseData();
+  }, [startDate, endDate]);
+
+  // Prevent invalid date range
+  useEffect(() => {
+    if (startDate && endDate && startDate > endDate) {
+      setEndDate("");
+    }
+  }, [startDate]);
+
+  const total = chartData.reduce((sum, item) => sum + item.value, 0);
+  const dataWithTotal = chartData.map((item) => ({ ...item, total }));
+
+  const chartCardClass =
+    "w-full h-[460px] rounded-3xl border border-gray-100 shadow-lg bg-gradient-to-br from-white via-slate-50 to-gray-100 flex flex-col";
+
+  return (
+    <Card className={chartCardClass}>
+      <CardHeader className="pb-2 flex flex-col gap-4">
+
+        <div className="flex flex-wrap gap-4 items-center justify-center">
+          {/* Start Date */}
+          <div className="flex items-center gap-2">
+            <Label htmlFor="start-date" className="text-gray-600">
+              Start Date:
+            </Label>
+            <input
+              type="date"
+              id="start-date"
+              max={formatDate(today)}
+              required
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="border border-gray-300 rounded-md px-2 py-1 text-gray-700"
+            />
+          </div>
+
+          {/* End Date */}
+          <div className="flex items-center gap-2">
+            <Label htmlFor="end-date" className="text-gray-600">
+              End Date:
+            </Label>
+            <input
+              type="date"
+              id="end-date"
+              required
+              max={formatDate(today)}
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="border border-gray-300 rounded-md px-2 py-1 text-gray-700"
+            />
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="flex-1">
+        {loading ? (
+          <div className="h-full flex items-center justify-center text-gray-500">
+            Loading chart data...
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={dataWithTotal}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={(props) =>
+                  renderCustomizedLabel({ ...props, data: dataWithTotal })
+                }
+                outerRadius={130}
+                dataKey="value"
+                isAnimationActive={isAnimationActive}
+              >
+                {dataWithTotal.map((_, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                    stroke="white"
+                    strokeWidth={3}
+                  />
+                ))}
+              </Pie>
+
+              <Tooltip content={<CustomTooltip />} />
+
+              <Legend
+                verticalAlign="bottom"
+                align="center"
+                iconType="triangle"
+                wrapperStyle={{
+                  paddingTop: "10px",
+                  fontSize: "13px",
+                  color: "#475569",
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+export default DepartmentPieChart;

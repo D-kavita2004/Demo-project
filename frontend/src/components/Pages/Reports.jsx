@@ -34,7 +34,7 @@ const Reports = () => {
           {/* Department Pie Chart */}
           <div className="bg-white dark:bg-gray-900 border shadow-sm rounded-2xl p-6">
             <h2 className="text-xl text-center font-bold mb-4 text-gray-800 dark:text-gray-200">
-              Department-wise Issue Distribution
+              Issues Assigned to Departments created between the selected dates
             </h2>
             <div className="overflow-x-auto">
               <DepartmentPieChart />
@@ -44,7 +44,7 @@ const Reports = () => {
           {/* Forms Bar Chart */}
           <div className="bg-white dark:bg-gray-900 border shadow-sm rounded-2xl p-6">
             <h2 className="text-xl text-center font-bold mb-4 text-gray-800 dark:text-gray-200">
-              Issues Status Overview
+              Status of Forms Created Between Selected Dates
             </h2>
             <div className="overflow-x-auto">
               <FormsBarChart />

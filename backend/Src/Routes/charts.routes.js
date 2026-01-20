@@ -3,7 +3,7 @@ import { getDepartmentWiseData,getStatusWiseData } from "../Controllers/charts.c
 
 const router = express.Router();
 
-router.get("/department-wise-data", getDepartmentWiseData);
+router.get("/department-wise", getDepartmentWiseData);
 router.get("/status-wise",getStatusWiseData);
 
 export default router;

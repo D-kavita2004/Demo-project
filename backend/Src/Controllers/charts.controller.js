@@ -2,38 +2,34 @@ import Form from "../Models/form.models.js";
 import logger from "../../Config/logger.js";
 import Supplier from "../Models/suppliers.models.js";
 
-const now = new Date();
-
-const lastWeekStart = new Date();
-lastWeekStart.setDate(now.getDate() - 7);
-
-const lastMonthStart = new Date();
-lastMonthStart.setMonth(now.getMonth() - 1);
-
-const lastYearStart = new Date();
-lastYearStart.setFullYear(now.getFullYear() - 1);
-    
 export const getDepartmentWiseData = async (req, res) => {
   try {
+    const { startDate, endDate } = req.query;
 
-    // Initialize counts
-    const departentWiseCountsWeek = {};
-    const departentWiseCountsMonth = {};
-    const departentWiseCountsYear = {};
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: "startDate and endDate are required" });
+    }
 
-    // Pre-fill internal suppliers
-    const suppliers = await Supplier.find().lean();
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+
+    if (isNaN(start) || isNaN(end)) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
+
+    // Initialize counts for internal suppliers
+    const departmentWiseCounts = {};
+    const suppliers = await Supplier.find({ flag: "INTERNAL" }).lean();
 
     suppliers.forEach((supp) => {
-      if (supp.flag === "INTERNAL") {
-        departentWiseCountsWeek[supp.supplierName] = 0;
-        departentWiseCountsMonth[supp.supplierName] = 0;
-        departentWiseCountsYear[supp.supplierName] = 0;
-      }
+      departmentWiseCounts[supp.supplierName] = 0;
     });
 
-    // Fetch forms
-    const forms = await Form.find()
+    // Fetch forms within the date range
+    const forms = await Form.find({
+      createdAt: { $gte: start, $lte: end },
+    })
       .populate({
         path: "formData.defectivenessDetail.supplier",
         model: "Supplier",
@@ -43,53 +39,43 @@ export const getDepartmentWiseData = async (req, res) => {
       })
       .lean();
 
-    // Loop through forms
+    // Count forms per department
     forms.forEach((form) => {
       const department = form.formData.defectivenessDetail.supplier;
       if (!department) return;
 
-      const createdAt = new Date(form.createdAt);
-
-      // Increment counts per time range
-      if (createdAt >= lastWeekStart) {
-        Object.keys(departentWiseCountsWeek).includes(department.supplierName)
-          ? departentWiseCountsWeek[department.supplierName] += 1
-          : departentWiseCountsWeek[department.supplierName] = 1;
-      }
-
-      if (createdAt >= lastMonthStart) {
-        Object.keys(departentWiseCountsMonth).includes(department.supplierName)
-          ? departentWiseCountsMonth[department.supplierName] += 1
-          : departentWiseCountsMonth[department.supplierName] = 1;
-      }
-
-      if (createdAt >= lastYearStart) {
-        Object.keys(departentWiseCountsYear).includes(department.supplierName)
-          ? departentWiseCountsYear[department.supplierName] += 1
-          : departentWiseCountsYear[department.supplierName] = 1;
-      }
+      departmentWiseCounts[department.supplierName] =
+        (departmentWiseCounts[department.supplierName] || 0) + 1;
     });
 
-    //     Transform to chart-friendly arrays
-    const transformToArray = (obj) =>
-      Object.entries(obj).map(([name, value]) => ({ name, value }));
+    // Transform to array for chart-friendly format
+    const chartData = Object.entries(departmentWiseCounts).map(([name, value]) => ({
+      name,
+      value,
+    }));
 
-    const chartData = {
-      lastWeek: transformToArray(departentWiseCountsWeek),
-      lastMonth: transformToArray(departentWiseCountsMonth),
-      lastYear: transformToArray(departentWiseCountsYear),
-    };
-
-    // Send response
     res.status(200).json(chartData);
   } catch (error) {
-    logger.error(`Error fetching charts data: ${error.message}`);
+    logger.error(`Error fetching department-wise chart data: ${error.message}`);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
 export const getStatusWiseData = async (req, res) => {
   try {
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: "startDate and endDate are required" });
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+
+    if (isNaN(start) || isNaN(end)) {
+      return res.status(400).json({ message: "Invalid date format" });
+    }
 
     // Base status list
     const baseStatusList = [
@@ -99,23 +85,18 @@ export const getStatusWiseData = async (req, res) => {
     ];
 
     // Add INTERNAL suppliers
-    const suppliers = await Supplier.find().lean();
+    const suppliers = await Supplier.find({ flag: "INTERNAL" }).lean();
     suppliers.forEach((supp) => {
-      if (supp.flag === "INTERNAL") {
-        baseStatusList.push({
-          category: supp.supplierName,
-          count: 0,
-        });
-      }
+      baseStatusList.push({
+        category: supp.supplierName + " Review",
+        count: 0,
+      });
     });
 
-    // Clone for time ranges (IMPORTANT)
-    const statusWiseCountsWeek = structuredClone(baseStatusList);
-    const statusWiseCountsMonth = structuredClone(baseStatusList);
-    const statusWiseCountsYear = structuredClone(baseStatusList);
-
-    // Fetch forms
-    const forms = await Form.find()
+    // Fetch forms within the date range
+    const forms = await Form.find({
+      createdAt: { $gte: start, $lte: end },
+    })
       .populate({
         path: "formData.defectivenessDetail.supplier",
         model: "Supplier",
@@ -125,7 +106,7 @@ export const getStatusWiseData = async (req, res) => {
       })
       .lean();
 
-    // Loop forms
+    // Count forms per status/category
     forms.forEach((form) => {
       let categoryToUpdate;
 
@@ -136,40 +117,19 @@ export const getStatusWiseData = async (req, res) => {
       } else if (form.status === "approved") {
         categoryToUpdate = "Approved";
       } else if (form.status === "pending_prod") {
-        categoryToUpdate =
-          form.formData?.defectivenessDetail?.supplier?.supplierName;
+        categoryToUpdate = form.formData?.defectivenessDetail?.supplier?.supplierName + " Review";
       }
 
       if (!categoryToUpdate) return;
 
-      const createdAt = new Date(form.createdAt);
-
-      const incrementCount = (list) => {
-        const item = list.find((i) => i.category === categoryToUpdate);
-        if (item) item.count += 1;
-      };
-
-      if (createdAt >= lastWeekStart) {
-        incrementCount(statusWiseCountsWeek);
-      }
-
-      if (createdAt >= lastMonthStart) {
-        incrementCount(statusWiseCountsMonth);
-      }
-
-      if (createdAt >= lastYearStart) {
-        incrementCount(statusWiseCountsYear);
-      }
+      const item = baseStatusList.find((i) => i.category === categoryToUpdate);
+      if (item) item.count += 1;
     });
 
-    // Response
-    res.status(200).json({
-      lastWeek: statusWiseCountsWeek,
-      lastMonth: statusWiseCountsMonth,
-      lastYear: statusWiseCountsYear,
-    });
+    res.status(200).json(baseStatusList);
   } catch (error) {
-    logger.error(`Error fetching status-wise data: ${error.message}`);
+    logger.error(`Error fetching status-wise chart data: ${error.message}`);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
