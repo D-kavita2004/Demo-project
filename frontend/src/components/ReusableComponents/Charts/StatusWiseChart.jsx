@@ -9,36 +9,31 @@ import {
   Cell,
   ResponsiveContainer,
 } from "recharts";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import api from "@/api/axiosInstance";
-import { Label } from "@radix-ui/react-label";
 
-const gradientColors = [
-  { start: "#4f46e5", end: "#6366f1" },
-  { start: "#10b981", end: "#34d399" },
-  { start: "#f59e0b", end: "#fbbf24" },
-  { start: "#f43f5e", end: "#fb7185" },
-  { start: "#8b5cf6", end: "#a78bfa" },
+const gradColors = [
+//   { start: "#4f46e5", end: "#818CF8" },  // Indigo → Light Indigo
+  { start: "#10b981", end: "#6EE7B7" },  // Emerald → Mint
+  { start: "#f59e0b", end: "#FCD34D" },  // Amber → Yellow
+  { start: "#ef4444", end: "#F87171" },  // Red → Light Red
+  { start: "#8b5cf6", end: "#C4B5FD" },  // Violet → Lavender
+  { start: "#14b8a6", end: "#5EEAD4" },  // Teal → Mint
+  { start: "#f97316", end: "#FDBA74" },  // Orange → Light Orange
+  { start: "#ec4899", end: "#F9A8D4" },  // Pink → Light Pink
+  { start: "#3b82f6", end: "#93C5FD" },  // Blue → Light Blue
+  { start: "#22c55e", end: "#86efac" },  // Green → Light Green
 ];
 
-const FormsBarChart = () => {
+
+const StatusWiseChart = () => {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  const today = new Date();
-  const oneMonthAgo = new Date();
-  oneMonthAgo.setMonth(today.getMonth() - 1);
-
-  const formatDate = (date) => date.toISOString().split("T")[0];
-
-  const [startDate, setStartDate] = useState(formatDate(oneMonthAgo));
-  const [endDate, setEndDate] = useState(formatDate(today));
 
   const getStatusWiseData = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/charts/status-wise", {
-        params: { startDate, endDate },
+      const res = await api.get("/charts", {
         withCredentials: true,
       });
       setChartData(Array.isArray(res.data.data) ? res.data.data : []);
@@ -52,13 +47,8 @@ const FormsBarChart = () => {
 
   useEffect(() => {
     getStatusWiseData();
-  }, [startDate, endDate]);
+  }, []);
 
-  useEffect(() => {
-    if (startDate && endDate && startDate > endDate) {
-      setEndDate("");
-    }
-  }, [startDate]);
 
   const total = chartData.reduce((sum, item) => sum + item.count, 0);
 
@@ -71,35 +61,7 @@ const FormsBarChart = () => {
   return (
     <Card className={chartCardClass}>
       <CardHeader className="pb-2 flex flex-col gap-4">
-        <div className="flex flex-wrap gap-4 items-center justify-center">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="start-date" className="text-gray-600">
-              Start Date
-            </Label>
-            <input
-              type="date"
-              id="start-date"
-              value={startDate}
-              max={formatDate(today)}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="border border-gray-300 rounded-md px-2 py-1 text-gray-700"
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Label htmlFor="end-date" className="text-gray-600">
-              End Date
-            </Label>
-            <input
-              type="date"
-              id="end-date"
-              value={endDate}
-              max={formatDate(today)}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="border border-gray-300 rounded-md px-2 py-1 text-gray-700"
-            />
-          </div>
-        </div>
+        <CardTitle>Status wise data</CardTitle>
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col">
@@ -117,7 +79,7 @@ const FormsBarChart = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 20, right: 20, left: 20, bottom: 60 }}>
                   <defs>
-                    {gradientColors.map((grad, index) => (
+                    {gradColors.map((grad, index) => (
                       <linearGradient
                         key={index}
                         id={`colorGrad-${index}`}
@@ -171,7 +133,7 @@ const FormsBarChart = () => {
                     {chartData.map((_, index) => (
                       <Cell
                         key={`cell-${index}`}
-                        fill={`url(#colorGrad-${index % gradientColors.length})`}
+                        fill={`url(#colorGrad-${index % gradColors.length})`}
                       />
                     ))}
                   </Bar>
@@ -191,4 +153,4 @@ const FormsBarChart = () => {
   );
 };
 
-export default FormsBarChart;
+export default StatusWiseChart;

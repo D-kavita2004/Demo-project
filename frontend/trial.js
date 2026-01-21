@@ -1,71 +1,12 @@
-import React, { useEffect, useState } from "react";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import api from "@/api/axiosInstance";
-import { Label } from "@radix-ui/react-label";
+const gradientColors = [
+  { start: "#4f46e5", end: "#6366f1" },
+  { start: "#10b981", end: "#34d399" },
+  { start: "#f59e0b", end: "#fbbf24" },
+  { start: "#f43f5e", end: "#fb7185" },
+  { start: "#8b5cf6", end: "#a78bfa" },
+];
 
-const COLORS = ["#F472B6", "#34D399", "#FBBF24", "#A78BFA"];
-const RADIAN = Math.PI / 180;
-
-const renderCustomizedLabel = ({
-  cx,
-  cy,
-  midAngle,
-  innerRadius,
-  outerRadius,
-  index,
-  data,
-}) => {
-  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-  const x = cx + radius * Math.cos(-midAngle * RADIAN);
-  const y = cy + radius * Math.sin(-midAngle * RADIAN);
-  const { name, value } = data[index];
-
-  return (
-    <text
-      x={x}
-      y={y}
-      textAnchor="middle"
-      dominantBaseline="central"
-      fill="#1E293B"
-      className="text-[13px]"
-    >
-      <tspan x={x} dy="-0.3em" className="italic font-semibold">
-        {name}
-      </tspan>
-      <tspan x={x} dy="1.2em" className="font-bold text-[12px]">
-        {value}
-      </tspan>
-    </text>
-  );
-};
-
-const CustomTooltip = ({ active, payload }) => {
-  if (active && payload && payload.length) {
-    const { name, value, total } = payload[0].payload;
-    const percent = ((value / total) * 100).toFixed(1);
-
-    return (
-      <div className="bg-white shadow-xl rounded-lg px-3 py-2 border border-gray-100 text-[13px]">
-        <p className="font-semibold text-slate-700">{name}</p>
-        <p className="text-slate-600">
-          Issues: <span className="font-medium">{value}</span>
-        </p>
-        <p className="text-slate-500 text-xs">({percent}%)</p>
-      </div>
-    );
-  }
-  return null;
-};
-
-const DepartmentPieChart = ({ isAnimationActive = true }) => {
+const FormsBarChart = () => {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -79,28 +20,26 @@ const DepartmentPieChart = ({ isAnimationActive = true }) => {
   const [startDate, setStartDate] = useState(formatDate(oneMonthAgo));
   const [endDate, setEndDate] = useState(formatDate(today));
 
-  const getDepartmentWiseData = async () => {
+  const getStatusWiseData = async () => {
     try {
       setLoading(true);
 
-      const res = await api.get("/charts/department-wise", {
-        params: {
-          startDate,
-          endDate,
-        },
+      const res = await api.get("/charts/status-wise", {
+        params: { startDate, endDate },
         withCredentials: true,
       });
 
-      setChartData(res.data || []);
+      setChartData(Array.isArray(res.data.data) ? res.data.data : []);
     } catch (err) {
-      console.error("Error fetching department chart data:", err);
+      console.error("Error fetching chart data:", err);
+      setChartData([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    getDepartmentWiseData();
+    getStatusWiseData();
   }, [startDate, endDate]);
 
   // Prevent invalid date range
@@ -110,28 +49,26 @@ const DepartmentPieChart = ({ isAnimationActive = true }) => {
     }
   }, [startDate]);
 
-  const total = chartData.reduce((sum, item) => sum + item.value, 0);
-  const dataWithTotal = chartData.map((item) => ({ ...item, total }));
+  // ✅ TOTAL CALCULATION
+  const total = chartData.reduce((sum, item) => sum + item.count, 0);
 
   const chartCardClass =
-    "w-full h-[460px] rounded-3xl border border-gray-100 shadow-lg bg-gradient-to-br from-white via-slate-50 to-gray-100 flex flex-col";
+    "w-full h-[500px] rounded-3xl border border-gray-100 shadow-lg bg-gradient-to-br from-white via-slate-50 to-gray-100 flex flex-col";
 
   return (
     <Card className={chartCardClass}>
       <CardHeader className="pb-2 flex flex-col gap-4">
-
         <div className="flex flex-wrap gap-4 items-center justify-center">
           {/* Start Date */}
           <div className="flex items-center gap-2">
             <Label htmlFor="start-date" className="text-gray-600">
-              Start Date:
+              Start Date
             </Label>
             <input
               type="date"
               id="start-date"
-              max={formatDate(today)}
-              required
               value={startDate}
+              max={formatDate(today)}
               onChange={(e) => setStartDate(e.target.value)}
               className="border border-gray-300 rounded-md px-2 py-1 text-gray-700"
             />
@@ -140,14 +77,13 @@ const DepartmentPieChart = ({ isAnimationActive = true }) => {
           {/* End Date */}
           <div className="flex items-center gap-2">
             <Label htmlFor="end-date" className="text-gray-600">
-              End Date:
+              End Date
             </Label>
             <input
               type="date"
               id="end-date"
-              required
-              max={formatDate(today)}
               value={endDate}
+              max={formatDate(today)}
               onChange={(e) => setEndDate(e.target.value)}
               className="border border-gray-300 rounded-md px-2 py-1 text-gray-700"
             />
@@ -155,54 +91,102 @@ const DepartmentPieChart = ({ isAnimationActive = true }) => {
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1">
-        {loading ? (
-          <div className="h-full flex items-center justify-center text-gray-500">
-            Loading chart data...
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={dataWithTotal}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={(props) =>
-                  renderCustomizedLabel({ ...props, data: dataWithTotal })
-                }
-                outerRadius={130}
-                dataKey="value"
-                isAnimationActive={isAnimationActive}
+      <CardContent className="flex-1 flex flex-col">
+        <div className="flex-1">
+          {loading ? (
+            <div className="h-full flex items-center justify-center text-gray-500">
+              Loading chart data...
+            </div>
+          ) : chartData.length === 0 ? (
+            <div className="h-full flex items-center justify-center text-gray-400">
+              No data available for selected date range
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={chartData}
+                margin={{ top: 20, right: 20, left: 20, bottom: 60 }}
               >
-                {dataWithTotal.map((_, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                    stroke="white"
-                    strokeWidth={3}
-                  />
-                ))}
-              </Pie>
+                <defs>
+                  {gradientColors.map((grad, index) => (
+                    <linearGradient
+                      key={index}
+                      id={`colorGrad-${index}`}
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="0%" stopColor={grad.start} stopOpacity={0.9} />
+                      <stop offset="100%" stopColor={grad.end} stopOpacity={0.6} />
+                    </linearGradient>
+                  ))}
+                </defs>
 
-              <Tooltip content={<CustomTooltip />} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
 
-              <Legend
-                verticalAlign="bottom"
-                align="center"
-                iconType="triangle"
-                wrapperStyle={{
-                  paddingTop: "10px",
-                  fontSize: "13px",
-                  color: "#475569",
+                <XAxis
+                  dataKey="category"
+                  tick={{ fill: "#6b7280", fontSize: 14 }}
+                  axisLine={{ stroke: "#d1d5db" }}
+                  interval={0}
+                  angle={-30}
+                  textAnchor="end"
+
+                />
+
+                <YAxis
+                  tick={{ fill: "#6b7280", fontSize: 14 }}
+                  axisLine={{ stroke: "#d1d5db" }}
+                  allowDecimals={false}
+                   label={{
+                  value: "Number of Forms",
+                  angle: -90,
+                  position: "insideLeft",
+                  fill: "#334155",
+                  fontSize: 14,
+                  fontWeight: 500,
                 }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
+                              />
+
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#f9fafb",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "8px",
+                    padding: "10px",
+                    fontSize: "14px",
+                  }}
+                />
+
+                <Bar
+                  dataKey="count"
+                  radius={[8, 8, 0, 0]}
+                  barSize={40}
+                  animationDuration={900}
+                >
+                  {chartData.map((_, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={`url(#colorGrad-${index % gradientColors.length})`}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+
+        {/* TOTAL */}
+        {!loading && chartData.length > 0 && (
+          <div className="mt-2 text-center text-sm font-semibold text-slate-700">
+            Total Issues:{" "}
+            <span className="text-slate-900">{total}</span>
+          </div>
         )}
       </CardContent>
     </Card>
   );
 };
 
-export default DepartmentPieChart;
+export default FormsBarChart;

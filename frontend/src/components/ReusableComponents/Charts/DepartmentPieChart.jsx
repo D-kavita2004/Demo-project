@@ -6,12 +6,19 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  Text,
 } from "recharts";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import api from "@/api/axiosInstance";
 import { Label } from "@radix-ui/react-label";
 
-const COLORS = ["#F472B6", "#34D399", "#FBBF24", "#A78BFA"];
+const COLORS = [
+  "#F472B6", "#34D399", "#FBBF24", "#A78BFA", "#60A5FA",
+  "#F87171", "#4ADE80", "#FCD34D", "#8B5CF6", "#38BDF8",
+  "#EF4444", "#22C55E", "#FBBF24", "#C084FC", "#0EA5E9",
+  "#DC2626", "#16A34A", "#EAB308", "#A78BFA", "#0284C7",
+];
+
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -84,7 +91,7 @@ const DepartmentPieChart = ({ isAnimationActive = true }) => {
         params: { startDate, endDate },
         withCredentials: true,
       });
-      setChartData(res.data || []);
+      setChartData(res.data.data || []);
     } catch (err) {
       console.error("Error fetching department chart data:", err);
     } finally {
@@ -148,54 +155,63 @@ const DepartmentPieChart = ({ isAnimationActive = true }) => {
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1">
-        {loading ? (
-          <div className="h-full flex items-center justify-center text-gray-500">
-            Loading chart data...
-          </div>
-        ) : chartData.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-gray-400">
-            No data available for selected date range
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={dataWithTotal}
-                cx="50%"
-                cy="50%"
-                outerRadius={130}
-                dataKey="value"
-                isAnimationActive={isAnimationActive}
-                labelLine={true} // show connecting lines
-                label={(props) => renderOuterLabel(props, dataWithTotal)}
-              >
-                {dataWithTotal.map((_, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                    stroke="white"
-                    strokeWidth={3}
+      <CardContent className="flex-1 flex flex-col">
+          <div className="flex-1">
+            {loading ? (
+              <div className="h-full flex items-center justify-center text-gray-500">
+                Loading chart data...
+              </div>
+            ) : chartData.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-gray-400">
+                No data available for selected date range
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={dataWithTotal}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={130}
+                    dataKey="value"
+                    isAnimationActive={isAnimationActive}
+                    labelLine
+                    label={renderOuterLabel}
+                  >
+                    {dataWithTotal.map((_, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                        stroke="white"
+                        strokeWidth={3}
+                      />
+                    ))}
+                  </Pie>
+
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend
+                    verticalAlign="bottom"
+                    align="center"
+                    iconType="triangle"
+                    wrapperStyle={{
+                      paddingTop: "10px",
+                      fontSize: "13px",
+                      color: "#475569",
+                    }}
                   />
-                ))}
-              </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </div>
 
-              <Tooltip content={<CustomTooltip />} />
-
-              <Legend
-                verticalAlign="bottom"
-                align="center"
-                iconType="triangle"
-                wrapperStyle={{
-                  paddingTop: "10px",
-                  fontSize: "13px",
-                  color: "#475569",
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        )}
+          {/* ✅ TOTAL */}
+          {!loading && chartData.length > 0 && (
+            <div className="text-center mt-2 text-slate-700 font-semibold text-sm">
+              Total Issues: <span className="text-slate-900">{total}</span>
+            </div>
+          )}
       </CardContent>
+
     </Card>
   );
 };

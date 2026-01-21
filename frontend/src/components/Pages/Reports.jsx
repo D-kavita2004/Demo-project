@@ -1,6 +1,7 @@
 import { WorkflowChart } from "../ReusableComponents/Charts/ChartComponent";
 import DepartmentPieChart from "../ReusableComponents/Charts/DepartmentPieChart";
 import FormsBarChart from "../ReusableComponents/Charts/FormsBarChart";
+import StatusWiseChart from "../ReusableComponents/Charts/StatusWiseChart";
 
 const Reports = () => {
   return (
@@ -27,6 +28,16 @@ const Reports = () => {
             <WorkflowChart />
           </div>
         </div> */}
+
+        {/* Workflow Chart */}
+        <div className="bg-white dark:bg-gray-900 border shadow-sm rounded-2xl p-6">
+          <h2 className="text-xl text-center font-bold mb-4 text-gray-800 dark:text-gray-200">
+            Workflow Status Overview
+          </h2>
+          <div className="overflow-x-auto">
+            <StatusWiseChart />
+          </div>
+        </div>
 
         {/* Grid Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">

@@ -20,11 +20,11 @@ export const getDepartmentWiseData = async (req, res) => {
 
     // Initialize counts for internal suppliers
     const departmentWiseCounts = {};
-    const suppliers = await Supplier.find({ flag: "INTERNAL" }).lean();
+    // const suppliers = await Supplier.find({ flag: "INTERNAL" }).lean();
 
-    suppliers.forEach((supp) => {
-      departmentWiseCounts[supp.supplierName] = 0;
-    });
+    // suppliers.forEach((supp) => {
+    //   departmentWiseCounts[supp.supplierName] = 0;
+    // });
 
     // Fetch forms within the date range
     const forms = await Form.find({
@@ -53,8 +53,12 @@ export const getDepartmentWiseData = async (req, res) => {
       name,
       value,
     }));
+    const total = chartData.reduce((sum, item) => sum + item.value, 0);
 
-    res.status(200).json(chartData);
+    res.status(200).json({
+      total,
+      data: chartData,
+    });
   } catch (error) {
     logger.error(`Error fetching department-wise chart data: ${error.message}`);
     res.status(500).json({ message: "Internal Server Error" });
@@ -125,11 +129,75 @@ export const getStatusWiseData = async (req, res) => {
       const item = baseStatusList.find((i) => i.category === categoryToUpdate);
       if (item) item.count += 1;
     });
-
-    res.status(200).json(baseStatusList);
+    const total = baseStatusList.reduce((sum, item) => sum + item.count, 0);
+    res.status(200).json({
+      total,
+      data: baseStatusList,
+    });
   } catch (error) {
     logger.error(`Error fetching status-wise chart data: ${error.message}`);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
+export const getFullStatusWiseData = async (req, res) => {
+  try {
+  
+    // Base status list
+    const baseStatusList = [
+      { category: "QA Review", count: 0 },
+      { category: "Finished", count: 0 },
+      { category: "Approved", count: 0 },
+    ];
+
+    // Add INTERNAL suppliers
+    const suppliers = await Supplier.find({ flag: "INTERNAL" }).lean();
+    suppliers.forEach((supp) => {
+      baseStatusList.push({
+        category: supp.supplierName + " Review",
+        count: 0,
+      });
+    });
+
+    // Fetch forms within the date range
+    const forms = await Form.find({
+    })
+      .populate({
+        path: "formData.defectivenessDetail.supplier",
+        model: "Supplier",
+        foreignField: "supplierCode",
+        select: "supplierCode supplierName -_id",
+        justOne: true,
+      })
+      .lean();
+
+    // Count forms per status/category
+    forms.forEach((form) => {
+      let categoryToUpdate;
+
+      if (form.status === "pending_quality") {
+        categoryToUpdate = "QA Review";
+      } else if (form.status === "finished") {
+        categoryToUpdate = "Finished";
+      } else if (form.status === "approved") {
+        categoryToUpdate = "Approved";
+      } else if (form.status === "pending_prod") {
+        categoryToUpdate = form.formData?.defectivenessDetail?.supplier?.supplierName + " Review";
+      }
+
+      if (!categoryToUpdate) return;
+
+      const item = baseStatusList.find((i) => i.category === categoryToUpdate);
+      if (item) item.count += 1;
+    });
+    const total = baseStatusList.reduce((sum, item) => sum + item.count, 0);
+    res.status(200).json({
+      total,
+      data: baseStatusList,
+    });
+  }
+  catch (error) {
+    logger.error(`Error fetching department-wise chart data: ${error.message}`);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
