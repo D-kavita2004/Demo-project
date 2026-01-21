@@ -1,66 +1,69 @@
 import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { LogOutIcon } from "lucide-react";
+import { logOutUser } from "../Utils/logout";
+import { useContext } from "react";
+import { UserContext } from "../Utils/userContext";
+import { toast } from "sonner";
 
 const Header = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { setUser, user } = useContext(UserContext);
+
+  const handleLogout = async () => {
+  await logOutUser();  // calls backend
+  setUser(null);
+  toast.success("Logged out");
+  navigate("/login");
+  };
 
   const navItems = [
-    { label: "Admin Panel", route: "/admin" },
+    user && user.role==="admin" && { label: "Admin Panel", route: "/admin" },
     { label: "Reports", route: "/reports" },
-    { label: "QC", route: "/qc" },
+    user && user.team.flag==="QA" && { label: "QC", route: "/Quality-Form" },
   ];
 
   return (
-    <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
-      
-      {/* Left: Dashboard Title */}
-      <h1
-        className="text-2xl font-bold text-gray-800 dark:text-gray-100 cursor-pointer hover:text-blue-600 transition-colors"
-        onClick={() => navigate("/")}
-      >
-        Dashboard
-      </h1>
+   <header className="w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-40 px-4 sm:px-6 py-3">
+  <div className="flex items-center justify-between flex-wrap gap-3">
 
-      {/* Right: Navigation */}
-      <nav className="flex items-center gap-6">
-        {navItems.map((item) => {
-          const isActive = location.pathname.startsWith(item.route);
+    {/* Left: Dashboard */}
+    <h1
+      className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 cursor-pointer hover:text-blue-600 transition-colors"
+      onClick={() => navigate("/")}
+    >
+      Dashboard
+    </h1>
 
-          return (
+    {/* Right: Navigation */}
+    <nav className="flex items-center gap-2 sm:gap-6 flex-wrap">
+
+      {navItems.map(
+        (item) =>
+          item && (
             <button
               key={item.label}
               onClick={() => navigate(item.route)}
-              className={`relative text-sm font-medium transition-colors px-2 py-1 rounded-md
-                ${isActive
-                  ? "text-white bg-blue-600 shadow-md hover:bg-blue-700"
-                  : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
-                }`}
+              className="text-sm sm:text-base font-medium px-2 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition"
             >
               {item.label}
-
-              {/* Optional active underline */}
-              {isActive && (
-                <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-white"></span>
-              )}
             </button>
-          );
-        })}
+          )
+      )}
 
-        {/* Logout */}
-        <button
-          className="flex items-center gap-1 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-500 transition px-2 py-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900"
-          onClick={() => {
-            // logout logic here
-            console.log("Logout");
-          }}
-        >
-          <LogOutIcon className="w-4 h-4" />
-          Logout
-        </button>
-      </nav>
-    </header>
+      {/* Logout */}
+      <button
+        onClick={handleLogout}
+        className="flex items-center gap-1 text-sm sm:text-base font-medium text-red-600 dark:text-red-400 px-2 py-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900 transition"
+      >
+        <LogOutIcon className="w-4 h-4" />
+        Logout
+      </button>
+
+    </nav>
+  </div>
+</header>
+
   );
 };
 

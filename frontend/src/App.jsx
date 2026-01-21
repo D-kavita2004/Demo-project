@@ -16,6 +16,7 @@ import MachineNames from "./components/Pages/MachineNames";
 import AdminFeaturesOverview from "./components/Pages/AdminFeaturesOverview";
 import { useContext } from "react";
 import { UserContext } from "./components/Utils/userContext";
+import Layout from "./components/ReusableComponents/Layout";
 
 function App() {
   const {user,loading} = useContext(UserContext);
@@ -37,19 +38,30 @@ function App() {
 
         {/* Protected route */}
 
-        <Route path="/" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/Reports" element={
-            <ProtectedRoute>
-              <Reports/>
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/"  element={<ProtectedRoute><Layout/></ProtectedRoute>}>
+            <Route path="/" element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Reports" element={
+                <ProtectedRoute>
+                  <Reports/>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Quality-Form"
+              element={
+                <ProtectedRoute>
+                  <QualityForm />
+                </ProtectedRoute>
+              }
+            />
+        </Route>
+
 
         {
           user && user.role === "admin" && (
@@ -83,14 +95,7 @@ function App() {
         />
           )
         } */}
-         <Route
-          path="/Quality-Form"
-          element={
-            <ProtectedRoute>
-              <QualityForm />
-            </ProtectedRoute>
-          }
-        />
+         
          <Route path="*" element={<ErrorPage/>} />
       </Routes>
     </Router>

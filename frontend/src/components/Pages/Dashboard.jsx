@@ -7,24 +7,24 @@ import { Input } from "../ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import TableView from "../ReusableComponents/TableView";
 import DownloadAllRecords from "../ReusableComponents/DownLoadAllRecords";
-import { toast } from "sonner";
-import { logOutUser } from "@/components/Utils/logout";
+// import { toast } from "sonner";
+// import { logOutUser } from "@/components/Utils/logout";
 
 const Dashboard = () => {
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState("");
   const {formsList} = useContext(FormsContext)
   const { setUser, user } = useContext(UserContext);
 
   // Logout handler
-const handleLogout = async () => {
-  await logOutUser();  // calls backend
-  setUser(null);
-  toast.success("Logged out");
-  navigate("/login");
-};
+// const handleLogout = async () => {
+//   await logOutUser();  // calls backend
+//   setUser(null);
+//   toast.success("Logged out");
+//   navigate("/login");
+// };
 
   const filteredForms = formsList.filter((form) => {
     const search = searchTerm.toLowerCase();
@@ -44,7 +44,7 @@ const handleLogout = async () => {
     <div className="min-h-screen w-full overflow-x-hidden bg-gray-100 dark:bg-gray-900 p-4 sm:p-6">
 
       {/* Header */}
-      <header className="flex justify-between items-start sm:items-center gap-4 mb-8 w-full">
+      {/* <header className="flex justify-between items-start sm:items-center gap-4 mb-8 w-full">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
           Dashboard
         </h1>
@@ -55,7 +55,7 @@ const handleLogout = async () => {
         >
           Logout
         </Button>
-      </header>
+      </header> */}
 
       {/* Welcome Card */}
       <div className="mb-8 w-[80%] mx-auto">
@@ -65,7 +65,7 @@ const handleLogout = async () => {
               Welcome {user?.username || "User"} 👋
             </div>
 
-            <div className="flex gap-2 justify-evenly">
+            {/* <div className="flex gap-2 justify-evenly">
              {
               user && user?.role === "admin" && (
                  <Button variant="outline" onClick={()=>navigate("/Admin")} className="border-2 text-md">
@@ -87,7 +87,7 @@ const handleLogout = async () => {
                   QC Form
                 </Button>
               )}
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

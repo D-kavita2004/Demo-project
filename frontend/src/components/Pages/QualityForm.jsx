@@ -391,16 +391,8 @@ useEffect(()=>{
 
   return (
     <div className="flex flex-col">
-      <Button
-        variant="outline"
-        className="w-fit ml-5 mt-5 flex items-center gap-2 text-sm font-medium border-gray-300 hover:bg-gray-100 transition-all"
-        onClick={() => navigate("/")}
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Dashboard
-      </Button>
       
-        <Card className="w-[90%] lg:w-[70%] mx-auto mt-8 shadow-lg rounded-2xl">
+        <Card className="w-[90%] lg:w-[70%] mx-auto mt-3 shadow-lg rounded-2xl">
             <CardHeader>
               <CardTitle className="text-3xl font-semibold text-center">
                 Product Review Form

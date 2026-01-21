@@ -5,7 +5,7 @@ import StatusWiseChart from "../ReusableComponents/Charts/StatusWiseChart";
 
 const Reports = () => {
   return (
-    <div className="p-6 md:p-10 w-full">
+    <div className="p-4 w-full">
 
       {/* Centered Heading */}
       <div className="text-center mb-10">
