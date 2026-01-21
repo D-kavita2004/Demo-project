@@ -8,6 +8,7 @@ import {
 import { navcards as cards} from "../Utils/DefaultData";
 import { Outlet } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import Header from "../ReusableComponents/Header";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -23,6 +24,12 @@ const AdminDashboard = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  const navItems = [
+    { label: "Admin Panel", route: "/admin" },
+    { label: "Reports", route: "/reports" },
+    { label: "QC", route: "/qc" },
+  ];
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -94,8 +101,10 @@ const AdminDashboard = () => {
       <div className="flex-1 flex flex-col">
 
         {/* Top Navbar */}
-        <header className="bg-white shadow-sm py-4 px-6 flex justify-between items-center">
-          <div className="flex items-center gap-4">
+      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
+              
+              {/* Left: Dashboard Title */}
+              <div className="flex items-center gap-4">
             <button
               className="p-2 rounded-md hover:bg-gray-100 lg:hidden"
               onClick={() => setSidebarOpen(true)}
@@ -105,20 +114,32 @@ const AdminDashboard = () => {
             <h1 className="text-2xl font-bold text-gray-800" onClick={()=>navigate("/")}>Dashboard</h1>
           </div>
 
-          <div className="flex items-center space-x-4">
-            <span className="text-gray-700 font-medium hidden sm:block">
-              Admin
-            </span>
-            <img
-              src="https://i.pravatar.cc/40"
-              alt="avatar"
-              className="w-10 h-10 rounded-full border border-gray-200"
-            />
-            <button className="p-2 rounded-full hover:bg-gray-100 transition">
-              <LogOutIcon className="w-5 h-5 text-gray-600" />
-            </button>
-          </div>
-        </header>
+        
+              {/* Right: Navigation */}
+              <nav className="flex items-center gap-6">
+                <button
+                      key="Reports"
+                      onClick={() => navigate("/reports")}
+                      className={`relative text-sm font-medium transition-colors px-2 py-1 rounded-md
+                        `}
+                    >
+                      Reports
+  
+                </button>
+        
+                {/* Logout */}
+                <button
+                  className="flex items-center gap-1 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-500 transition px-2 py-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900"
+                  onClick={() => {
+                    // logout logic here
+                    console.log("Logout");
+                  }}
+                >
+                  <LogOutIcon className="w-4 h-4" />
+                  Logout
+                </button>
+              </nav>
+            </header>
 
         {/* Cards Grid */}
         <main className="p-6 sm:p-8 flex-1 overflow-y-auto max-w-screen items-center ">
