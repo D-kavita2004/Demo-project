@@ -7,37 +7,37 @@ const sectionAccessMatrix = {
   issuingSection: {
     "QA":  { new: "edit", pending_quality: "read", pending_prod: "read", approved: "read", finished: "read" },
     "INTERNAL": { new: "hidden", pending_quality: "read", pending_prod: "read", approved: "read", finished: "read" },
-    "IT" : { "*":"read"}
+    "IT" : { new:"hidden", "*":"read"}
   },
 
   defectivenessDetail: {
     "QA":  { new: "edit", pending_quality: "read", pending_prod: "read", approved: "read", finished: "read" },
     "INTERNAL": { new: "hidden", pending_quality: "read", pending_prod: "read", approved: "read", finished: "read" },
-    "IT" : { "*":"read"},
+    "IT" : { new:"hidden","*":"read"},
   },
 
   qualityCheckComment: {
     "QA":  { new: "edit", pending_quality: "read", pending_prod: "read", approved: "read", finished: "read" },
     "INTERNAL": { new: "hidden", pending_quality: "read", pending_prod: "read", approved: "read", finished: "read" },
-    "IT" : { "*":"read"}
+    "IT" : { new:"hidden", "*":"read"}
   },
 
   measuresReport: {
     "QA": { new: "hidden", pending_prod:"hidden", pending_quality: "read", approved: "read", finished: "read" },
     "INTERNAL":  { new: "hidden", pending_prod: "edit", pending_quality: "read", approved: "read", finished: "read" },
-    "IT" : { pending_prod: "hidden" }
+    "IT" : { new:"hidden",pending_prod: "hidden" }
   },
 
   resultsOfMeasuresEnforcement: {
     "QA":        { new: "hidden", pending_prod:"hidden", pending_quality: "edit", approved: "read", finished: "read" },
     "INTERNAL":  { new: "hidden", pending_prod:"hidden", pending_quality: "hidden", approved:"read", finished: "read" },
-    "IT" : { pending_quality: "hidden", pending_prod: "hidden" }
+    "IT" : { new:"hidden", pending_quality: "hidden", pending_prod: "hidden" }
   },
 
    resultsOfMeasuresEffect: {
-    "QA":        { new: "hidden", approved: "edit", pending_prod:"hidden", pending_quality: "hidden", finished: "read" },
+    "QA": { new: "hidden", approved: "edit", pending_prod:"hidden", pending_quality: "hidden", finished: "read" },
     "INTERNAL":  { finished:"read","*": "hidden", },
-    "IT" : { approved: "hidden", pending_prod: "hidden",pending_quality:"hidden" }
+    "IT" : { new:"hidden", approved: "hidden", pending_prod: "hidden",pending_quality:"hidden" }
   },
 };
 

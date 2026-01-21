@@ -66,7 +66,7 @@ const QualityForm = () => {
   } = useForm(
     {
       defaultValues:myDefaultData,
-      // resolver:zodResolver(GetRelatedSchema(clickedForm?.status, isNewForm)),
+      resolver:zodResolver(GetRelatedSchema(clickedForm?.status, isNewForm)),
     });
 
   const {user} = useContext(UserContext);
@@ -115,7 +115,7 @@ const onSubmit = async (formData) => {
     } 
     else {
       
-      // Existing form — pass id + formData
+      console.log(isNewForm,clickedForm?.id);
       await primaryAction.handler(clickedForm._id, formData);
     }
     
@@ -388,6 +388,13 @@ useEffect(()=>{
   }
 },[]);
 
+useEffect(() => {
+  // If user is trying to open NEW form
+  if (isNewForm && user?.team?.flag !== "QA") {
+    toast.error("You are not allowed to create a new Quality Form");
+    navigate("/");
+  }
+}, [isNewForm, user]);
 
   return (
     <div className="flex flex-col">
