@@ -13,8 +13,8 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import api from "@/api/axiosInstance";
 
 const gradColors = [
-//   { start: "#4f46e5", end: "#818CF8" },  // Indigo → Light Indigo
-  { start: "#10b981", end: "#6EE7B7" },  // Emerald → Mint
+  // { start: "#4f46e5", end: "#818CF8" },  // Indigo → Light Indigo
+  // { start: "#10b981", end: "#6EE7B7" },  // Emerald → Mint
   { start: "#f59e0b", end: "#FCD34D" },  // Amber → Yellow
   { start: "#ef4444", end: "#F87171" },  // Red → Light Red
   { start: "#8b5cf6", end: "#C4B5FD" },  // Violet → Lavender
@@ -33,7 +33,7 @@ const StatusWiseChart = () => {
   const getStatusWiseData = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/charts", {
+      const res = await api.get("/charts/status-wise", {
         withCredentials: true,
       });
       setChartData(Array.isArray(res.data.data) ? res.data.data : []);
@@ -53,7 +53,7 @@ const StatusWiseChart = () => {
   const total = chartData.reduce((sum, item) => sum + item.count, 0);
 
   const chartCardClass =
-    "w-full h-[550px] rounded-3xl border border-gray-100 shadow-lg bg-gradient-to-br from-white via-slate-50 to-gray-100 flex flex-col";
+    "w-full h-[450px] rounded-3xl border border-gray-100 shadow-lg bg-gradient-to-br from-white via-slate-50 to-gray-100 flex flex-col";
 
   // Dynamic width: 70px per bar (adjust as needed)
   const chartWidth = chartData.length * 70;

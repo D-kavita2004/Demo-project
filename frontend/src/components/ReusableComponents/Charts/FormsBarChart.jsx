@@ -120,7 +120,7 @@ const FormsBarChart = () => {
                     {gradientColors.map((grad, index) => (
                       <linearGradient
                         key={index}
-                        id={`colorGrad-${index}`}
+                        id={`colorGradient-${index}`}
                         x1="0"
                         y1="0"
                         x2="0"
@@ -171,7 +171,7 @@ const FormsBarChart = () => {
                     {chartData.map((_, index) => (
                       <Cell
                         key={`cell-${index}`}
-                        fill={`url(#colorGrad-${index % gradientColors.length})`}
+                        fill={`url(#colorGradient-${index % gradientColors.length})`}
                       />
                     ))}
                   </Bar>

@@ -7,9 +7,12 @@ import {
 } from "lucide-react";
 import { navcards as cards} from "../Utils/DefaultData";
 import { Outlet } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
 
   useEffect(() => {
@@ -56,10 +59,17 @@ const AdminDashboard = () => {
 
         {/* Sidebar Nav */}
         <nav className="mt-6 flex flex-col gap-2 px-2">
-          {cards.map((card) => (
-            <button
+          {cards.map((card) => {
+            const isActive = location.pathname === `/Admin/${card.route}`;
+            console.log("Current Path:", location.pathname, "Card Route:", card.route);
+            return (
+              <button
               key={card.id}
-              className="flex items-center gap-4 p-3 hover:bg-gray-100 transition rounded-md"
+              className={`flex items-center gap-4 p-2 hover:bg-gray-100 transition rounded-md ${
+            isActive
+              ? "bg-blue-600 text-white shadow-md hover:text-black"
+              : "text-gray-700 hover:bg-gray-100"
+          }`}
               onClick={() => {
                 navigate(card.route);
                 setSidebarOpen(false);
@@ -75,7 +85,8 @@ const AdminDashboard = () => {
                 {card.title}
               </span>
             </button>
-          ))}
+            )
+          })}
         </nav>
       </aside>
 

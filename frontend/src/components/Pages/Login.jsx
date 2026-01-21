@@ -12,12 +12,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginUserSchema } from "../ValidateSchema/authInputValidationShema";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { useState } from "react";
+import { Eye, EyeOff} from "lucide-react";
 
 const Login = () => {
 
   const navigate = useNavigate();
+
   const {setUser} = useContext(UserContext);
-  
+  const [showPass, setShowPass] = useState(false);
+
   const { register, handleSubmit, setError, formState:{ errors, isSubmitting }} = useForm({
     resolver:zodResolver(loginUserSchema),
     defaultValues: {
@@ -93,12 +97,20 @@ const Login = () => {
             {/* Password */}
             <div>
               <Label htmlFor="password" className="my-1">Password</Label>
-              <Input
+              <div className="relative">
+                <Input
                 id="password"
-                type="password"
+                type={showPass ? "text" : "password"}
                 placeholder="••••••••"
                 {...register("password")}
-              />
+                />
+                <span
+                    className="absolute right-3 top-2.5 cursor-pointer text-gray-500 hover:text-gray-700 transition"
+                    onClick={() => setShowPass(!showPass)}
+                  >
+                    {showPass ? <EyeOff size={20} /> : <Eye size={20} />}
+                </span>
+              </div>
               {errors.password && (
                 <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
               )}
