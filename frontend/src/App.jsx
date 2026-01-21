@@ -26,7 +26,7 @@ function App() {
       </div>
     );
   }
-  // console.log(user.role);
+
   return (
     <Router>
       <Routes>
