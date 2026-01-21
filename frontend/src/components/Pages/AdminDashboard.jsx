@@ -104,15 +104,15 @@ const AdminDashboard = () => {
       <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
               
               {/* Left: Dashboard Title */}
-              <div className="flex items-center gap-4">
-            <button
-              className="p-2 rounded-md hover:bg-gray-100 lg:hidden"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <MenuIcon className="w-6 h-6 text-gray-700" />
-            </button>
-            <h1 className="text-2xl font-bold text-gray-800" onClick={()=>navigate("/")}>Dashboard</h1>
-          </div>
+              <div className="flex items-center gap-4 cursor-pointer">
+                <button
+                  className="p-2 rounded-md hover:bg-gray-100 lg:hidden"
+                  onClick={() => setSidebarOpen(true)}
+                >
+                  <MenuIcon className="w-6 h-6 text-gray-700" />
+                </button>
+                <h1 className="text-2xl font-bold text-gray-800" onClick={()=>navigate("/")}>Dashboard</h1>
+              </div>
 
         
               {/* Right: Navigation */}
@@ -120,7 +120,7 @@ const AdminDashboard = () => {
                 <button
                       key="Reports"
                       onClick={() => navigate("/reports")}
-                      className={`relative text-sm font-medium transition-colors px-2 py-1 rounded-md
+                      className={`relative text-lg font-medium transition-colors px-2 py-1 rounded-md cursor-pointer
                         `}
                     >
                       Reports
@@ -129,7 +129,7 @@ const AdminDashboard = () => {
         
                 {/* Logout */}
                 <button
-                  className="flex items-center gap-1 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-500 transition px-2 py-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900"
+                  className="flex items-center gap-1 text-lg font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-500 transition px-2 py-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900 cursor-pointer"
                   onClick={() => {
                     // logout logic here
                     console.log("Logout");
