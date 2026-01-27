@@ -17,7 +17,7 @@ const verifyToken = async(req, res, next) => {
 
     const user = await User.findOne({ username: decoded.username }).populate("team");
 
-    if (!user || !user.enabled) {
+    if (!user) {
       return res.status(302).json({ message: "User not found" });
     }
     if (!user.enabled) {

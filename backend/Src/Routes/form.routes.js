@@ -3,7 +3,7 @@ import { getAllForms, createNewIssue, handleProdResponse, handleReject, handleAp
 import { uploadFile } from "../Middlewares/upload.middleware.js";
 import { validateFormFieldsInput } from "../Middlewares/validateInput.middleware.js";
 import { parseMultipartJSON } from "../Middlewares/parseFormData.middleware.js";
-import { checkAuthorization } from "../Middlewares/checkAdmin.middleware.js";
+import { checkAuthorization } from "../Middlewares/checkAuthorisation.middleware.js";
 import { NewFormSchema, ProdResponseSchema, QAResponseSchema, FinalResponseSchema } from "../ValidationSchema/formValidationSchema.js";
 
 const router = express.Router();

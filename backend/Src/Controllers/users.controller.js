@@ -49,7 +49,7 @@ export const handleSignUp = async (req, res) => {
     }
 
     // Check if team exists
-    const teamExists = await Supplier.exists({ supplierCode: team });
+    const teamExists = await Supplier.findOne({ supplierCode: team });
     if (!teamExists) {
       return res.status(404).json({
         success: false,

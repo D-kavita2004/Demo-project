@@ -8,7 +8,7 @@ import {
 } from "../Controllers/suppliers.controller.js";
 import { validateInput } from "../Middlewares/validateInput.middleware.js";
 import { supplierSchema } from "../ValidationSchema/entityValidationSchema.js";
-import { checkAuthorization } from "../Middlewares/checkAdmin.middleware.js";
+import { checkAuthorization } from "../Middlewares/checkAuthorisation.middleware.js";
 
 const router = express.Router();
 

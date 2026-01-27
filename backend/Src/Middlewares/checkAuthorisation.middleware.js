@@ -27,18 +27,3 @@ export const checkAuthorization = ({ allowedFlags = [], allowedRoles = [] } = {}
   };
 };
 
-
-// export const checkAuthorisation = (req, res, next) => {
-//   try {
-//     const {role} = req.user;
-//     // check role
-//     if (role !== "admin") {
-//       return res.status(403).json({success:false, message: "Access denied: Only admin can access this feature" });
-//     }
-
-//     next();
-//   } catch (error) {
-//     logger.error(error);
-//     return res.status(401).json({ success:false, message: "Invalid or expired token" });
-//   }
-// };

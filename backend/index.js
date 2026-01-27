@@ -22,7 +22,7 @@ import supplierRoutes from "./Src/Routes/suppliers.routes.js";
 import partRoutes from "./Src/Routes/parts.routes.js";
 import processRoutes from "./Src/Routes/processes.routes.js";
 import machineRoutes from "./Src/Routes/machines.routes.js";
-import { checkAuthorization } from "./Src/Middlewares/checkAdmin.middleware.js";
+import { checkAuthorization } from "./Src/Middlewares/checkAuthorisation.middleware.js";
 import chartsRoutes from "./Src/Routes/charts.routes.js";
 
 dotenv.config();

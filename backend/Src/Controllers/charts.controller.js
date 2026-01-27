@@ -131,7 +131,7 @@ export const getStatusWiseData = async (req, res) => {
       if (!categoryToUpdate) return;
 
       const item = baseStatusList.find(
-        (i) => i.category === categoryToUpdate
+        (i) => i.category === categoryToUpdate,
       );
       if (item) item.count += 1;
     });

@@ -9,14 +9,15 @@ export const createNewIssue = async(req, res) => {
     const imageUrl = req.productImageUrl;
     
     let data = {};
-    if (req.body.data) {
-      data = req.body.data;
+    if (req.body?.data) {
+      data = req.body?.data;
     };
 
 
-    if (!data) {
+    if (!data || Object.keys(data).length === 0) {
       return res.status(404).json({ message: "Form data is required" });
     }
+
 
     let form;
 
