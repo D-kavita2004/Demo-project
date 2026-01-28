@@ -1,8 +1,9 @@
 import { jest } from "@jest/globals";
 
-/* =========================
-   MOCK MODULES (ESM)
-========================= */
+// ============================
+// MOCK MODULES
+// ============================
+
 jest.unstable_mockModule("../../Models/processes.models.js", () => ({
   default: {
     findOne: jest.fn(),
@@ -25,9 +26,13 @@ jest.unstable_mockModule("../../../Config/logger.js", () => ({
   },
 }));
 
-/* =========================
-   IMPORT AFTER MOCKS
-========================= */
+// ============================
+// IMPORT AFTER MOCKING
+// ============================
+
+const { default: Process } = await import("../../Models/processes.models.js");
+const { default: Form } = await import("../../Models/form.models.js");
+
 const {
   createProcess,
   getProcesses,
@@ -35,179 +40,257 @@ const {
   deleteProcess,
 } = await import("../../Controllers/processes.controller.js");
 
-const Process = (await import("../../Models/processes.models.js")).default;
-const Form = (await import("../../Models/form.models.js")).default;
+// ============================
+// COMMON MOCK RESPONSE
+// ============================
 
-/* =========================
-   COMMON MOCKS
-========================= */
-const mockResponse = () => {
+const mockRes = () => {
   const res = {};
-  res.status = jest.fn().mockReturnThis();
+  res.status = jest.fn().mockReturnValue(res);
   res.json = jest.fn();
   return res;
 };
 
-/* =========================
-   TESTS
-========================= */
+describe("Processes Controller (ESM + unstable_mockModule)", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-describe("createProcess", () => {
-  it("should return 409 if process already exists", async () => {
-    Process.findOne.mockResolvedValue({ processName: "assembly" });
+  // =========================
+  // CREATE PROCESS
+  // =========================
+  describe("createProcess", () => {
+    it("should create process successfully", async () => {
+      const req = { body: { processName: "Cutting" } };
+      const res = mockRes();
 
-    const req = { body: { processName: "Assembly" } };
-    const res = mockResponse();
+      Process.findOne.mockResolvedValue(null);
+      Process.create.mockResolvedValue({
+        processCode: "PR001",
+        processName: "cutting",
+      });
 
-    await createProcess(req, res);
+      await createProcess(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(409);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Process already exists",
+      expect(Process.findOne).toHaveBeenCalledWith({ processName: "cutting" });
+      expect(Process.create).toHaveBeenCalledWith({ processName: "cutting" });
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Process created successfully",
+        process: { processCode: "PR001", processName: "cutting" },
+      });
+    });
+
+    it("should return 409 if process already exists", async () => {
+      const req = { body: { processName: "Cutting" } };
+      const res = mockRes();
+
+      Process.findOne.mockResolvedValue({ processName: "cutting" });
+
+      await createProcess(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(409);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Process already exists",
+      });
+    });
+
+    it("should return 500 on error", async () => {
+      const req = { body: { processName: "Cutting" } };
+      const res = mockRes();
+
+      Process.findOne.mockRejectedValue(new Error("DB error"));
+
+      await createProcess(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Internal server error",
+      });
     });
   });
 
-  it("should create a new process", async () => {
-    Process.findOne.mockResolvedValue(null);
-    Process.create.mockResolvedValue({
-      processCode: "P001",
-      processName: "assembly",
+  // =========================
+  // GET PROCESSES
+  // =========================
+  describe("getProcesses", () => {
+    it("should fetch all processes", async () => {
+      const req = {};
+      const res = mockRes();
+
+      const processes = [
+        { processCode: "PR001", processName: "cutting" },
+      ];
+
+      Process.find.mockReturnValue({
+        lean: jest.fn().mockResolvedValue(processes),
+      });
+
+      await getProcesses(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "All Processs fetched Successfully",
+        processes,
+      });
     });
 
-    const req = { body: { processName: "Assembly" } };
-    const res = mockResponse();
+    it("should return 500 on error", async () => {
+      const req = {};
+      const res = mockRes();
 
-    await createProcess(req, res);
+      Process.find.mockImplementation(() => {
+        throw new Error("DB error");
+      });
 
-    expect(Process.create).toHaveBeenCalledWith({ processName: "assembly" });
-    expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Process created successfully",
-      process: { processCode: "P001", processName: "assembly" },
-    });
-  });
-});
+      await getProcesses(req, res);
 
-describe("getProcesses", () => {
-  it("should return all processes", async () => {
-    const mockProcesses = [{ processCode: "P001", processName: "assembly" }];
-
-    Process.find.mockReturnValue({
-      lean: jest.fn().mockResolvedValue(mockProcesses),
-    });
-
-    const res = mockResponse();
-    await getProcesses({}, res);
-
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "All Processs fetched Successfully",
-      processes: mockProcesses,
-    });
-  });
-});
-
-describe("updateProcess", () => {
-  it("should return 409 if duplicate process name exists", async () => {
-    Process.findOne.mockResolvedValue({ processName: "assembly" });
-
-    const req = {
-      body: { processName: "Assembly" },
-      params: { processCode: "P001" },
-    };
-    const res = mockResponse();
-
-    await updateProcess(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(409);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Process name already exists",
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Internal server error",
+      });
     });
   });
 
-  it("should return 404 if process not found", async () => {
-    Process.findOne.mockResolvedValue(null);
-    Process.findOneAndUpdate.mockResolvedValue(null);
+  // =========================
+  // UPDATE PROCESS
+  // =========================
+  describe("updateProcess", () => {
+    it("should update process successfully", async () => {
+      const req = {
+        body: { processName: "Welding" },
+        params: { processCode: "PR001" },
+      };
+      const res = mockRes();
 
-    const req = {
-      body: { processName: "Assembly" },
-      params: { processCode: "P001" },
-    };
-    const res = mockResponse();
+      Process.findOne.mockResolvedValue(null);
+      Process.findOneAndUpdate.mockResolvedValue({
+        processCode: "PR001",
+        processName: "welding",
+      });
 
-    await updateProcess(req, res);
+      await updateProcess(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Process not found",
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Process updated successfully",
+        process: { processCode: "PR001", processName: "welding" },
+      });
+    });
+
+    it("should return 409 if duplicate process name exists", async () => {
+      const req = {
+        body: { processName: "Welding" },
+        params: { processCode: "PR001" },
+      };
+      const res = mockRes();
+
+      Process.findOne.mockResolvedValue({ processName: "welding" });
+
+      await updateProcess(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(409);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Process name already exists",
+      });
+    });
+
+    it("should return 404 if process not found", async () => {
+      const req = {
+        body: { processName: "Welding" },
+        params: { processCode: "PR001" },
+      };
+      const res = mockRes();
+
+      Process.findOne.mockResolvedValue(null);
+      Process.findOneAndUpdate.mockResolvedValue(null);
+
+      await updateProcess(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Process not found",
+      });
+    });
+
+    it("should return 500 on update error", async () => {
+      const req = {
+        body: { processName: "Welding" },
+        params: { processCode: "PR001" },
+      };
+      const res = mockRes();
+
+      Process.findOne.mockRejectedValue(new Error("DB error"));
+
+      await updateProcess(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Internal server error",
+      });
     });
   });
 
-  it("should update the process successfully", async () => {
-    Process.findOne.mockResolvedValue(null);
-    Process.findOneAndUpdate.mockResolvedValue({
-      processCode: "P001",
-      processName: "assembly",
+  // =========================
+  // DELETE PROCESS
+  // =========================
+  describe("deleteProcess", () => {
+    it("should delete process successfully", async () => {
+      const req = { params: { processCode: "PR001" } };
+      const res = mockRes();
+
+      Form.exists.mockResolvedValue(false);
+      Process.findOneAndDelete.mockResolvedValue({ processCode: "PR001" });
+
+      await deleteProcess(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Process deleted successfully",
+      });
     });
 
-    const req = {
-      body: { processName: "Assembly" },
-      params: { processCode: "P001" },
-    };
-    const res = mockResponse();
+    it("should return 409 if issues exist for process", async () => {
+      const req = { params: { processCode: "PR001" } };
+      const res = mockRes();
 
-    await updateProcess(req, res);
+      Form.exists.mockResolvedValue(true);
 
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Process updated successfully",
-      process: { processCode: "P001", processName: "assembly" },
+      await deleteProcess(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(409);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Some Issues are raised with this process",
+      });
     });
-  });
-});
 
-describe("deleteProcess", () => {
-  it("should return 409 if issues exist for the process", async () => {
-    Form.exists.mockResolvedValue(true);
+    it("should return 404 if process not found", async () => {
+      const req = { params: { processCode: "PR001" } };
+      const res = mockRes();
 
-    const req = { params: { processCode: "P001" } };
-    const res = mockResponse();
+      Form.exists.mockResolvedValue(false);
+      Process.findOneAndDelete.mockResolvedValue(null);
 
-    await deleteProcess(req, res);
+      await deleteProcess(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(409);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Some Issues are raised with this process",
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Process not found",
+      });
     });
-  });
 
-  it("should return 404 if process not found", async () => {
-    Form.exists.mockResolvedValue(false);
-    Process.findOneAndDelete.mockResolvedValue(null);
+    it("should return 500 on delete error", async () => {
+      const req = { params: { processCode: "PR001" } };
+      const res = mockRes();
 
-    const req = { params: { processCode: "P001" } };
-    const res = mockResponse();
+      Form.exists.mockRejectedValue(new Error("DB error"));
 
-    await deleteProcess(req, res);
+      await deleteProcess(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Process not found",
-    });
-  });
-
-  it("should delete process successfully", async () => {
-    Form.exists.mockResolvedValue(false);
-    Process.findOneAndDelete.mockResolvedValue({ processCode: "P001" });
-
-    const req = { params: { processCode: "P001" } };
-    const res = mockResponse();
-
-    await deleteProcess(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Process deleted successfully",
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Internal server error",
+      });
     });
   });
 });

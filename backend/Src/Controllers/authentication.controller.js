@@ -98,7 +98,8 @@ export const forgotPassword = async (req, res, next) => {
     }
 
   } catch (error) {
-    next(error);
+    logger.error("Forget Password Error :", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -152,6 +153,7 @@ export const resetPassword = async (req, res, next) => {
     });
 
   } catch (error) {
-    next(error);
+    logger.error("Reset Password Error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

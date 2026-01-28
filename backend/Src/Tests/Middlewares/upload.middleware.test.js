@@ -19,16 +19,16 @@ jest.unstable_mockModule("multer", () => {
 // Mock fs
 jest.unstable_mockModule("fs", () => ({
   default:{
-      existsSync: jest.fn(() => true),
-      mkdirSync: jest.fn(),
-  }
+    existsSync: jest.fn(() => true),
+    mkdirSync: jest.fn(),
+  },
 }));
 
 // Mock crypto
 jest.unstable_mockModule("crypto", () => ({
   default:{
-      randomUUID: jest.fn(() => "mock-uuid"),
-  }
+    randomUUID: jest.fn(() => "mock-uuid"),
+  },
 }));
 
 // Mock logger
@@ -105,7 +105,7 @@ describe("uploadFile middleware", () => {
     uploadFile(req, res, next);
 
     expect(req.productImageUrl).toBe(
-      "http://localhost:3000/image-uploads/image.png"
+      "http://localhost:3000/image-uploads/image.png",
     );
     expect(next).toHaveBeenCalled();
   });
@@ -124,7 +124,7 @@ describe("uploadFile middleware", () => {
     uploadFile(req, res, next);
 
     expect(req.prodFileUrl).toBe(
-      "http://localhost:3000/production-docs/doc.pdf"
+      "http://localhost:3000/production-docs/doc.pdf",
     );
     expect(next).toHaveBeenCalled();
   });

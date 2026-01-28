@@ -1,8 +1,10 @@
+// 
 import { jest } from "@jest/globals";
 
-/* =========================
-   MOCK MODULES (ESM)
-========================= */
+// ============================
+// MOCK MODULES
+// ============================
+
 jest.unstable_mockModule("../../Models/parts.models.js", () => ({
   default: {
     findOne: jest.fn(),
@@ -25,9 +27,13 @@ jest.unstable_mockModule("../../../Config/logger.js", () => ({
   },
 }));
 
-/* =========================
-   IMPORT AFTER MOCKS
-========================= */
+// ============================
+// IMPORT AFTER MOCKING
+// ============================
+
+const { default: Part } = await import("../../Models/parts.models.js");
+const { default: Form } = await import("../../Models/form.models.js");
+
 const {
   createPart,
   getParts,
@@ -35,182 +41,250 @@ const {
   deletePart,
 } = await import("../../Controllers/parts.controller.js");
 
-const Part = (await import("../../Models/parts.models.js")).default;
-const Form = (await import("../../Models/form.models.js")).default;
+// ============================
+// COMMON MOCK RESPONSE
+// ============================
 
-/* =========================
-   COMMON MOCKS
-========================= */
-const mockResponse = () => {
+const mockRes = () => {
   const res = {};
-  res.status = jest.fn().mockReturnThis();
+  res.status = jest.fn().mockReturnValue(res);
   res.json = jest.fn();
   return res;
 };
 
-/* =========================
-   TESTS
-========================= */
-
-describe("createPart", () => {
-  it("should return 409 if part already exists", async () => {
-    Part.findOne.mockResolvedValue({ partName: "engine" });
-
-    const req = { body: { partName: "Engine" } };
-    const res = mockResponse();
-
-    await createPart(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(409);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Part already exists",
-    });
+describe("Parts Controller (ESM + unstable_mockModule)", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
-  it("should create a new part", async () => {
-    Part.findOne.mockResolvedValue(null);
-    Part.create.mockResolvedValue({
-      partCode: "P001",
-      partName: "engine",
-    });
+  // =========================
+  // CREATE PART
+  // =========================
+  describe("createPart", () => {
+    it("should create a part successfully", async () => {
+      const req = { body: { partName: "Bolt" } };
+      const res = mockRes();
 
-    const req = { body: { partName: "Engine" } };
-    const res = mockResponse();
-
-    await createPart(req, res);
-
-    expect(Part.create).toHaveBeenCalledWith({ partName: "engine" });
-    expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Part created successfully",
-      part: { partCode: "P001", partName: "engine" },
-    });
-  });
-});
-
-describe("getParts", () => {
-  it("should return all parts", async () => {
-    const mockParts = [{ partCode: "P001", partName: "engine" }];
-
-    Part.find.mockReturnValue({
-      lean: jest.fn().mockResolvedValue(mockParts),
-    });
-
-    const res = mockResponse();
-    await getParts({}, res);
-
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "All Parts fetched Successfully",
-      parts: mockParts,
-    });
-  });
-});
-
-describe("updatePart", () => {
-  it("should return 409 if duplicate part name exists", async () => {
-    Part.findOne.mockResolvedValue({ partName: "engine" });
-
-    const req = {
-      body: { partName: "Engine" },
-      params: { partCode: "P001" },
-    };
-    const res = mockResponse();
-
-    await updatePart(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(409);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Part name already exists",
-    });
-  });
-
-  it("should return 404 if part not found", async () => {
-    Part.findOne.mockResolvedValue(null);
-    Part.findOneAndUpdate.mockResolvedValue(null);
-
-    const req = {
-      body: { partName: "Engine" },
-      params: { partCode: "P001" },
-    };
-    const res = mockResponse();
-
-    await updatePart(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Part not found",
-    });
-  });
-
-  it("should update the part successfully", async () => {
-    Part.findOne.mockResolvedValue(null);
-    Part.findOneAndUpdate.mockResolvedValue({
-      partCode: "P001",
-      partName: "engine",
-    });
-
-    const req = {
-      body: { partName: "Engine" },
-      params: { partCode: "P001" },
-    };
-    const res = mockResponse();
-
-    await updatePart(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Part updated successfully",
-      part: {
+      Part.findOne.mockResolvedValue(null);
+      Part.create.mockResolvedValue({
         partCode: "P001",
-        partName: "engine",
-      },
+        partName: "bolt",
+      });
+
+      await createPart(req, res);
+
+      expect(Part.findOne).toHaveBeenCalledWith({ partName: "bolt" });
+      expect(Part.create).toHaveBeenCalledWith({ partName: "bolt" });
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Part created successfully",
+        part: { partCode: "P001", partName: "bolt" },
+      });
+    });
+
+    it("should return 409 if part already exists", async () => {
+      const req = { body: { partName: "Bolt" } };
+      const res = mockRes();
+
+      Part.findOne.mockResolvedValue({ partName: "bolt" });
+
+      await createPart(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(409);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Part already exists",
+      });
+    });
+
+    it("should return 500 on error", async () => {
+      const req = { body: { partName: "Bolt" } };
+      const res = mockRes();
+
+      Part.findOne.mockRejectedValue(new Error("DB error"));
+
+      await createPart(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Internal server error",
+      });
     });
   });
-});
 
-describe("deletePart", () => {
-  it("should return 409 if issues exist for the part", async () => {
-    Form.exists.mockResolvedValue(true);
+  // =========================
+  // GET PARTS
+  // =========================
+  describe("getParts", () => {
+    it("should fetch all parts", async () => {
+      const req = {};
+      const res = mockRes();
 
-    const req = { params: { partCode: "P001" } };
-    const res = mockResponse();
+      const parts = [{ partCode: "P001", partName: "bolt" }];
 
-    await deletePart(req, res);
+      Part.find.mockReturnValue({
+        lean: jest.fn().mockResolvedValue(parts),
+      });
 
-    expect(res.status).toHaveBeenCalledWith(409);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Some Issues are raised with this part",
+      await getParts(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "All Parts fetched Successfully",
+        parts,
+      });
+    });
+
+    it("should return 500 on error", async () => {
+      const req = {};
+      const res = mockRes();
+
+      Part.find.mockImplementation(() => {
+        throw new Error("DB error");
+      });
+
+      await getParts(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Internal server error",
+      });
     });
   });
 
-  it("should return 404 if part not found", async () => {
-    Form.exists.mockResolvedValue(false);
-    Part.findOneAndDelete.mockResolvedValue(null);
+  // =========================
+  // UPDATE PART
+  // =========================
+  describe("updatePart", () => {
+    it("should update part successfully", async () => {
+      const req = {
+        body: { partName: "Nut" },
+        params: { partCode: "P001" },
+      };
+      const res = mockRes();
 
-    const req = { params: { partCode: "P001" } };
-    const res = mockResponse();
+      Part.findOne.mockResolvedValue(null);
+      Part.findOneAndUpdate.mockResolvedValue({
+        partCode: "P001",
+        partName: "nut",
+      });
 
-    await deletePart(req, res);
+      await updatePart(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Part not found",
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Part updated successfully",
+        part: { partCode: "P001", partName: "nut" },
+      });
+    });
+
+    it("should return 409 if duplicate part exists", async () => {
+      const req = {
+        body: { partName: "Nut" },
+        params: { partCode: "P001" },
+      };
+      const res = mockRes();
+
+      Part.findOne.mockResolvedValue({ partName: "nut" });
+
+      await updatePart(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(409);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Part name already exists",
+      });
+    });
+
+    it("should return 404 if part not found", async () => {
+      const req = {
+        body: { partName: "Nut" },
+        params: { partCode: "P001" },
+      };
+      const res = mockRes();
+
+      Part.findOne.mockResolvedValue(null);
+      Part.findOneAndUpdate.mockResolvedValue(null);
+
+      await updatePart(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Part not found",
+      });
+    });
+    it("should return 500 on error", async () => {
+      const req = { body: { partName: "Bolt" } };
+      const res = mockRes();
+
+      Part.findOneAndUpdate.mockRejectedValue(new Error("DB error"));
+
+      await updatePart(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Internal server error",
+      });
     });
   });
 
-  it("should delete part successfully", async () => {
-    Form.exists.mockResolvedValue(false);
-    Part.findOneAndDelete.mockResolvedValue({ partCode: "P001" });
+  // =========================
+  // DELETE PART
+  // =========================
+  describe("deletePart", () => {
+    it("should delete part successfully", async () => {
+      const req = { params: { partCode: "P001" } };
+      const res = mockRes();
 
-    const req = { params: { partCode: "P001" } };
-    const res = mockResponse();
+      Form.exists.mockResolvedValue(false);
+      Part.findOneAndDelete.mockResolvedValue({ partCode: "P001" });
 
-    await deletePart(req, res);
+      await deletePart(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Part deleted successfully",
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Part deleted successfully",
+      });
+    });
+
+    it("should return 409 if issues exist", async () => {
+      const req = { params: { partCode: "P001" } };
+      const res = mockRes();
+
+      Form.exists.mockResolvedValue(true);
+
+      await deletePart(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(409);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Some Issues are raised with this part",
+      });
+    });
+
+    it("should return 404 if part not found", async () => {
+      const req = { params: { partCode: "P001" } };
+      const res = mockRes();
+
+      Form.exists.mockResolvedValue(false);
+      Part.findOneAndDelete.mockResolvedValue(null);
+
+      await deletePart(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Part not found",
+      });
+    });
+    it("should return 500 on error", async () => {
+      const req = { body: { partName: "Bolt" } };
+      const res = mockRes();
+
+      Part.findOneAndDelete.mockRejectedValue(new Error("DB error"));
+
+      await deletePart(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Internal server error",
+      });
     });
   });
 });

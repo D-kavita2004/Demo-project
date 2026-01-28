@@ -78,10 +78,7 @@ describe("handleLogin", () => {
     });
 
     const res = mockResponse();
-    await handleLogin(
-      { body: { username: "test", password: "123" } },
-      res,
-    );
+    await handleLogin({ body: { username: "test", password: "123" } }, res);
 
     expect(res.status).toHaveBeenCalledWith(404);
     expect(res.json).toHaveBeenCalledWith({ message: "User not found" });
@@ -95,10 +92,7 @@ describe("handleLogin", () => {
     });
 
     const res = mockResponse();
-    await handleLogin(
-      { body: { username: "test", password: "123" } },
-      res,
-    );
+    await handleLogin({ body: { username: "test", password: "123" } }, res);
 
     expect(res.status).toHaveBeenCalledWith(403);
     expect(res.json).toHaveBeenCalledWith({ message: "User is disabled" });
@@ -117,10 +111,7 @@ describe("handleLogin", () => {
     bcrypt.compare.mockResolvedValue(false);
 
     const res = mockResponse();
-    await handleLogin(
-      { body: { username: "test", password: "wrong" } },
-      res,
-    );
+    await handleLogin({ body: { username: "test", password: "wrong" } }, res);
 
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({ message: "Invalid Password" });
@@ -141,95 +132,197 @@ describe("handleLogin", () => {
     jwt.sign.mockReturnValue("fake-token");
 
     const res = mockResponse();
-    await handleLogin(
-      { body: { username: "test", password: "123" } },
-      res,
-    );
+    await handleLogin({ body: { username: "test", password: "123" } }, res);
 
     expect(jwt.sign).toHaveBeenCalled();
-    expect(res.cookie).toHaveBeenCalled();
+    expect(res.cookie).toHaveBeenCalledWith("token", "fake-token", expect.any(Object));
     expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "Login successful", user: expect.any(Object) })
+    );
+  });
+
+  it("should handle unexpected errors", async () => {
+    const error = new Error("DB failed");
+    User.findOne.mockImplementation(() => { throw error; });
+
+    const res = mockResponse();
+    await handleLogin({ body: { username: "test", password: "123" } }, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: "Login failed" });
   });
 });
 
+
 describe("handleLogout", () => {
-  it("should logout successfully", () => {
+  it("should clear the token cookie and return 200", () => {
     const res = mockResponse();
     handleLogout({}, res);
 
-    expect(res.clearCookie).toHaveBeenCalled();
+    expect(res.clearCookie).toHaveBeenCalledWith("token", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "Lax",
+      expires: new Date(0),
+    });
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ message: "Logout successful" });
   });
+
+  it("should handle errors and return 500", () => {
+    const res = mockResponse();
+    // Force clearCookie to throw an error
+    res.clearCookie.mockImplementation(() => {
+      throw new Error("Cookie failed");
+    });
+
+    handleLogout({}, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: "Logout failed" });
+  });
 });
 
+
 describe("forgotPassword", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("should return 404 if user not found", async () => {
     User.findOne.mockResolvedValue(null);
 
     const res = mockResponse();
-    await forgotPassword(
-      { body: { email: "a@a.com" } },
-      res,
-      mockNext,
-    );
+    await forgotPassword({ body: { email: "test@example.com" } }, res);
 
     expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      message: "Cannot find user with this email",
+    });
   });
 
-  it("should send reset email", async () => {
-    User.findOne.mockResolvedValue({ _id: "123" });
+  it("should return 200 if reset link sent successfully", async () => {
+    const userData = { _id: "123" };
+    User.findOne.mockResolvedValue(userData);
     jwt.sign.mockReturnValue("reset-token");
     forgetPasswordEmailConfig.mockResolvedValue(true);
 
     const res = mockResponse();
-    await forgotPassword(
-      { body: { email: "a@a.com" } },
-      res,
-      mockNext,
+    await forgotPassword({ body: { email: "test@example.com" } }, res);
+
+    expect(jwt.sign).toHaveBeenCalledWith(
+      { userId: "123" },
+      process.env.RESET_PASSWORD_TOKEN,
+      { expiresIn: process.env.RESET_LINK_EXPIRY }
     );
 
-    expect(forgetPasswordEmailConfig).toHaveBeenCalled();
+    expect(forgetPasswordEmailConfig).toHaveBeenCalledWith("test@example.com", "reset-token");
     expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      message: "Reset Link Sent",
+    });
+  });
+
+  it("should return 500 if email sending fails", async () => {
+    const userData = { _id: "123" };
+    User.findOne.mockResolvedValue(userData);
+    jwt.sign.mockReturnValue("reset-token");
+    forgetPasswordEmailConfig.mockResolvedValue(false);
+
+    const res = mockResponse();
+    await forgotPassword({ body: { email: "test@example.com" } }, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      message: "Could not send email",
+    });
+  });
+
+  it("should handle unexpected errors", async () => {
+    User.findOne.mockRejectedValue(new Error("DB Error"));
+
+    const res = mockResponse();
+    await forgotPassword({ body: { email: "test@example.com" } }, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: "Internal server error" });
   });
 });
 
+
 describe("resetPassword", () => {
-  it("should reject invalid token", async () => {
-    jwt.verify.mockImplementation(() => {
-      throw new Error("Invalid token");
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should return 404 if token or updatedPassword is missing", async () => {
+    const res = mockResponse();
+    await resetPassword({ params: {}, body: {} }, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      message: "Token and new password are required",
     });
+  });
+
+  it("should return 401 if JWT verification fails", async () => {
+    jwt.verify.mockImplementation(() => { throw new Error("Invalid token"); });
 
     const res = mockResponse();
-    await resetPassword(
-      { params: { token: "bad" }, body: { updatedPassword: "123" } },
-      res,
-      mockNext,
-    );
+    await resetPassword({ params: { token: "fake-token" }, body: { updatedPassword: "123" } }, res);
 
     expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      message: "Reset link has expired or is invalid",
+    });
+  });
+
+  it("should return 404 if user not found", async () => {
+    jwt.verify.mockReturnValue({ userId: "123" });
+    User.findById.mockResolvedValue(null);
+
+    const res = mockResponse();
+    await resetPassword({ params: { token: "fake-token" }, body: { updatedPassword: "123" } }, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      message: "User not found",
+    });
   });
 
   it("should update password successfully", async () => {
     jwt.verify.mockReturnValue({ userId: "123" });
-
-    const saveMock = jest.fn();
-    User.findById.mockResolvedValue({
-      password: "old",
-      save: saveMock,
-    });
-
-    bcrypt.hash.mockResolvedValue("hashed-new");
+    const user = { save: jest.fn() };
+    User.findById.mockResolvedValue(user);
+    bcrypt.hash.mockResolvedValue("hashedPassword");
 
     const res = mockResponse();
-    await resetPassword(
-      { params: { token: "good" }, body: { updatedPassword: "123" } },
-      res,
-      mockNext,
-    );
+    await resetPassword({ params: { token: "fake-token" }, body: { updatedPassword: "123" } }, res);
 
-    expect(bcrypt.hash).toHaveBeenCalled();
-    expect(saveMock).toHaveBeenCalled();
+    expect(bcrypt.hash).toHaveBeenCalledWith("123", 10);
+    expect(user.password).toBe("hashedPassword");
+    expect(user.save).toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      message: "Password updated successfully",
+    });
+  });
+
+  it("should handle unexpected errors", async () => {
+    User.findById.mockRejectedValue(new Error("DB Error"));
+
+    const res = mockResponse();
+    await resetPassword({ params: { token: "fake-token" }, body: { updatedPassword: "123" } }, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: "Internal server error" });
   });
 });

@@ -1,8 +1,9 @@
 import { jest } from "@jest/globals";
 
-/* =========================
-   MOCK MODULES (ESM)
-========================= */
+// ============================
+// MOCK MODULES
+// ============================
+
 jest.unstable_mockModule("../../Models/suppliers.models.js", () => ({
   default: {
     findOne: jest.fn(),
@@ -32,9 +33,14 @@ jest.unstable_mockModule("../../../Config/logger.js", () => ({
   },
 }));
 
-/* =========================
-   IMPORT AFTER MOCKS
-========================= */
+// ============================
+// IMPORT AFTER MOCKING
+// ============================
+
+const { default: Supplier } = await import("../../Models/suppliers.models.js");
+const { default: User } = await import("../../Models/users.models.js");
+const { default: Form } = await import("../../Models/form.models.js");
+
 const {
   createSupplier,
   getSuppliers,
@@ -43,206 +49,302 @@ const {
   deleteSupplier,
 } = await import("../../Controllers/suppliers.controller.js");
 
-const Supplier = (await import("../../Models/suppliers.models.js")).default;
-const User = (await import("../../Models/users.models.js")).default;
-const Form = (await import("../../Models/form.models.js")).default;
+// ============================
+// COMMON MOCK RESPONSE
+// ============================
 
-/* =========================
-   COMMON MOCKS
-========================= */
-const mockResponse = () => {
+const mockRes = () => {
   const res = {};
-  res.status = jest.fn().mockReturnThis();
+  res.status = jest.fn().mockReturnValue(res);
   res.json = jest.fn();
   return res;
 };
 
-/* =========================
-   TESTS
-========================= */
+describe("Suppliers Controller (ESM + unstable_mockModule)", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-describe("createSupplier", () => {
-  it("should return 409 if supplier already exists", async () => {
-    Supplier.findOne.mockResolvedValue({ supplierName: "abc" });
+  // =========================
+  // CREATE SUPPLIER
+  // =========================
+  describe("createSupplier", () => {
+    it("should create supplier successfully", async () => {
+      const req = { body: { supplierName: "Vendor A" } };
+      const res = mockRes();
 
-    const req = { body: { supplierName: "ABC" } };
-    const res = mockResponse();
+      Supplier.findOne.mockResolvedValue(null);
+      Supplier.create.mockResolvedValue({
+        supplierCode: "S001",
+        supplierName: "vendor a",
+      });
 
-    await createSupplier(req, res);
+      await createSupplier(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(409);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Supplier already exists",
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Supplier created successfully",
+        supplier: { supplierCode: "S001", supplierName: "vendor a" },
+      });
+    });
+
+    it("should return 409 if supplier already exists", async () => {
+      const req = { body: { supplierName: "Vendor A" } };
+      const res = mockRes();
+
+      Supplier.findOne.mockResolvedValue({ supplierName: "vendor a" });
+
+      await createSupplier(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(409);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Supplier already exists",
+      });
+    });
+
+    it("should return 500 on error", async () => {
+      const req = { body: { supplierName: "Vendor A" } };
+      const res = mockRes();
+
+      Supplier.findOne.mockRejectedValue(new Error("DB error"));
+
+      await createSupplier(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Internal server error",
+      });
     });
   });
 
-  it("should create a new supplier", async () => {
-    Supplier.findOne.mockResolvedValue(null);
-    Supplier.create.mockResolvedValue({
-      supplierCode: "S001",
-      supplierName: "abc",
+  // =========================
+  // GET SUPPLIERS
+  // =========================
+  describe("getSuppliers", () => {
+    it("should fetch INTERNAL suppliers", async () => {
+      const req = {};
+      const res = mockRes();
+
+      const suppliers = [
+        { supplierCode: "S001", supplierName: "vendor a" },
+      ];
+
+      Supplier.find.mockReturnValue({
+        lean: jest.fn().mockResolvedValue(suppliers),
+      });
+
+      await getSuppliers(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "All Suppliers fetched Successfully",
+        suppliers,
+      });
     });
 
-    const req = { body: { supplierName: "ABC" } };
-    const res = mockResponse();
+    it("should return 500 on error", async () => {
+      const req = {};
+      const res = mockRes();
 
-    await createSupplier(req, res);
+      Supplier.find.mockImplementation(() => {
+        throw new Error("DB error");
+      });
 
-    expect(Supplier.create).toHaveBeenCalledWith({ supplierName: "abc" });
-    expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Supplier created successfully",
-      supplier: { supplierCode: "S001", supplierName: "abc" },
-    });
-  });
-});
+      await getSuppliers(req, res);
 
-describe("getSuppliers", () => {
-  it("should return all internal suppliers", async () => {
-    const mockSuppliers = [{ supplierCode: "S001", supplierName: "abc" }];
-    Supplier.find.mockReturnValue({
-      lean: jest.fn().mockResolvedValue(mockSuppliers),
-    });
-
-    const res = mockResponse();
-    await getSuppliers({}, res);
-
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "All Suppliers fetched Successfully",
-      suppliers: mockSuppliers,
-    });
-  });
-});
-
-describe("getSuppliersForUserAssignment", () => {
-  it("should return all internal and QA suppliers", async () => {
-    const mockSuppliers = [{ supplierCode: "S001", supplierName: "abc" }];
-    Supplier.find.mockReturnValue({
-      lean: jest.fn().mockResolvedValue(mockSuppliers),
-    });
-
-    const res = mockResponse();
-    await getSuppliersForUserAssignment({}, res);
-
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "All Suppliers fetched Successfully",
-      suppliers: mockSuppliers,
-    });
-  });
-});
-
-describe("updateSupplier", () => {
-  it("should return 409 if duplicate supplier exists", async () => {
-    Supplier.findOne.mockResolvedValue({ supplierName: "abc" });
-
-    const req = { body: { supplierName: "ABC" }, params: { supplierCode: "S001" } };
-    const res = mockResponse();
-
-    await updateSupplier(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(409);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Supplier name already exists",
+      expect(res.status).toHaveBeenCalledWith(500);
     });
   });
 
-  it("should return 404 if supplier not found", async () => {
-    Supplier.findOne.mockResolvedValue(null);
-    Supplier.findOneAndUpdate.mockResolvedValue(null);
+  // =========================
+  // GET SUPPLIERS FOR USER ASSIGNMENT
+  // =========================
+  describe("getSuppliersForUserAssignment", () => {
+    it("should fetch INTERNAL and QA suppliers", async () => {
+      const req = {};
+      const res = mockRes();
 
-    const req = { body: { supplierName: "ABC" }, params: { supplierCode: "S001" } };
-    const res = mockResponse();
+      const suppliers = [
+        { supplierCode: "S001", supplierName: "vendor a" },
+      ];
 
-    await updateSupplier(req, res);
+      Supplier.find.mockReturnValue({
+        lean: jest.fn().mockResolvedValue(suppliers),
+      });
 
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Supplier not found",
+      await getSuppliersForUserAssignment(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "All Suppliers fetched Successfully",
+        suppliers,
+      });
+    });
+
+    it("should return 500 on error", async () => {
+      const req = {};
+      const res = mockRes();
+
+      Supplier.find.mockImplementation(() => {
+        throw new Error("DB error");
+      });
+
+      await getSuppliersForUserAssignment(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
     });
   });
 
-  it("should update supplier successfully", async () => {
-    Supplier.findOne.mockResolvedValue(null);
-    Supplier.findOneAndUpdate.mockResolvedValue({
-      supplierCode: "S001",
-      supplierName: "abc",
+  // =========================
+  // UPDATE SUPPLIER
+  // =========================
+  describe("updateSupplier", () => {
+    it("should update supplier successfully", async () => {
+      const req = {
+        body: { supplierName: "Vendor B" },
+        params: { supplierCode: "S001" },
+      };
+      const res = mockRes();
+
+      Supplier.findOne.mockResolvedValue(null);
+      Supplier.findOneAndUpdate.mockResolvedValue({
+        supplierCode: "S001",
+        supplierName: "vendor b",
+      });
+
+      await updateSupplier(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Supplier updated successfully",
+        supplier: { supplierCode: "S001", supplierName: "vendor b" },
+      });
     });
 
-    const req = { body: { supplierName: "ABC" }, params: { supplierCode: "S001" } };
-    const res = mockResponse();
+    it("should return 409 if duplicate supplier name exists", async () => {
+      const req = {
+        body: { supplierName: "Vendor B" },
+        params: { supplierCode: "S001" },
+      };
+      const res = mockRes();
 
-    await updateSupplier(req, res);
+      Supplier.findOne.mockResolvedValue({ supplierName: "vendor b" });
 
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Supplier updated successfully",
-      supplier: { supplierCode: "S001", supplierName: "abc" },
+      await updateSupplier(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(409);
+    });
+
+    it("should return 404 if supplier not found", async () => {
+      const req = {
+        body: { supplierName: "Vendor B" },
+        params: { supplierCode: "S001" },
+      };
+      const res = mockRes();
+
+      Supplier.findOne.mockResolvedValue(null);
+      Supplier.findOneAndUpdate.mockResolvedValue(null);
+
+      await updateSupplier(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+    });
+
+    it("should return 500 on update error", async () => {
+      const req = {
+        body: { supplierName: "Vendor B" },
+        params: { supplierCode: "S001" },
+      };
+      const res = mockRes();
+
+      Supplier.findOne.mockRejectedValue(new Error("DB error"));
+
+      await updateSupplier(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
     });
   });
-});
 
-describe("deleteSupplier", () => {
-  it("should return 404 if supplier not found", async () => {
-    Supplier.exists.mockResolvedValue(null);
+  // =========================
+  // DELETE SUPPLIER
+  // =========================
+  describe("deleteSupplier", () => {
+    it("should return 404 if supplier not found", async () => {
+      const req = { params: { supplierCode: "S001" } };
+      const res = mockRes();
 
-    const req = { params: { supplierCode: "S001" } };
-    const res = mockResponse();
+      Supplier.exists.mockResolvedValue(null);
 
-    await deleteSupplier(req, res);
+      await deleteSupplier(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Supplier not found",
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Supplier not found",
+      });
     });
-  });
 
-  it("should return 409 if supplier assigned to user", async () => {
-    Supplier.exists.mockResolvedValue({ _id: "abcid" });
-    User.exists.mockResolvedValue(true);
+    it("should return 409 if supplier assigned to users", async () => {
+      const req = { params: { supplierCode: "S001" } };
+      const res = mockRes();
 
-    const req = { params: { supplierCode: "S001" } };
-    const res = mockResponse();
+      Supplier.exists.mockResolvedValue({ _id: "abc123" });
+      User.exists.mockResolvedValue(true);
 
-    await deleteSupplier(req, res);
+      await deleteSupplier(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(409);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Cannot delete supplier assigned to users",
+      expect(res.status).toHaveBeenCalledWith(409);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Cannot delete supplier assigned to users",
+      });
     });
-  });
 
-  it("should return 409 if issues exist for supplier", async () => {
-    Supplier.exists.mockResolvedValue({ _id: "abcid" });
-    User.exists.mockResolvedValue(false);
-    Form.exists.mockResolvedValue(true);
+    it("should return 409 if issues exist for supplier", async () => {
+      const req = { params: { supplierCode: "S001" } };
+      const res = mockRes();
 
-    const req = { params: { supplierCode: "S001" } };
-    const res = mockResponse();
+      Supplier.exists.mockResolvedValue({ _id: "abc123" });
+      User.exists.mockResolvedValue(false);
+      Form.exists.mockResolvedValue(true);
 
-    await deleteSupplier(req, res);
+      await deleteSupplier(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(409);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Some Issues are raised with this supplier",
+      expect(res.status).toHaveBeenCalledWith(409);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Some Issues are raised with this supplier",
+      });
     });
-  });
 
-  it("should delete supplier successfully", async () => {
-    Supplier.exists.mockResolvedValue({ _id: "abcid" });
-    User.exists.mockResolvedValue(false);
-    Form.exists.mockResolvedValue(false);
-    Supplier.findByIdAndDelete.mockResolvedValue({ _id: "abcid" });
+    it("should delete supplier successfully", async () => {
+      const req = { params: { supplierCode: "S001" } };
+      const res = mockRes();
 
-    const req = { params: { supplierCode: "S001" } };
-    const res = mockResponse();
+      Supplier.exists.mockResolvedValue({ _id: "abc123" });
+      User.exists.mockResolvedValue(false);
+      Form.exists.mockResolvedValue(false);
 
-    await deleteSupplier(req, res);
+      await deleteSupplier(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Supplier deleted successfully",
+      expect(Supplier.findByIdAndDelete).toHaveBeenCalledWith({
+        _id: "abc123",
+      });
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Supplier deleted successfully",
+      });
+    });
+
+    it("should return 500 on delete error", async () => {
+      const req = { params: { supplierCode: "S001" } };
+      const res = mockRes();
+
+      Supplier.exists.mockRejectedValue(new Error("DB error"));
+
+      await deleteSupplier(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Internal server error",
+      });
     });
   });
 });
