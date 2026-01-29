@@ -49,18 +49,18 @@ const TableView = ({ data }) => {
   const getStatusLabel = useCallback((status, teamFlag) => {
     console.log(status);
     if (teamFlag === "IT") return "View";
-    if (status === "approved") return "Approved";
+    if (status === "approved") return "Final Review";
     if (status === "finished") return "View";
 
     if (status === "pending_prod") {
       return teamFlag === "QA" || teamFlag === "IT"
-        ? "Submitted"
+        ? "View"
         : "Review";
     }
 
     if (status === "pending_quality") {
       return teamFlag === "INTERNAL"
-        ? "Submitted"
+        ? "View"
         : "Review";
     }
 
@@ -135,6 +135,7 @@ const TableView = ({ data }) => {
       {
         header: "Action",
         cell: ({ row }) =>
+          
           user?.team !== row.original.filledBy && (
             <Button
               onClick={() =>
@@ -146,7 +147,7 @@ const TableView = ({ data }) => {
                 row.original.status === "approved"
                   ? "bg-green-600 hover:bg-green-700"
                   : "bg-blue-600 hover:bg-blue-700"
-              } text-white`}
+              } text-white min-w-[7.5rem] h-9`}
             >
               {getStatusLabel(
                 row.original.status,

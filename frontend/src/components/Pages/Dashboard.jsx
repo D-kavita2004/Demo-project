@@ -29,8 +29,8 @@ const Dashboard = () => {
   const filteredForms = formsList.filter((form) => {
     const search = searchTerm.toLowerCase();
 
-    const partName = form.formData?.part?.partName?.toLowerCase() || "";
-    const supplier = form.formData?.supplier?.supplierName?.toLowerCase() || "";
+    const partName = form.formData?.issuingSection?.part?.partName?.toLowerCase() || "";
+    const supplier = form.formData?.defectivenessDetail?.supplier?.supplierName?.toLowerCase() || "";
     const status = form.status?.toLowerCase() || "";
 
     return (
