@@ -165,7 +165,7 @@ export const suppliersColumns = (handleEdit,deleteSupplier) => [
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => deleteSupplier(row.original.supplierCode)}>
+                  <AlertDialogAction className="bg-blue-600 hover:bg-blue-700" onClick={() => deleteSupplier(row.original.supplierCode)}>
                     Continue
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -236,7 +236,7 @@ export const partsColumns = (handleEdit,deletePart) => [
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => deletePart(row.original.partCode)}>
+                  <AlertDialogAction className="bg-blue-600 hover:bg-blue-700" onClick={() => deletePart(row.original.partCode)}>
                     Continue
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -307,7 +307,7 @@ export const machinesColumns = (handleEdit,deleteMachine) => [
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => deleteMachine(row.original.machineCode)}>
+                  <AlertDialogAction className="bg-blue-600 hover:bg-blue-700" onClick={() => deleteMachine(row.original.machineCode)}>
                     Continue
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -378,7 +378,7 @@ export const processesColumns = (handleEdit,deleteProcess) => [
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => deleteProcess(row.original.processCode)}>
+                  <AlertDialogAction className="bg-blue-600 hover:bg-blue-700" onClick={() => deleteProcess(row.original.processCode)}>
                     Continue
                   </AlertDialogAction>
                 </AlertDialogFooter>

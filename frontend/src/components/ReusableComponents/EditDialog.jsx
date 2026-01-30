@@ -154,7 +154,7 @@ useEffect(() => {
 
           {/* Buttons */}
           <div className="flex justify-end pt-3">
-            <Button type="submit" className="px-6">
+            <Button type="submit" className="px-6 bg-blue-700">
               Save Changes
             </Button>
           </div>
@@ -226,7 +226,7 @@ export const SupplierDialog = ({ open, onClose, mode, supplier, action }) => {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit">Save</Button>
+            <Button type="submit" className="bg-blue-600">Save</Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -296,7 +296,7 @@ export const PartDialog = ({ open, onClose, mode, part, action }) => {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit">Save</Button>
+            <Button type="submit" className="bg-blue-600">Save</Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -366,7 +366,7 @@ export const MachineDialog = ({ open, onClose, mode, machine, action }) => {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit">Save</Button>
+            <Button type="submit" className="bg-blue-600">Save</Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -436,7 +436,7 @@ export const ProcessDialog = ({ open, onClose, mode, process, action }) => {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit">Save</Button>
+            <Button type="submit" className="bg-blue-600">Save</Button>
           </DialogFooter>
         </form>
       </DialogContent>

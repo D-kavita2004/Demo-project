@@ -1482,7 +1482,7 @@ useEffect(() => {
                     <div className="mx-auto flex gap-4">
                       <Button
                           type="button"
-                          className="px-8 py-2"
+                          className="px-8 py-2 bg-blue-600"
                           onClick={handleSubmit((formData) =>
                             handleApprove(clickedForm._id, formData)
                           )}
@@ -1492,7 +1492,7 @@ useEffect(() => {
 
                       <Button
                           type="button"
-                          className="px-8 py-2"
+                          className="px-8 py-2 bg-red-600 bg-blue-600"
                           onClick={handleSubmit((formData) =>
                             handleReject(clickedForm._id, formData)
                           )}
@@ -1507,7 +1507,7 @@ useEffect(() => {
                   {primaryAction && (
                     <Button
                       type="submit"
-                      className="px-8 py-2 text-lg"
+                      className="px-8 py-2 text-lg bg-blue-600"
                     >
                       {primaryAction.label}
                     </Button>

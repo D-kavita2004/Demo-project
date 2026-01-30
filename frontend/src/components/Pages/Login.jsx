@@ -119,7 +119,7 @@ const Login = () => {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full"
+              className="w-full bg-blue-600"
               disabled={isSubmitting}
             >
               {isSubmitting? "Logging in..." : "Login"}
@@ -135,7 +135,9 @@ const Login = () => {
               to="/forgot-password"
               className="font-medium text-blue-600 hover:underline"
             >
-             Forgot Password
+             {
+              " Forgot Password"
+             }
             </Link>
           </p>
         </CardFooter>

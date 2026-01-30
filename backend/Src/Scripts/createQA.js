@@ -9,7 +9,7 @@ async function createQA() {
   try {
     const conn = await mongoose.connect(`${process.env.MONGO_URI}/${process.env.DB_NAME}`);
 
-    /* Check if admin exists */
+    /* Check if QA team exists */
     const qa_team_exists = await Supplier.exists({ flag: "QA" });
     if (qa_team_exists) {
       logger.info("QA already exists");
