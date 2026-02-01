@@ -7,7 +7,6 @@ export const FormsContext = createContext();
 export const FormsProvider = ({ children }) => {
   const { user, loading: userLoading } = useContext(UserContext);
   const [formsList, setFormsList] = useState([]);
-  const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     // Do NOT fetch until user exists and user is finished loading
@@ -17,7 +16,7 @@ export const FormsProvider = ({ children }) => {
     const fetchAllForms = async () => {
       try {
         const res = await api.get(
-          `${apiUrl}/forms`,
+          `/forms`,
           { Team: user.team },
           { withCredentials: true }
         );

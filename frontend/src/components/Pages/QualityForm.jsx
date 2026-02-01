@@ -38,7 +38,6 @@ const QualityForm = () => {
 
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const apiUrl = import.meta.env.VITE_API_BASE_URL;
  
   const clickedForm = location.state?.data;
   const formFromState = clickedForm?.formData;  //preview existing data
@@ -130,7 +129,7 @@ const handleApprove = async (id,formData) => {
       console.log(formData);
       // Call the API to approve the form
       const response = await api.put(
-        `${apiUrl}/forms/approve`,
+        `/forms/approve`,
         {formId:id,data:formData},
         { withCredentials: true } // if your backend uses cookies
       );
@@ -159,7 +158,7 @@ const handleReject = async (id,formData) => {
     try {
       // Call the API to reject the form
       const response = await api.put(
-        `${apiUrl}/forms/reject`,
+        `/forms/reject`,
         {formId:id,data:formData},
         { withCredentials: true } // if your backend uses cookies
       );
@@ -194,7 +193,7 @@ const handleCreateNewIssue = async (formData) => {
           // Append other form fields (formData object)
           data.append("data", JSON.stringify(formData));
 
-          const res = await api.post(`${apiUrl}/forms`, data, {
+          const res = await api.post(`/forms`, data, {
             headers: { "Content-Type": "multipart/form-data" },
             withCredentials: true,
           });
@@ -231,7 +230,7 @@ const handleProdResponse = async (id, formData) => {
     }
 
     const response = await api.put(
-      `${apiUrl}/forms/prodResponse/${id}`,
+      `/forms/prodResponse/${id}`,
       fd,
       {
         withCredentials: true,
@@ -270,7 +269,7 @@ const handleFinalSubmit = async (id,formData) => {
     try {
       // Call the API to approve the form
       const response = await api.put(
-        `${apiUrl}/forms/finalSubmit`,
+        `/forms/finalSubmit`,
         {formId:id,data:formData},
         { withCredentials: true } // if your backend uses cookies
       );

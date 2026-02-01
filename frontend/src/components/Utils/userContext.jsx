@@ -8,7 +8,6 @@ export const UserProvider = ({ children }) => {
 
   const [user, setUser] = useState(null); // stores user info
   const [loading, setLoading] = useState(true); // loading state while verifying
-  const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
   // Verify token on app load
   useEffect(() => {

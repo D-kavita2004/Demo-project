@@ -24,8 +24,6 @@ import {
 } from "@/components/ui/select";
 
 const CreateUserForm = ({ suppliersList,setUsersList }) => {
-
-  const apiUrl = import.meta.env.VITE_API_BASE_URL;
   const [open, setOpen] = useState(false);
   const {
     register,
@@ -41,7 +39,7 @@ const CreateUserForm = ({ suppliersList,setUsersList }) => {
   const onSubmit = async (data) => {
     try {
      
-      const res = await api.post(`${apiUrl}/user/register`, data, {
+      const res = await api.post(`/user/register`, data, {
         withCredentials: true,
       });
         toast.success(res?.data?.message || "User created successfully");
