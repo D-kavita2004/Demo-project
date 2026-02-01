@@ -44,7 +44,7 @@ export default function ResetPassword() {
 
   const onSubmit = async (data) => {
     try {
-      const res = await api.post(`${import.meta.env.VITE_API_BASE_URL}/auth/reset-password/${token}`, {
+      const res = await api.post(`/auth/reset-password/${token}`, {
         updatedPassword: data.password,
       });
       toast.success(res?.data?.message);

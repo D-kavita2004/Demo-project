@@ -27,7 +27,7 @@ const Processes = () => {
   const fetchAllProcesses = async () => {
     try {
       const res = await api.get(
-        `${import.meta.env.VITE_API_BASE_URL}/processes`,
+        `/processes`,
         { withCredentials: true }
       );
       setProcessesList(res?.data?.processes);

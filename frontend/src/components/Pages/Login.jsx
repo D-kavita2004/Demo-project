@@ -32,7 +32,7 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     try {
-      const response = await api.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`,data,{withCredentials:true});
+      const response = await api.post(`/auth/login`,data,{withCredentials:true});
       setUser(response?.data?.user);
       toast.success(response?.data?.message || "User Logged in Successfully");
       localStorage.setItem("loggedIn",true);

@@ -28,7 +28,7 @@ export default function ForgotPassword() {
 
   const onSubmit = async (data) => {
     try {
-      const res = await api.post(`${import.meta.env.VITE_API_BASE_URL}/auth/forgot-password`, {
+      const res = await api.post(`/auth/forgot-password`, {
         email: data.email,
       });
 

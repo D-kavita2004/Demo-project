@@ -20,7 +20,7 @@ const UsersManagement = () => {
 
   const updateUser = async (username, updatedData) => {
     try {
-      const res = await api.put(`${import.meta.env.VITE_API_BASE_URL}/user/update/${username}`,
+      const res = await api.put(`/user/update/${username}`,
         updatedData,
         { withCredentials: true }
       );
@@ -42,7 +42,7 @@ const UsersManagement = () => {
   };
   const fetchAllUsers = async () => {
     try {
-      const res = await api.get(`${import.meta.env.VITE_API_BASE_URL}/user/allUsers`, { withCredentials: true });
+      const res = await api.get(`/user/allUsers`, { withCredentials: true });
       setUsersList(res.data.data);
     } catch (err) {
       toast.error(err?.response?.data?.message || "Could not fetch users");
@@ -53,7 +53,7 @@ const UsersManagement = () => {
   const toggleUserStatus = async (username) => {
     try {
       const res = await api.put(
-        `${import.meta.env.VITE_API_BASE_URL}/user/changeStatus`,
+        `/user/changeStatus`,
         { username },
         { withCredentials: true }
       );
@@ -74,7 +74,7 @@ const UsersManagement = () => {
   const fetchAllSuppliers = async () => {
     try {
       const res = await api.get(
-        `${import.meta.env.VITE_API_BASE_URL}/suppliers/forUserAssignment`,
+        `/suppliers/forUserAssignment`,
         { withCredentials: true }
       );
       setSuppliersList(res?.data?.suppliers);

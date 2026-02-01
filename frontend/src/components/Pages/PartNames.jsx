@@ -27,7 +27,7 @@ const Parts = () => {
   const fetchAllParts = async () => {
     try {
       const res = await api.get(
-        `${import.meta.env.VITE_API_BASE_URL}/parts`,
+        `/parts`,
         { withCredentials: true }
       );
       setpartsList(res?.data?.parts);

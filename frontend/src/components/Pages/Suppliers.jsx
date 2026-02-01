@@ -27,7 +27,7 @@ const Suppliers = () => {
   const fetchAllSuppliers = async () => {
     try {
       const res = await api.get(
-        `${import.meta.env.VITE_API_BASE_URL}/suppliers`,
+        `/suppliers`,
         { withCredentials: true }
       );
       setSuppliersList(res?.data?.suppliers);

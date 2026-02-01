@@ -27,7 +27,7 @@ const Machines = () => {
   const fetchAllMachines = async () => {
     try {
       const res = await api.get(
-        `${import.meta.env.VITE_API_BASE_URL}/machines`,
+        `/machines`,
         { withCredentials: true }
       );
       setMachinesList(res?.data?.machines);

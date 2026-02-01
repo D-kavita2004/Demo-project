@@ -321,7 +321,7 @@ const primaryAction = getPrimaryAction();
 const fetchAllSuppliers = async () => {
     try {
       const res = await api.get(
-        `${import.meta.env.VITE_API_BASE_URL}/suppliers`,
+        `/suppliers`,
         { withCredentials: true }
       );
       setSuppliersList(res?.data?.suppliers);
@@ -336,7 +336,7 @@ const fetchAllSuppliers = async () => {
 const fetchAllParts = async () => {
     try {
       const res = await api.get(
-        `${import.meta.env.VITE_API_BASE_URL}/parts`,
+        `/parts`,
         { withCredentials: true }
       );
       setPartsList(res?.data?.parts);
@@ -351,7 +351,7 @@ const fetchAllParts = async () => {
 const fetchAllProcesses = async () => {
     try {
       const res = await api.get(
-        `${import.meta.env.VITE_API_BASE_URL}/processes`,
+        `/processes`,
         { withCredentials: true }
       );
       setProcessesList(res?.data?.processes);
@@ -366,7 +366,7 @@ const fetchAllProcesses = async () => {
 const fetchAllMachines = async () => {
     try {
       const res = await api.get(
-        `${import.meta.env.VITE_API_BASE_URL}/machines`,
+        `/machines`,
         { withCredentials: true }
       );
       setMachinesList(res?.data?.machines);
