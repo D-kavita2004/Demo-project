@@ -12,7 +12,7 @@ import { data, useLocation } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { Download } from 'lucide-react';
 import { toast } from "sonner";
 import { zodResolver } from '@hookform/resolvers/zod';
 // import { formDataSchema } from "../ValidateSchema/formDataValidationSchema";
@@ -20,6 +20,7 @@ import {myData} from "../Utils/DefaultData";
 import { PermissionedSection } from "../Utils/sectionPermissionWrapper";
 import { GetRelatedSchema } from "../Utils/sectionPermissionWrapper";
 import HistoryTracking from "../ReusableComponents/HistoryTracking";
+import DownLoadAllRecords from "../ReusableComponents/DownLoadAllRecords";
 import {
   Select,
   SelectContent,
@@ -398,9 +399,18 @@ useEffect(() => {
   return (
     <div className="flex flex-col">
       
-        <Card className="w-[90%] lg:w-[70%] mx-auto mt-3 shadow-lg rounded-2xl">
+        <Card className="relative w-[90%] lg:w-[70%] mx-auto mt-3 shadow-lg rounded-2xl">
+            {
+              clickedForm && <Download 
+                onClick={() =>
+                  DownLoadAllRecords([
+                    clickedForm,
+                  ])
+                } 
+            className="absolute right-4 top-5 cursor-pointer" />
+            }
             <CardHeader>
-              <CardTitle className="text-3xl font-semibold text-center">
+              <CardTitle className="text-3xl mt-7 font-semibold text-center">
                 Product Review Form
               </CardTitle>
             </CardHeader>
@@ -409,7 +419,7 @@ useEffect(() => {
               
            
               <CardContent>
-                  <Accordion type="multiple" className="w-full flex flex-col gap-5 my-6">
+                  <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3', 'item-4', 'item-5','item-6']}className="w-full flex flex-col gap-5 my-6">
 
                   {/* ====================== ISSUING SECTION ====================== */}
                   <PermissionedSection sectionKey="issuingSection" isNewForm={isNewForm} formStatus={clickedForm?.status} >

@@ -1,5 +1,7 @@
 # Node modules
 node_modules/
+image-uploads/
+production-docs/
 
 # Environment variables
 .env
