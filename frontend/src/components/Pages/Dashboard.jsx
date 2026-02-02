@@ -2,29 +2,31 @@ import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../Utils/userContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
-import { FormsContext } from "../Utils/formsContext";
+import api from "@/api/axiosInstance";
 import { Input } from "../ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import TableView from "../ReusableComponents/TableView";
 import DownloadAllRecords from "../ReusableComponents/DownLoadAllRecords";
-// import { toast } from "sonner";
-// import { logOutUser } from "@/components/Utils/logout";
 
 const Dashboard = () => {
 
-  // const navigate = useNavigate();
-
+  const { user } = useContext(UserContext);
   const [searchTerm, setSearchTerm] = useState("");
-  const {formsList} = useContext(FormsContext)
-  const { setUser, user } = useContext(UserContext);
+  const [formsList, setFormsList] = useState([]);
+ 
+  const fetchAllForms = async () => {
+      try {
+        const res = await api.get(
+          `/forms`,
+          { Team: user.team },
+          { withCredentials: true }
+        );
+        setFormsList(res.data.forms || []);
+      } catch (err) {
+        console.error("Error fetching forms:", err);
+      }
+  };
 
-  // Logout handler
-// const handleLogout = async () => {
-//   await logOutUser();  // calls backend
-//   setUser(null);
-//   toast.success("Logged out");
-//   navigate("/login");
-// };
 
   const filteredForms = formsList.filter((form) => {
     const search = searchTerm.toLowerCase();
@@ -40,6 +42,10 @@ const Dashboard = () => {
     );
   });
 
+  useEffect(()=>{
+    fetchAllForms();
+  },[]);
+  
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-gray-100 dark:bg-gray-900 p-4 sm:p-6">
 
