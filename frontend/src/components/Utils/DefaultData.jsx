@@ -2,7 +2,7 @@
  export const myData = {
     // ========== Issuing Section ==========
     issuingSection: {
-      receivingNo: "RCV-2025-001",
+      receivingNo: undefined,
       referenceNo: "REF-12345",
       part: "", // Id of part will go here
       subjectMatter: "Inspection Report",

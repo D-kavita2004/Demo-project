@@ -295,7 +295,23 @@ const handleFinalSubmit = async (id,formData) => {
       console.error("Error approving form:", err.response?.data || err);
     } 
   };
-
+const getNewReceivingNo = async () => {
+  try{
+    const res = await api.get(
+      `/forms/next-receiving-no`,
+      { withCredentials: true }
+    );
+    console.log("New Receiving No. fetched:", res.data);
+    setValue("issuingSection.receivingNo", res?.data?.receivingNo);
+  }
+  catch(err){
+    toast.error(
+      err?.response?.data?.message ||
+        err?.response?.statusText ||
+        "Could not fetch new Receiving No."
+    );
+  }
+}
   // ---------------- PRIMARY ACTION ----------------
 const getPrimaryAction = () => {
     if (!clickedForm) {
@@ -381,6 +397,7 @@ const fetchAllMachines = async () => {
 
 useEffect(()=>{
   if(isNewForm){
+    getNewReceivingNo();
     fetchAllSuppliers();
     fetchAllParts();  
     fetchAllProcesses();
@@ -437,9 +454,9 @@ useEffect(() => {
                                     <Label htmlFor="receivingNo">Receiving No.</Label>
                                     <Input
                                       id="receivingNo"
-                                      readOnly={access=="read"}
+                                      // readOnly={access=="read"}
                                       placeholder="Enter receiving number"
-                                      
+                                      readOnly
                                       {...register("issuingSection.receivingNo",{
                                         onChange: () => clearErrors("issuingSection.receivingNo")
                                       })}
@@ -1358,6 +1375,7 @@ useEffect(() => {
                     )}
                   </PermissionedSection>
 
+                    {/* history tracking */}
                    {
                     (clickedForm && clickedForm.history.length > 0) && <HistoryTracking historyTracks={clickedForm.history}/>
                   }

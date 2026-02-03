@@ -195,6 +195,10 @@ const buildSingleRecord = (form, productImageBase64) => {
 // ======================================================
 const DownLoadAllRecords = async (formArray) => {
   let content = [];
+  if(formArray.length < 1){
+    console.warn("No forms to download");
+    return;
+  }
   for (let i = 0; i < formArray.length; i++) {
     const form = formArray[i];
     const productImageBase64 = await getImageAsPngBase64(form?.formData?.defectivenessDetail?.productImage);

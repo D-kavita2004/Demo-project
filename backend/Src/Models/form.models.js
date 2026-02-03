@@ -117,5 +117,11 @@ const formSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+/* UNIQUE INDEX */
+formSchema.index(
+  { "formData.issuingSection.receivingNo": 1 },
+  { unique: true }
+);
+
 const Form = mongoose.model("Form", formSchema);
 export default Form;

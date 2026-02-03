@@ -1,5 +1,6 @@
 import Form from "../Models/form.models.js";
 import logger from "../../Config/logger.js";
+import { generateReceivingNo } from "../Utils/generateRecievingNo.js";
 
 // Creating new form issue
 export const createNewIssue = async(req, res) => {                
@@ -13,18 +14,17 @@ export const createNewIssue = async(req, res) => {
       data = req.body?.data;
     };
 
-
     if (!data || Object.keys(data).length === 0) {
       return res.status(404).json({ message: "Form data is required" });
     }
 
-
     let form;
+    const receivingNo = await generateReceivingNo();
 
     if(team.flag === "QA"){
       form = new Form({
         formData: {
-          issuingSection: data.issuingSection, 
+          issuingSection: { ...data.issuingSection, receivingNo}, 
           defectivenessDetail: {...data.defectivenessDetail, productImage: imageUrl},
           qualityCheckComment:data.qualityCheckComment },
         status: "pending_prod",
@@ -333,5 +333,14 @@ export const getAllForms = async (req, res) => {
       message: "Failed to fetch forms",
       error: error.message,
     });
+  }
+};
+
+export const getNextReceivingNo = async (req, res) => {
+  try {
+    const receivingNo = await generateReceivingNo();
+    res.json({ receivingNo });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };

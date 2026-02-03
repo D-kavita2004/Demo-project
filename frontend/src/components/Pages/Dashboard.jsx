@@ -31,11 +31,13 @@ const Dashboard = () => {
   const filteredForms = formsList.filter((form) => {
     const search = searchTerm.toLowerCase();
 
+    const receivingNo = form.formData?.issuingSection?.receivingNo?.toLowerCase() || "";
     const partName = form.formData?.issuingSection?.part?.partName?.toLowerCase() || "";
     const supplier = form.formData?.defectivenessDetail?.supplier?.supplierName?.toLowerCase() || "";
     const status = form.status?.toLowerCase() || "";
 
     return (
+      receivingNo.includes(search) ||
       partName.includes(search) ||
       supplier.includes(search) ||
       status.includes(search)
@@ -110,22 +112,25 @@ const Dashboard = () => {
 
             <Input
               type="text"
-              placeholder="Search by Part Name, Supplier, Status..."
+              placeholder="Search by Receiving No., Part Name, Supplier, Status..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="max-w-full sm:max-w-sm bg-white dark:bg-gray-800"
             />
           </div>
 
-          <Button
-            className="mb-5"
-            onClick={() => {
-              // const list = formsList.map((obj) => obj.formData);
-              DownloadAllRecords(formsList);
-            }}
-          >
-            Download All Records
-          </Button>
+          {
+            formsList.length > 0 && 
+            <Button
+              className="mb-5"
+              onClick={() => {
+                // const list = formsList.map((obj) => obj.formData);
+                DownloadAllRecords(formsList);
+              }}
+            >
+              Download All Records
+            </Button>
+          }
 
           {/* Table wrapped to avoid overflow */}
           <div className="w-full overflow-x-auto">

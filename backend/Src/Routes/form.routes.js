@@ -1,5 +1,5 @@
 import express from "express";
-import { getAllForms, createNewIssue, handleProdResponse, handleReject, handleApprove, handleFinalSubmit} from "../Controllers/form.controller.js";
+import { getAllForms, createNewIssue, handleProdResponse, handleReject, handleApprove, handleFinalSubmit,getNextReceivingNo} from "../Controllers/form.controller.js";
 import { uploadFile } from "../Middlewares/upload.middleware.js";
 import { validateFormFieldsInput } from "../Middlewares/validateInput.middleware.js";
 import { parseMultipartJSON } from "../Middlewares/parseFormData.middleware.js";
@@ -8,6 +8,7 @@ import { NewFormSchema, ProdResponseSchema, QAResponseSchema, FinalResponseSchem
 
 const router = express.Router();
 
+router.get("/next-receiving-no", getNextReceivingNo);
 router.get("/",getAllForms,checkAuthorization({ allowedFlags: ["IT","INTERNAL","QA"], allowedRoles: ["admin"] }));
 router.post("/", checkAuthorization({ allowedFlags: ["QA"] }), uploadFile, parseMultipartJSON, validateFormFieldsInput(NewFormSchema), createNewIssue);
 

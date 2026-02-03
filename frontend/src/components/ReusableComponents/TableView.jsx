@@ -73,6 +73,16 @@ const TableView = ({ data }) => {
   const columns = useMemo(
     () => [
       {
+        header: "Receiving No.",
+        accessorKey: "formData.issuingSection.receivingNo",
+        cell: ({ row }) => (
+          <span className="font-medium text-gray-800 dark:text-gray-100">
+            {row.original.formData?.issuingSection?.receivingNo ||
+              "Untitled"}
+          </span>
+        ),
+      },
+      {
         header: "Part Name",
         accessorKey: "formData.issuingSection.part.partName",
         cell: ({ row }) => (
@@ -98,7 +108,7 @@ const TableView = ({ data }) => {
         accessorKey: "createdAt",
         cell: ({ getValue }) => (
           <span className="text-gray-600 dark:text-gray-400">
-            {new Date(getValue()).toLocaleDateString()}
+            {new Date(getValue()).toLocaleDateString("en-GB")}
           </span>
         ),
       },
