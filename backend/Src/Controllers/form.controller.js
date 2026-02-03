@@ -1,6 +1,6 @@
 import Form from "../Models/form.models.js";
 import logger from "../../Config/logger.js";
-import { generateReceivingNo } from "../Utils/generateRecievingNo.js";
+import { generateReceivingNo } from "../Utils/generateReceivingNo.js";
 
 // Creating new form issue
 export const createNewIssue = async(req, res) => {                
