@@ -395,23 +395,47 @@ const fetchAllMachines = async () => {
     }
 }
 
-useEffect(()=>{
-  if(isNewForm){
-    getNewReceivingNo();
-    fetchAllSuppliers();
-    fetchAllParts();  
-    fetchAllProcesses();
-    fetchAllMachines();
-  }
-},[]);
+// useEffect(() => {
+//   // If user is trying to open NEW form
+//   if (isNewForm && user?.team?.flag !== "QA") {
+//     console.log(user?.team?.flag);
+//     toast.error("You are not allowed to create a new Quality Form");
+//     navigate("/");
+//   }
+// }, [isNewForm, user]);
+
+// useEffect(()=>{
+//   if(isNewForm){
+//     getNewReceivingNo();
+//     fetchAllSuppliers();
+//     fetchAllParts();  
+//     fetchAllProcesses();
+//     fetchAllMachines();
+//   }
+// },[]);
 
 useEffect(() => {
-  // If user is trying to open NEW form
-  if (isNewForm && user?.team?.flag !== "QA") {
+  if (!isNewForm) return; // only run if creating a new form
+
+  // Check permission
+  if (user?.team?.flag !== "QA") {
+    console.log(user?.team?.flag);
     toast.error("You are not allowed to create a new Quality Form");
     navigate("/");
+    return; // stop further execution
   }
-}, [isNewForm, user]);
+
+  // Fetch data for the new form
+  getNewReceivingNo();
+  fetchAllSuppliers();
+  fetchAllParts();
+  fetchAllProcesses();
+  fetchAllMachines();
+
+}, []);
+
+
+
 
   return (
     <div className="flex flex-col">

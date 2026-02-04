@@ -86,7 +86,7 @@ const TableView = ({ data }) => {
         header: "Part Name",
         accessorKey: "formData.issuingSection.part.partName",
         cell: ({ row }) => (
-          <span className="font-medium text-gray-800 dark:text-gray-100">
+          <span className="font-medium text-gray-800 dark:text-gray-100 capitalize">
             {row.original.formData?.issuingSection?.part?.partName ||
               "Untitled"}
           </span>
@@ -97,7 +97,7 @@ const TableView = ({ data }) => {
         accessorKey:
           "formData.defectivenessDetail.supplier.supplierName",
         cell: ({ row }) => (
-          <span className="text-gray-700 dark:text-gray-300">
+          <span className="text-gray-700 dark:text-gray-300 capitalize">
             {row.original.formData?.defectivenessDetail?.supplier
               ?.supplierName || "N/A"}
           </span>

@@ -36,6 +36,15 @@ const AdminDashboard = () => {
   navigate("/login");
   };
 
+  useEffect(() => {
+    // Check permission
+    if (user && user.role !== "admin") {
+      toast.error("You are not allowed to access Admin Dashboard");
+      navigate("/");
+      return; // stop further execution
+    }
+  
+  }, []);
   return (
     <>
         <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -74,7 +83,6 @@ const AdminDashboard = () => {
             <nav className="mt-6 flex flex-col gap-2 px-2">
               {cards.map((card) => {
                 const isActive = location.pathname === `/admin/${card.route}`;
-                console.log("Current Path:", location.pathname, "Card Route:", card.route);
                 return (
                   <button
                   key={card.id}

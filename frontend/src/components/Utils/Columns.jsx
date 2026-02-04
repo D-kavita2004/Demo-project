@@ -117,7 +117,7 @@ export const suppliersColumns = (handleEdit,deleteSupplier) => [
     accessorKey: "supplierName",
     header: () => <div className="font-semibold">Supplier Name</div>,
     cell: ({ row }) => (
-      <span className="text-gray-600 dark:text-gray-300">
+      <span className="text-gray-600 dark:text-gray-300 capitalize">
         {row.getValue("supplierName")}
       </span>
     ),
@@ -188,7 +188,7 @@ export const partsColumns = (handleEdit,deletePart) => [
     accessorKey: "partName",
     header: () => <div className="font-semibold">Part Name</div>,
     cell: ({ row }) => (
-      <span className="text-gray-600 dark:text-gray-300">
+      <span className="text-gray-600 dark:text-gray-300 capitalize">
         {row.getValue("partName")}
       </span>
     ),
@@ -259,7 +259,7 @@ export const machinesColumns = (handleEdit,deleteMachine) => [
     accessorKey: "machineName",
     header: () => <div className="font-semibold">Machine Name</div>,
     cell: ({ row }) => (
-      <span className="text-gray-600 dark:text-gray-300">
+      <span className="text-gray-600 dark:text-gray-300 capitalize">
         {row.getValue("machineName")}
       </span>
     ),
@@ -330,7 +330,7 @@ export const processesColumns = (handleEdit,deleteProcess) => [
     accessorKey: "processName",
     header: () => <div className="font-semibold">Process Name</div>,
     cell: ({ row }) => (
-      <span className="text-gray-600 dark:text-gray-300">
+      <span className="text-gray-600 dark:text-gray-300 capitalize">
         {row.getValue("processName")}
       </span>
     ),
