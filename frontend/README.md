@@ -1,13 +1,49 @@
-import XLSX from "xlsx-js-style";
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
 
-const generateQualityFormExcel = (data) => {
-  const formData = data.formData;
-  const historyData = data.history || []; // array of objects
+pdfMake.vfs = pdfFonts?.default?.vfs || pdfFonts.vfs;
 
-  // ================= REGULAR SECTIONS =================
+// ======================================================
+// UNIVERSAL IMAGE → PNG BASE64 CONVERTER
+// ======================================================
+const getImageAsPngBase64 = async (imageUrl) => {
+  if (!imageUrl) return null;
+  // const formData = form.formData
+  try {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.src = imageUrl;
+
+    return new Promise((resolve, reject) => {
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+          const pngBase64 = canvas.toDataURL("image/png");
+          resolve(pngBase64);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      img.onerror = reject;
+    });
+  } catch (err) {
+    console.error("Image conversion error:", err);
+    return null;
+  }
+};
+
+// ======================================================
+// BUILD SINGLE RECORD CONTENT
+// ======================================================
+const buildSingleRecord = (form, productImageBase64) => {
+  const formData = form.formData;
   const sections = [
-    {
-      title: "1. ISSUING SECTION",
+    formData?.issuingSection && {
+      title: "1️ Issuing Section",
       data: {
         "Receiving No": formData.issuingSection.receivingNo,
         "Reference No": formData.issuingSection.referenceNo,
@@ -18,253 +54,143 @@ const generateQualityFormExcel = (data) => {
         "Issued BY": formData.issuingSection.issued,
       },
     },
-    {
-      title: "2. DEFECTIVENESS DETAILS",
-      data: {
-        "Supplier Name": formData.defectivenessDetail.supplier.supplierName,
-        "Group Name": formData.defectivenessDetail.groupName,
-        "State of Process": formData.defectivenessDetail.stateOfProcess,
-        "Associated Lot No": formData.defectivenessDetail.associatedLotNo,
-        "Discovered Date": formData.defectivenessDetail.discoveredDate,
-        "Issue Date": formData.defectivenessDetail.issueDate,
-        "Order No": formData.defectivenessDetail.orderNo,
-        "Drawing No": formData.defectivenessDetail.drawingNo,
-        "Process Name": formData.defectivenessDetail.process.processName,
-        "Machine Name": formData.defectivenessDetail.machine.machineName,
-        "Total Quantity": formData.defectivenessDetail.totalQuantity,
-        "Used Quantity": formData.defectivenessDetail.usedQuantity,
-        "Residual Quantity": formData.defectivenessDetail.residualQuantity,
-        "Defect Rate (%)": formData.defectivenessDetail.defectRate,
-        "Product Image": formData.defectivenessDetail.productImage ? "Click to View Image" : "-",
-        "Manager Instructions": formData.defectivenessDetail.managerInstructions,
-      },
     },
-    {
-      title: "3. QUALITY CHECK COMMENTS",
-      data: {
-        "QC Comment": formData.qualityCheckComment.qcComment,
-        "QC Instructions": formData.qualityCheckComment.qcInstructions,
-        "Defect Cost": `${formData.qualityCheckComment.defectCost} / ${formData.unit}`,
-        "Unit": formData.qualityCheckComment.unit,
-        "Importance Level": formData.qualityCheckComment.importanceLevel,
-        "Report Time Limit": formData.qualityCheckComment.reportTimeLimit,
-      },
-    },
-    {
-      title: "4. MEASURES REPORT",
-      data: {
-        "Causes of Occurance": formData.measuresReport.causesOfOccurrence,
-        "Causes Of Outflow": formData.measuresReport.causesOfOutflow,
-        "Counter Measures For Causes": formData.measuresReport.counterMeasuresForCauses,
-        "Counter Measures For Outflow": formData.measuresReport.counterMeasuresForOutflow,
-        "Enforcement Date": formData.measuresReport.enforcementDate,
-        "Standardization": formData.measuresReport.standardization,
-      },
-    },
-    {
-      title: "5. RESULTS OF MEASURES ENFORCEMENT",
-      data: {
-        "Enforcement Date (Result)": formData.resultsOfMeasuresEnforcement.enforcementDateResult,
-        "Result": formData.resultsOfMeasuresEnforcement.enforcementResult,
-        "Judgment": formData.resultsOfMeasuresEnforcement.enforcementJudgment,
-        "Section In-Charge": formData.resultsOfMeasuresEnforcement.enforcementSecInCharge,
-        "QC Section": formData.resultsOfMeasuresEnforcement.enforcementQCSection,
-      },
-    },
-    {
-      title: "6. RESULTS OF MEASURES EFFECT",
-      data: {
-        "Effect Date": formData.resultsOfMeasuresEffect.effectDate,
-        "Effect Result": formData.resultsOfMeasuresEffect.effectResult,
-        "Effect Judgment": formData.resultsOfMeasuresEffect.effectJudgment,
-        "Effect Section In-Charge": formData.resultsOfMeasuresEffect.effectSecInCharge,
-        "Effect QC Section": formData.resultsOfMeasuresEffect.effectQCSection,
-      },
-    },
-  ];
 
-  // ================= PREPARE SHEET DATA =================
-  const sheetData = [["QUALITY CHECK REPORT", ""]];
-  sheetData.push(["", ""]);
-  sheetData.push(["", ""]);
+  ].filter(Boolean);
+
+  // ================= BUILD PDF CONTENT =================
+  const content = [
+    { text: `QUALITY CHECK REPORT (${formData?.issuingSection?.part?.partName.toUpperCase()})`, style: "mainHeader" },
+    { text: "\n" },
+  ];
 
   // Add main sections
   sections.forEach((section) => {
-    sheetData.push([section.title, ""]);
-    Object.entries(section.data).forEach(([key, value]) => {
-      sheetData.push([key, value ?? "-"]);
+    content.push({ text: section.title, style: "sectionHeader", color: "#000" });
+    content.push({
+      table: {
+        widths: ["35%", "65%"],
+        body: Object.entries(section.data).map(([key, value]) => [
+          { text: key, bold: true, fillColor: "#e6f0ff", margin: [2, 4, 2, 4] },
+          typeof value === "object" && value.image ? value : { text: value ?? "-", margin: [2, 4, 2, 4] },
+        ]),
+      },
+      layout: "lightHorizontalLines",
     });
-    sheetData.push(["", ""]); // spacing
+    content.push({ text: "\n" });
   });
 
-  // Add history
-// ================= HISTORY =================
-if (historyData.length > 0) {
-  const historyHeaderRow = sheetData.length;
-  sheetData.push(["HISTORY", ""]);
-  sheetData.push(["", ""]);
-  historyData.forEach((entry, index) => {
-    // Revision title stays in column 1
-    sheetData.push([`Revision ${index + 1}`, "MEASURES REPORT"]);
+  // ================= HISTORY / REVISIONS =================
+  if (form.history && form.history.length > 0) {
+    content.push({ text: "HISTORY / REVISIONS", style: "sectionHeader", color: "#000", alignment: "center", fontSize: 18, bold: true});
 
-    // ---------- MEASURES REPORT ----------
+    form.history.forEach((entry, index) => {
 
-    const mr = entry.data.measuresReport || {};
+      content.push({ text: `Revision ${entry.cycle}`, style: "subHeader", margin: [0, 6, 0, 2],alignment: "center", fontSize: 14,  });
+      content.push({ text: "\n" });
 
-    Object.entries({
-      "Causes of Occurance": mr.causesOfOccurrence,
-      "Causes Of Outflow": mr.causesOfOutflow,
-      "Counter Measures For Causes": mr.counterMeasuresForCauses,
-      "Counter Measures For Outflow": mr.counterMeasuresForOutflow,
-      "Enforcement Date": mr.enforcementDate,
-      "Standardization": mr.standardization,
-    }).forEach(([key, value]) => {
-      sheetData.push(["", `${key}: ${value ?? "-"}`]);
+      // Measures Report in revision
+      if (entry.data.measuresReport) {
+        content.push({ text: "Measures Report", style: "sectionHeader", color: "#000" });
+        content.push({
+          table: {
+            widths: ["35%", "65%"],
+            body: Object.entries(entry.data.measuresReport).map(([key, value]) => [
+              { text: key, bold: true, fillColor: "#f2f2f2", margin: [2, 3, 2, 3] },
+              { text: value ?? "-", margin: [2, 3, 2, 3] },
+            ]),
+          },
+          layout: "lightHorizontalLines",
+        });
+        content.push({ text: "\n" });
+      }
+
+      // Results of Measures Enforcement in revision
+      if (entry.data.resultsOfMeasuresEnforcement) {
+        content.push({ text: "Results of Measures Enforcement", style: "sectionHeader", color: "#000" });
+        content.push({
+          table: {
+            widths: ["35%", "65%"],
+            body: Object.entries(entry.data.resultsOfMeasuresEnforcement).map(([key, value]) => [
+              { text: key, bold: true, fillColor: "#f2f2f2", margin: [2, 3, 2, 3] },
+              { text: value ?? "-", margin: [2, 3, 2, 3] },
+            ]),
+          },
+          layout: "lightHorizontalLines",
+        });
+        content.push({ text: "\n" });
+      }
     });
+  }
 
-    sheetData.push(["", ""]);
+  content.push({ text: "\n\n" });
+  return content;
+};
 
-    // ---------- RESULTS OF MEASURES ENFORCEMENT ----------
-    sheetData.push(["", "RESULTS OF MEASURES ENFORCEMENT"]);
-    const rm = entry.data.resultsOfMeasuresEnforcement || {};
+// ======================================================
+// MAIN FUNCTION: MULTIPLE RECORDS SUPPORT
+// ======================================================
+const DownLoadAllRecords = async (formArray) => {
+  let content = [];
+  if(formArray.length < 1){
+    console.warn("No forms to download");
+    return;
+  }
+  for (let i = 0; i < formArray.length; i++) {
+    const form = formArray[i];
+    const productImageBase64 = await getImageAsPngBase64(form?.formData?.defectivenessDetail?.productImage);
 
-    Object.entries({
-      "Enforcement Date (Result)": rm.enforcementDateResult,
-      "Result": rm.enforcementResult,
-      "Judgment": rm.enforcementJudgment,
-      "Section In-Charge": rm.enforcementSecInCharge,
-      "QC Section": rm.enforcementQCSection,
-    }).forEach(([key, value]) => {
-      sheetData.push(["", `${key}: ${value ?? "-"}`]);
-    });
+    content.push(...buildSingleRecord(form, productImageBase64));
 
-    sheetData.push(["", ""]); // spacing after each revision
-  });
-  let merges = [];
-  // Merge HISTORY heading into 2 columns
-  merges.push({
-  s: { r: historyHeaderRow, c: 0 },
-  e: { r: historyHeaderRow, c: 1 },
-});
-
-}
-
-
-  // ================= CREATE WORKSHEET =================
-  const ws = XLSX.utils.aoa_to_sheet(sheetData);
-  
-  // Merge main title
-  ws["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
-
-  // Column widths
-  ws["!cols"] = [{ wch: 30 }, { wch: 50 }];
-
-// ================= APPLY STYLING =================
-sheetData.forEach((row, r) => {
-  row.forEach((cellValue, c) => {
-    const cellRef = XLSX.utils.encode_cell({ r, c });
-    const cell = ws[cellRef];
-    if (!cell) return;
-
-    // ================= MAIN TITLE =================
-    if (r === 0) {
-      cell.s = {
-        font: { bold: true, sz: 18, color: { rgb: "FFFFFF" } },
-        fill: { fgColor: { rgb: "1F3A5F" } }, // deep navy
-        alignment: { horizontal: "center", vertical: "center" },
-      };
-    }
-
-    // ================= HISTORY HEADER =================
-    else if (cellValue === "HISTORY") {
-      cell.s = {
-        font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
-        fill: { fgColor: { rgb: "404040" } }, // charcoal gray
-        alignment: { horizontal: "left" },
-      };
-    }
-
-    // ================= REVISION HEADER =================
-    else if (/^Revision \d+$/.test(cellValue)) {
-      cell.s = {
-        font: { bold: true, sz: 13, color: { rgb: "FFFFFF" } },
-        fill: { fgColor: { rgb: "3A6F7D" } }, // muted teal
-        alignment: { horizontal: "left" },
-      };
-    }
-
-    // ================= HISTORY SUB-SECTIONS =================
-    else if (
-      cellValue === "MEASURES REPORT" ||
-      cellValue === "RESULTS OF MEASURES ENFORCEMENT"
-    ) {
-      cell.s = {
-        font: { bold: true, sz: 12, color: { rgb: "FFFFFF" } },
-        fill: { fgColor: { rgb: "6B7C93" } }, // slate blue
-        alignment: { horizontal: "left" },
-      };
-    }
-
-    // ================= NORMAL SECTION HEADERS =================
-    else if (sections.map((s) => s.title).includes(cellValue)) {
-      cell.s = {
-        font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
-        fill: { fgColor: { rgb: "2F5597" } }, // steel blue
-        alignment: { horizontal: "left" },
-      };
-    }
-
-    // ================= KEY CELLS =================
-    else if (c === 0 && cellValue !== "") {
-      cell.s = {
-        font: { bold: true, color: { rgb: "000000" } },
-        fill: { fgColor: { rgb: "EEF2F7" } }, // light gray-blue
-        border: {
-          top: { style: "thin", color: { rgb: "A6A6A6" } },
-          bottom: { style: "thin", color: { rgb: "A6A6A6" } },
-          left: { style: "thin", color: { rgb: "A6A6A6" } },
-          right: { style: "thin", color: { rgb: "A6A6A6" } },
-        },
-      };
-    }
-
-    // ================= VALUE CELLS =================
-    else if (c === 1) {
-      cell.s = {
-        font: { color: { rgb: "333333" } },
-        alignment: { wrapText: true },
-        border: {
-          top: { style: "thin", color: { rgb: "D0D0D0" } },
-          bottom: { style: "thin", color: { rgb: "D0D0D0" } },
-          left: { style: "thin", color: { rgb: "D0D0D0" } },
-          right: { style: "thin", color: { rgb: "D0D0D0" } },
-        },
-      };
-    }
-  });
-});
-
-
-
-  // Hyperlink for Product Image
-  if (formData.defectivenessDetail.productImage) {
-    const row = sheetData.findIndex((r) => r[0] === "Product Image");
-    if (row !== -1) {
-      const ref = XLSX.utils.encode_cell({ r: row, c: 1 });
-      ws[ref].l = { Target: formData.defectivenessDetail.productImage, Tooltip: "Click to open image" };
+    if (i !== formArray.length - 1) {
+      content.push({ text: "", pageBreak: "after" });
     }
   }
 
-  // ================= CREATE WORKBOOK =================
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Quality Form");
+  const docDefinition = {
+    pageSize: "A4",
+    pageMargins: [40, 60, 40, 60],
+    content,
 
-  XLSX.writeFile(wb, `${formData.issuingSection.part.partName || "Quality_Form"}_Report.xlsx`);
+    styles: {
+      mainHeader: {
+        fontSize: 22,
+        bold: true,
+        color: "#004aad",
+        alignment: "center",
+        margin: [0, 0, 0, 20],
+        decoration: "underline",
+      },
+      sectionHeader: {
+        fontSize: 16,
+        bold: true,
+        color: "#fff",
+        fillColor: "#004aad",
+        margin: [0, 10, 0, 6],
+      },
+      subHeader: {
+        fontSize: 14,
+        bold: true,
+        color: "#004aad",
+        margin: [0, 6, 0, 2],
+      },
+    },
+
+    defaultStyle: {
+      fontSize: 10,
+      lineHeight: 1.3,
+    },
+
+    footer: (currentPage, pageCount) => ({
+      text: `Page ${currentPage} of ${pageCount}`,
+      alignment: "center",
+      fontSize: 9,
+      margin: [0, 0, 0, 10],
+    }),
+  };
+
+ pdfMake.createPdf(docDefinition).download("Quality_Forms_Report.pdf");
+  // pdfMake.createPdf(docDefinition).open();
 };
 
-export default generateQualityFormExcel;
-
-
-
-
-// purple
+export default DownLoadAllRecords;

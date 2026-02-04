@@ -123,7 +123,12 @@ const buildSingleRecord = (form, productImageBase64) => {
 
   // ================= BUILD PDF CONTENT =================
   const content = [
-    { text: `QUALITY CHECK REPORT (${formData?.issuingSection?.part?.partName.toUpperCase()})`, style: "mainHeader" },
+   {
+    text: `QUALITY CHECK REPORT (${formData?.issuingSection?.part?.partName.toUpperCase()} - ${formData?.issuingSection?.receivingNo.toUpperCase()})`,
+    style: "mainHeader",
+    tocItem: true,  
+  },
+
     { text: "\n" },
   ];
 
@@ -194,7 +199,27 @@ const buildSingleRecord = (form, productImageBase64) => {
 // MAIN FUNCTION: MULTIPLE RECORDS SUPPORT
 // ======================================================
 const DownLoadAllRecords = async (formArray) => {
-  let content = [];
+  let content = [
+    {
+      text: "TABLE OF CONTENTS",
+      style: "tocTitle",
+    },
+    {
+      toc: {
+        title: { text: "", style: "tocTitle" },
+        numberStyle: "tocPageNumber",
+        textMargin: [50, 4, 50, 4], // indent TOC entries slightly
+        textStyle: "tocItem",
+        tocItemStyle: "tocItem",
+        leader: { style: "tocLeader" },
+      },
+    },
+    {
+      text: "",
+      pageBreak: "after",
+    },
+  ];
+
   if(formArray.length < 1){
     console.warn("No forms to download");
     return;
@@ -217,7 +242,7 @@ const DownLoadAllRecords = async (formArray) => {
 
     styles: {
       mainHeader: {
-        fontSize: 22,
+        fontSize: 20,
         bold: true,
         color: "#004aad",
         alignment: "center",
@@ -237,6 +262,31 @@ const DownLoadAllRecords = async (formArray) => {
         color: "#004aad",
         margin: [0, 6, 0, 2],
       },
+      
+      /* ===== TOC STYLES ===== */
+      tocTitle: {
+        fontSize: 20,
+        bold: true,
+        color: "#000000",
+        alignment: "center",
+        margin: [0, 0, 0, 20],
+        decoration: "underline",
+      },
+      tocItem: {
+        fontSize: 10,
+        color: "#004aad",
+        margin: [20, 0, 20, 20],
+      },
+      tocPageNumber: {
+        fontSize: 10,
+        bold: true,
+        color: "#004aad",
+      },
+      tocLeader: {
+        dash: { length: 2, space: 2 }, // dotted
+        color: "#004aad",
+      }
+
     },
 
     defaultStyle: {
@@ -252,8 +302,8 @@ const DownLoadAllRecords = async (formArray) => {
     }),
   };
 
- pdfMake.createPdf(docDefinition).download("Quality_Forms_Report.pdf");
-  // pdfMake.createPdf(docDefinition).open();
+//  pdfMake.createPdf(docDefinition).download("Quality_Forms_Report.pdf");
+  pdfMake.createPdf(docDefinition).open();
 };
 
 export default DownLoadAllRecords;
