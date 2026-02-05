@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1770294121858" clover="3.2.0">
+  <project timestamp="1770294121858" name="All files">
+    <metrics statements="474" coveredstatements="281" conditionals="217" coveredconditionals="85" methods="201" coveredmethods="79" elements="892" coveredelements="445" complexity="0" loc="474" ncloc="474" packages="7" files="26" classes="26"/>
+    <package name="api">
+      <metrics statements="8" coveredstatements="2" conditionals="4" coveredconditionals="0" methods="2" coveredmethods="0"/>
+      <file name="axiosInstance.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\api\axiosInstance.jsx">
+        <metrics statements="8" coveredstatements="2" conditionals="4" coveredconditionals="0" methods="2" coveredmethods="0"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="13" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="14" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="components.Pages">
+      <metrics statements="333" coveredstatements="249" conditionals="188" coveredconditionals="83" methods="103" coveredmethods="68"/>
+      <file name="AdminDashboard.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\Pages\AdminDashboard.jsx">
+        <metrics statements="30" coveredstatements="23" conditionals="14" coveredconditionals="9" methods="13" coveredmethods="7"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="4" type="stmt"/>
+        <line num="19" count="4" type="stmt"/>
+        <line num="20" count="4" type="stmt"/>
+        <line num="21" count="4" type="stmt"/>
+        <line num="23" count="4" type="stmt"/>
+        <line num="24" count="4" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="28" count="4" type="stmt"/>
+        <line num="29" count="4" type="stmt"/>
+        <line num="32" count="4" type="stmt"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="39" count="4" type="stmt"/>
+        <line num="41" count="4" type="cond" truecount="4" falsecount="0"/>
+        <line num="42" count="1" type="stmt"/>
+        <line num="43" count="1" type="stmt"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="48" count="4" type="stmt"/>
+        <line num="56" count="0" type="stmt"/>
+        <line num="75" count="0" type="stmt"/>
+        <line num="85" count="24" type="stmt"/>
+        <line num="86" count="24" type="stmt"/>
+        <line num="95" count="0" type="stmt"/>
+        <line num="96" count="0" type="stmt"/>
+        <line num="124" count="0" type="stmt"/>
+        <line num="128" count="0" type="stmt"/>
+        <line num="136" count="1" type="stmt"/>
+      </file>
+      <file name="AdminFeaturesOverview.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\Pages\AdminFeaturesOverview.jsx">
+        <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="12" count="3" type="stmt"/>
+        <line num="13" count="3" type="stmt"/>
+        <line num="16" count="9" type="stmt"/>
+        <line num="19" count="3" type="stmt"/>
+      </file>
+      <file name="Dashboard.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\Pages\Dashboard.jsx">
+        <metrics statements="21" coveredstatements="20" conditionals="18" coveredconditionals="12" methods="6" coveredmethods="6"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="13" count="20" type="stmt"/>
+        <line num="14" count="20" type="stmt"/>
+        <line num="15" count="20" type="stmt"/>
+        <line num="17" count="20" type="stmt"/>
+        <line num="18" count="5" type="stmt"/>
+        <line num="19" count="5" type="stmt"/>
+        <line num="24" count="5" type="cond" truecount="1" falsecount="1"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="31" count="20" type="stmt"/>
+        <line num="32" count="28" type="stmt"/>
+        <line num="34" count="28" type="cond" truecount="1" falsecount="1"/>
+        <line num="35" count="28" type="cond" truecount="1" falsecount="1"/>
+        <line num="36" count="28" type="cond" truecount="1" falsecount="1"/>
+        <line num="37" count="28" type="cond" truecount="1" falsecount="1"/>
+        <line num="39" count="28" type="stmt"/>
+        <line num="47" count="20" type="stmt"/>
+        <line num="48" count="5" type="stmt"/>
+        <line num="51" count="20" type="stmt"/>
+        <line num="117" count="10" type="stmt"/>
+        <line num="128" count="1" type="stmt"/>
+      </file>
+      <file name="ErrorPage.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\Pages\ErrorPage.jsx">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="6" count="5" type="stmt"/>
+      </file>
+      <file name="ForgotPassword.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\Pages\ForgotPassword.jsx">
+        <metrics statements="12" coveredstatements="10" conditionals="11" coveredconditionals="8" methods="2" coveredmethods="2"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="25" count="14" type="stmt"/>
+        <line num="29" count="14" type="stmt"/>
+        <line num="30" count="3" type="stmt"/>
+        <line num="31" count="3" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+        <line num="36" count="3" type="stmt"/>
+        <line num="38" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="42" count="1" type="cond" truecount="2" falsecount="1"/>
+        <line num="46" count="14" type="stmt"/>
+      </file>
+      <file name="Login.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\Pages\Login.jsx">
+        <metrics statements="28" coveredstatements="21" conditionals="21" coveredconditionals="12" methods="7" coveredmethods="4"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="20" count="10" type="stmt"/>
+        <line num="22" count="10" type="stmt"/>
+        <line num="23" count="10" type="stmt"/>
+        <line num="25" count="10" type="stmt"/>
+        <line num="33" count="10" type="stmt"/>
+        <line num="34" count="2" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="37" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="38" count="2" type="stmt"/>
+        <line num="39" count="2" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="45" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="47" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="48" count="1" type="stmt"/>
+        <line num="49" count="2" type="stmt"/>
+        <line num="53" count="1" type="stmt"/>
+        <line num="55" count="0" type="cond" truecount="0" falsecount="3"/>
+        <line num="59" count="10" type="stmt"/>
+        <line num="60" count="3" type="stmt"/>
+        <line num="61" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="70" count="10" type="stmt"/>
+        <line num="109" count="0" type="stmt"/>
+      </file>
+      <file name="MachineNames.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\Pages\MachineNames.jsx">
+        <metrics statements="43" coveredstatements="32" conditionals="22" coveredconditionals="7" methods="13" coveredmethods="9"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="10" count="22" type="stmt"/>
+        <line num="11" count="22" type="stmt"/>
+        <line num="12" count="22" type="stmt"/>
+        <line num="13" count="22" type="stmt"/>
+        <line num="15" count="22" type="stmt"/>
+        <line num="16" count="4" type="stmt"/>
+        <line num="17" count="4" type="stmt"/>
+        <line num="18" count="4" type="stmt"/>
+        <line num="21" count="22" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="27" count="22" type="stmt"/>
+        <line num="28" count="8" type="stmt"/>
+        <line num="29" count="8" type="stmt"/>
+        <line num="33" count="7" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="43" count="22" type="stmt"/>
+        <line num="44" count="3" type="stmt"/>
+        <line num="45" count="3" type="stmt"/>
+        <line num="50" count="2" type="stmt"/>
+        <line num="51" count="3" type="stmt"/>
+        <line num="52" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="62" count="22" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="71" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="76" count="0" type="stmt"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="83" count="22" type="stmt"/>
+        <line num="84" count="1" type="stmt"/>
+        <line num="85" count="1" type="stmt"/>
+        <line num="89" count="2" type="stmt"/>
+        <line num="91" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="93" count="0" type="stmt"/>
+        <line num="101" count="22" type="stmt"/>
+        <line num="102" count="8" type="stmt"/>
+        <line num="105" count="22" type="stmt"/>
+      </file>
+      <file name="PartNames.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\Pages\PartNames.jsx">
+        <metrics statements="43" coveredstatements="32" conditionals="22" coveredconditionals="7" methods="13" coveredmethods="9"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="10" count="22" type="stmt"/>
+        <line num="11" count="22" type="stmt"/>
+        <line num="12" count="22" type="stmt"/>
+        <line num="13" count="22" type="stmt"/>
+        <line num="15" count="22" type="stmt"/>
+        <line num="16" count="4" type="stmt"/>
+        <line num="17" count="4" type="stmt"/>
+        <line num="18" count="4" type="stmt"/>
+        <line num="21" count="22" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="27" count="22" type="stmt"/>
+        <line num="28" count="8" type="stmt"/>
+        <line num="29" count="8" type="stmt"/>
+        <line num="33" count="7" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="43" count="22" type="stmt"/>
+        <line num="44" count="3" type="stmt"/>
+        <line num="45" count="3" type="stmt"/>
+        <line num="50" count="2" type="stmt"/>
+        <line num="51" count="3" type="stmt"/>
+        <line num="52" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="62" count="22" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="71" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="76" count="0" type="stmt"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="83" count="22" type="stmt"/>
+        <line num="84" count="1" type="stmt"/>
+        <line num="85" count="1" type="stmt"/>
+        <line num="89" count="2" type="stmt"/>
+        <line num="91" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="93" count="0" type="stmt"/>
+        <line num="101" count="22" type="stmt"/>
+        <line num="102" count="8" type="stmt"/>
+        <line num="105" count="22" type="stmt"/>
+      </file>
+      <file name="ProcessNames.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\Pages\ProcessNames.jsx">
+        <metrics statements="43" coveredstatements="32" conditionals="22" coveredconditionals="7" methods="13" coveredmethods="9"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="10" count="22" type="stmt"/>
+        <line num="11" count="22" type="stmt"/>
+        <line num="12" count="22" type="stmt"/>
+        <line num="13" count="22" type="stmt"/>
+        <line num="15" count="22" type="stmt"/>
+        <line num="16" count="4" type="stmt"/>
+        <line num="17" count="4" type="stmt"/>
+        <line num="18" count="4" type="stmt"/>
+        <line num="21" count="22" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="27" count="22" type="stmt"/>
+        <line num="28" count="8" type="stmt"/>
+        <line num="29" count="8" type="stmt"/>
+        <line num="33" count="7" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="43" count="22" type="stmt"/>
+        <line num="44" count="3" type="stmt"/>
+        <line num="45" count="3" type="stmt"/>
+        <line num="50" count="2" type="stmt"/>
+        <line num="51" count="3" type="stmt"/>
+        <line num="52" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="62" count="22" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="71" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="76" count="0" type="stmt"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="83" count="22" type="stmt"/>
+        <line num="84" count="1" type="stmt"/>
+        <line num="85" count="1" type="stmt"/>
+        <line num="89" count="2" type="stmt"/>
+        <line num="91" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="93" count="0" type="stmt"/>
+        <line num="101" count="22" type="stmt"/>
+        <line num="102" count="8" type="stmt"/>
+        <line num="105" count="22" type="stmt"/>
+      </file>
+      <file name="Reports.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\Pages\Reports.jsx">
+        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="5" type="stmt"/>
+      </file>
+      <file name="ResetPassword.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\Pages\ResetPassword.jsx">
+        <metrics statements="20" coveredstatements="18" conditionals="19" coveredconditionals="13" methods="6" coveredmethods="4"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="23" count="5" type="stmt"/>
+        <line num="30" count="20" type="stmt"/>
+        <line num="31" count="20" type="stmt"/>
+        <line num="33" count="20" type="stmt"/>
+        <line num="34" count="20" type="stmt"/>
+        <line num="41" count="20" type="stmt"/>
+        <line num="45" count="20" type="stmt"/>
+        <line num="46" count="3" type="stmt"/>
+        <line num="47" count="3" type="stmt"/>
+        <line num="50" count="1" type="stmt"/>
+        <line num="51" count="3" type="stmt"/>
+        <line num="52" count="1" type="stmt"/>
+        <line num="55" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="57" count="1" type="stmt"/>
+        <line num="59" count="1" type="cond" truecount="1" falsecount="2"/>
+        <line num="63" count="20" type="stmt"/>
+        <line num="91" count="0" type="stmt"/>
+        <line num="114" count="0" type="stmt"/>
+      </file>
+      <file name="Suppliers.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\Pages\Suppliers.jsx">
+        <metrics statements="43" coveredstatements="32" conditionals="22" coveredconditionals="7" methods="13" coveredmethods="9"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="10" count="22" type="stmt"/>
+        <line num="11" count="22" type="stmt"/>
+        <line num="12" count="22" type="stmt"/>
+        <line num="13" count="22" type="stmt"/>
+        <line num="15" count="22" type="stmt"/>
+        <line num="16" count="4" type="stmt"/>
+        <line num="17" count="4" type="stmt"/>
+        <line num="18" count="4" type="stmt"/>
+        <line num="21" count="22" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="27" count="22" type="stmt"/>
+        <line num="28" count="8" type="stmt"/>
+        <line num="29" count="8" type="stmt"/>
+        <line num="33" count="7" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="43" count="22" type="stmt"/>
+        <line num="44" count="3" type="stmt"/>
+        <line num="45" count="3" type="stmt"/>
+        <line num="50" count="2" type="stmt"/>
+        <line num="51" count="3" type="stmt"/>
+        <line num="52" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="62" count="22" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="71" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="76" count="0" type="stmt"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="83" count="22" type="stmt"/>
+        <line num="84" count="1" type="stmt"/>
+        <line num="85" count="1" type="stmt"/>
+        <line num="89" count="2" type="stmt"/>
+        <line num="91" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="93" count="0" type="stmt"/>
+        <line num="101" count="22" type="stmt"/>
+        <line num="102" count="8" type="stmt"/>
+        <line num="105" count="22" type="stmt"/>
+      </file>
+      <file name="UsersManagement.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\Pages\UsersManagement.jsx">
+        <metrics statements="42" coveredstatements="21" conditionals="17" coveredconditionals="1" methods="12" coveredmethods="4"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="11" count="6" type="stmt"/>
+        <line num="12" count="6" type="stmt"/>
+        <line num="13" count="6" type="stmt"/>
+        <line num="14" count="6" type="stmt"/>
+        <line num="16" count="6" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="21" count="6" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="33" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="36" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="cond" truecount="0" falsecount="3"/>
+        <line num="43" count="6" type="stmt"/>
+        <line num="44" count="3" type="stmt"/>
+        <line num="45" count="3" type="stmt"/>
+        <line num="46" count="2" type="stmt"/>
+        <line num="48" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="53" count="6" type="stmt"/>
+        <line num="54" count="0" type="stmt"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="66" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="71" count="0" type="cond" truecount="0" falsecount="3"/>
+        <line num="74" count="6" type="stmt"/>
+        <line num="75" count="3" type="stmt"/>
+        <line num="76" count="3" type="stmt"/>
+        <line num="80" count="3" type="stmt"/>
+        <line num="82" count="0" type="stmt"/>
+        <line num="90" count="6" type="stmt"/>
+        <line num="91" count="3" type="stmt"/>
+        <line num="92" count="3" type="stmt"/>
+        <line num="96" count="6" type="stmt"/>
+        <line num="115" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="components.ReusableComponents">
+      <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+      <file name="Footer.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\ReusableComponents\Footer.jsx">
+        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="4" type="stmt"/>
+      </file>
+    </package>
+    <package name="components.Utils">
+      <metrics statements="85" coveredstatements="10" conditionals="20" coveredconditionals="0" methods="58" coveredmethods="1"/>
+      <file name="Columns.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\Utils\Columns.jsx">
+        <metrics statements="63" coveredstatements="5" conditionals="14" coveredconditionals="0" methods="55" coveredmethods="1"/>
+        <line num="21" count="6" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="46" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="57" count="0" type="stmt"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="75" count="0" type="stmt"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="78" count="0" type="stmt"/>
+        <line num="90" count="0" type="stmt"/>
+        <line num="96" count="0" type="stmt"/>
+        <line num="110" count="1" type="stmt"/>
+        <line num="113" count="0" type="stmt"/>
+        <line num="114" count="0" type="stmt"/>
+        <line num="118" count="0" type="stmt"/>
+        <line num="120" count="0" type="stmt"/>
+        <line num="127" count="0" type="stmt"/>
+        <line num="129" count="0" type="stmt"/>
+        <line num="131" count="0" type="stmt"/>
+        <line num="144" count="0" type="stmt"/>
+        <line num="168" count="0" type="stmt"/>
+        <line num="181" count="1" type="stmt"/>
+        <line num="184" count="0" type="stmt"/>
+        <line num="185" count="0" type="stmt"/>
+        <line num="189" count="0" type="stmt"/>
+        <line num="191" count="0" type="stmt"/>
+        <line num="198" count="0" type="stmt"/>
+        <line num="200" count="0" type="stmt"/>
+        <line num="202" count="0" type="stmt"/>
+        <line num="215" count="0" type="stmt"/>
+        <line num="239" count="0" type="stmt"/>
+        <line num="252" count="1" type="stmt"/>
+        <line num="255" count="0" type="stmt"/>
+        <line num="256" count="0" type="stmt"/>
+        <line num="260" count="0" type="stmt"/>
+        <line num="262" count="0" type="stmt"/>
+        <line num="269" count="0" type="stmt"/>
+        <line num="271" count="0" type="stmt"/>
+        <line num="273" count="0" type="stmt"/>
+        <line num="286" count="0" type="stmt"/>
+        <line num="310" count="0" type="stmt"/>
+        <line num="323" count="1" type="stmt"/>
+        <line num="326" count="0" type="stmt"/>
+        <line num="327" count="0" type="stmt"/>
+        <line num="331" count="0" type="stmt"/>
+        <line num="333" count="0" type="stmt"/>
+        <line num="340" count="0" type="stmt"/>
+        <line num="342" count="0" type="stmt"/>
+        <line num="344" count="0" type="stmt"/>
+        <line num="357" count="0" type="stmt"/>
+        <line num="381" count="0" type="stmt"/>
+      </file>
+      <file name="DefaultData.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\Utils\DefaultData.jsx">
+        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="73" count="1" type="stmt"/>
+        <line num="123" count="1" type="stmt"/>
+      </file>
+      <file name="userContext.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\Utils\userContext.jsx">
+        <metrics statements="19" coveredstatements="2" conditionals="6" coveredconditionals="0" methods="3" coveredmethods="0"/>
+        <line num="5" count="4" type="stmt"/>
+        <line num="7" count="4" type="stmt"/>
+        <line num="9" count="0" type="stmt"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="20" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="26" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="33" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="components.ValidateSchema">
+      <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="authInputValidationShema.js" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\ValidateSchema\authInputValidationShema.js">
+        <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="40" count="1" type="stmt"/>
+        <line num="67" count="1" type="stmt"/>
+        <line num="74" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="components.ui">
+      <metrics statements="38" coveredstatements="10" conditionals="5" coveredconditionals="2" methods="36" coveredmethods="8"/>
+      <file name="alert-dialog.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\ui\alert-dialog.jsx">
+        <metrics statements="11" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="11" coveredmethods="0"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="86" count="0" type="stmt"/>
+        <line num="98" count="0" type="stmt"/>
+        <line num="110" count="0" type="stmt"/>
+        <line num="117" count="0" type="stmt"/>
+      </file>
+      <file name="button.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\ui\button.jsx">
+        <metrics statements="3" coveredstatements="3" conditionals="3" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="7" count="10" type="stmt"/>
+        <line num="46" count="156" type="cond" truecount="1" falsecount="1"/>
+        <line num="48" count="156" type="stmt"/>
+      </file>
+      <file name="card.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\ui\card.jsx">
+        <metrics statements="7" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="5"/>
+        <line num="9" count="73" type="stmt"/>
+        <line num="24" count="53" type="stmt"/>
+        <line num="39" count="53" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="78" count="73" type="stmt"/>
+        <line num="85" count="44" type="stmt"/>
+      </file>
+      <file name="dropdown-menu.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\ui\dropdown-menu.jsx">
+        <metrics statements="15" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="15" coveredmethods="0"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="56" count="0" type="stmt"/>
+        <line num="75" count="0" type="stmt"/>
+        <line num="98" count="0" type="stmt"/>
+        <line num="106" count="0" type="stmt"/>
+        <line num="130" count="0" type="stmt"/>
+        <line num="143" count="0" type="stmt"/>
+        <line num="155" count="0" type="stmt"/>
+        <line num="166" count="0" type="stmt"/>
+        <line num="175" count="0" type="stmt"/>
+        <line num="194" count="0" type="stmt"/>
+      </file>
+      <file name="input.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\ui\input.jsx">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="10" count="94" type="stmt"/>
+      </file>
+      <file name="label.jsx" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\components\ui\label.jsx">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="10" count="74" type="stmt"/>
+      </file>
+    </package>
+    <package name="lib">
+      <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+      <file name="utils.js" path="C:\Users\DELL\Desktop\Hello\Demo-project\frontend\src\lib\utils.js">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="5" count="620" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>
