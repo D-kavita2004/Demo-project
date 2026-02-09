@@ -62,8 +62,24 @@ function App() {
             />
         </Route>
 
+         <Route
+            path="/Admin"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="" element={<AdminFeaturesOverview/>} />
+            <Route path="Users" element={<UsersManagement />} />
+            <Route path="Suppliers" element={<Suppliers/>} />
+            <Route path="Parts" element={<PartNames/>} />
+            <Route path="Processes" element={<ProcessNames/>} />
+            <Route path="Machines" element={<MachineNames/>} />
+            </Route>
 
-        {
+
+        {/* {
           user && user.role === "admin" && (
             <Route
             path="/Admin"
@@ -73,15 +89,15 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="" element={<ProtectedRoute><AdminFeaturesOverview/></ProtectedRoute>} />
-            <Route path="Users" element={<ProtectedRoute><UsersManagement /></ProtectedRoute>} />
-            <Route path="Suppliers" element={<ProtectedRoute><Suppliers/></ProtectedRoute>} />
-            <Route path="Parts" element={<ProtectedRoute><PartNames/></ProtectedRoute>} />
-            <Route path="Processes" element={<ProtectedRoute><ProcessNames/></ProtectedRoute>} />
-            <Route path="Machines" element={<ProtectedRoute><MachineNames/></ProtectedRoute>} />
+            <Route path="" element={<AdminFeaturesOverview/>} />
+            <Route path="Users" element={<UsersManagement />} />
+            <Route path="Suppliers" element={<Suppliers/>} />
+            <Route path="Parts" element={<PartNames/>} />
+            <Route path="Processes" element={<ProcessNames/>} />
+            <Route path="Machines" element={<MachineNames/>} />
             </Route>
           )
-        }
+        } */}
 
         {/* {
           user && (user.team.flag === "QA" || user.role === "admin") && (

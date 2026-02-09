@@ -1,8 +1,13 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Ghost } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
-export default function ErrorPage() {
+export default function ErrorPage({msg}) {
+
+  const location = useLocation();
+  const message = msg || location.state?.message;
+  
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white to-gray-100 px-6">
       
@@ -17,17 +22,25 @@ export default function ErrorPage() {
         </div>
 
         {/* Title */}
-        <h1 className="text-5xl font-extrabold text-gray-800 mb-3 tracking-tight">
-          404
-        </h1>
+        {
+          message ? (
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">{message}</h1>
+          ) : (
+            <>
+              <h1 className="text-5xl font-extrabold text-gray-800 mb-3 tracking-tight">
+                404
+              </h1>
 
-        <p className="text-xl font-semibold text-gray-700 mb-2">
-          Page Not Found
-        </p>
+              <p className="text-xl font-semibold text-gray-700 mb-2">
+                Page Not Found
+              </p>
 
-        <p className="text-gray-500 mb-8">
-          The page you are looking for doesn’t exist, or it may have been moved.
-        </p>
+              <p className="text-gray-500 mb-8">
+                The page you are looking for doesn’t exist, or it may have been moved.
+              </p>
+            </>
+          )
+        }
 
         {/* Buttons */}
         <div className="flex flex-col gap-3">

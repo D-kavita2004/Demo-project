@@ -419,11 +419,12 @@ useEffect(() => {
 
   // Check permission
   if (user?.team?.flag !== "QA") {
-    console.log(user?.team?.flag);
-    toast.error("You are not allowed to create a new Quality Form");
-    navigate("/");
-    return; // stop further execution
-  }
+  navigate("/error", {
+    state: { message: "You are not allowed to create a new Quality Form" },
+  });
+  return;
+}
+
 
   // Fetch data for the new form
   getNewReceivingNo();
