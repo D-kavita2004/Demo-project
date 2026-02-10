@@ -9,7 +9,7 @@ import { NewFormSchema, ProdResponseSchema, QAResponseSchema, FinalResponseSchem
 const router = express.Router();
 
 router.get("/next-receiving-no", getNextReceivingNo);
-router.get("/",getAllForms,checkAuthorization({ allowedFlags: ["IT","INTERNAL","QA"], allowedRoles: ["admin"] }));
+router.get("/", getAllForms);
 router.post("/", checkAuthorization({ allowedFlags: ["QA"] }), uploadFile, parseMultipartJSON, validateFormFieldsInput(NewFormSchema), createNewIssue);
 
 router.put("/reject", checkAuthorization({ allowedFlags: ["QA"] }), validateFormFieldsInput(QAResponseSchema), handleReject);

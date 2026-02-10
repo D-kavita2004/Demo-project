@@ -120,7 +120,7 @@ const formSchema = new mongoose.Schema(
 /* UNIQUE INDEX */
 formSchema.index(
   { "formData.issuingSection.receivingNo": 1 },
-  { unique: true }
+  { unique: true },
 );
 
 const Form = mongoose.model("Form", formSchema);

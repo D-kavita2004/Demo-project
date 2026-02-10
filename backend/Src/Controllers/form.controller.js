@@ -15,7 +15,7 @@ export const createNewIssue = async(req, res) => {
     };
 
     if (!data || Object.keys(data).length === 0) {
-      return res.status(404).json({ message: "Form data is required" });
+      return res.status(400).json({ message: "Form data is required" });
     }
 
     let form;

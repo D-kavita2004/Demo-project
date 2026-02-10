@@ -110,7 +110,7 @@ export const resetPassword = async (req, res, next) => {
 
     // Validate input
     if (!jwtToken || !updatedPassword) {
-      return res.status(404).json({
+      return res.status(400).json({
         success: false,
         message: "Token and new password are required",
       });

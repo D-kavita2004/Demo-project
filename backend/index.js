@@ -24,16 +24,33 @@ import processRoutes from "./Src/Routes/processes.routes.js";
 import machineRoutes from "./Src/Routes/machines.routes.js";
 import { checkAuthorization } from "./Src/Middlewares/checkAuthorisation.middleware.js";
 import chartsRoutes from "./Src/Routes/charts.routes.js";
+// import swaggerUi from "swagger-ui-express";
+// import fs from "fs";
+import path from "path";
+// import { fileURLToPath } from "url";
+
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 dotenv.config();
-
 const app = express();
+
+const { specs, swaggerUi } = await import("./swagger.js");
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+logger.info(`Swagger docs available at http://localhost:${process.env.PORT}/api-docs`);
+
+// // Read JSON directly
+// const swaggerDocument = JSON.parse(
+//   fs.readFileSync(path.join(__dirname, "docs/swagger-output.json"), "utf-8"),
+// );
+
+// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(cors({
   origin: process.env.FRONTEND_URL, // frontend URL
   credentials: true,
 }));
-
 app.use(cookieParser());
 app.use(express.json());
 

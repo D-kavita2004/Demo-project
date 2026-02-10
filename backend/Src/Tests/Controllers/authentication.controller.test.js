@@ -138,7 +138,7 @@ describe("handleLogin", () => {
     expect(res.cookie).toHaveBeenCalledWith("token", "fake-token", expect.any(Object));
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "Login successful", user: expect.any(Object) })
+      expect.objectContaining({ message: "Login successful", user: expect.any(Object) }),
     );
   });
 
@@ -215,7 +215,7 @@ describe("forgotPassword", () => {
     expect(jwt.sign).toHaveBeenCalledWith(
       { userId: "123" },
       process.env.RESET_PASSWORD_TOKEN,
-      { expiresIn: process.env.RESET_LINK_EXPIRY }
+      { expiresIn: process.env.RESET_LINK_EXPIRY },
     );
 
     expect(forgetPasswordEmailConfig).toHaveBeenCalledWith("test@example.com", "reset-token");
