@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-
+import { describe, it, expect, beforeEach } from "@jest/globals";
 /* ===================================================
    MOCK MODULES (ESM) — must come before any imports
 =================================================== */
@@ -56,9 +56,23 @@ jest.unstable_mockModule("multer", () => {
   return { default: multerMock };
 });
 
-// crypto.randomUUID — deterministic in tests
+// crypto.randomUUID — deterministic in tests.
+//
+// Node's built-in `crypto` is a CJS module. When Jest mocks a CJS built-in,
+// `import crypto from "crypto"` may resolve to the module-namespace object
+// rather than a `.default` sub-key, meaning `crypto.randomUUID` resolves to
+// the *named export* `randomUUID`, not `default.randomUUID`.
+//
+// Fix: expose randomUUID at BOTH levels with the same jest.fn() instance
+// so the mock works regardless of how Jest resolves the built-in import.
+//
+// IMPORTANT: use .mockReturnValue() instead of jest.fn(() => ...) so the
+// return value can be restored in each beforeEach after jest.clearAllMocks()
+// wipes all mock implementations.
+const mockRandomUUID = jest.fn().mockReturnValue("test-uuid-1234");
 jest.unstable_mockModule("crypto", () => ({
-  default: { randomUUID: jest.fn(() => "test-uuid-1234") },
+  randomUUID: mockRandomUUID,              // named export path
+  default: { randomUUID: mockRandomUUID }, // default import path
 }));
 
 /* ===================================================
@@ -126,6 +140,8 @@ describe("storage.destination()", () => {
     jest.clearAllMocks();
     // Restore mockUploadObj.any → mockAnyFn binding after clearAllMocks wipes it
     mockUploadObj.any.mockReturnValue(mockAnyFn);
+    // Restore mockRandomUUID return value after clearAllMocks wipes it
+    mockRandomUUID.mockReturnValue("test-uuid-1234");
   });
 
   // [A] + [D]  productImage, dir does not exist → mkdir + cb "image-uploads"
@@ -192,6 +208,8 @@ describe("storage.filename()", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUploadObj.any.mockReturnValue(mockAnyFn);
+    // Restore mockRandomUUID return value after clearAllMocks wipes it
+    mockRandomUUID.mockReturnValue("test-uuid-1234");
   });
 
   // [F]  generates uuid + extension, logs, calls cb
@@ -213,6 +231,7 @@ describe("storage.filename()", () => {
 
   // [F] edge — file with no extension
   it("[F] should handle files with no extension", async () => {
+    uploadFile({}, mockRes(), () => {});
     const result = await callFilename("prodFile", "report");
 
     expect(result).toBe("test-uuid-1234");   // no ext appended
@@ -244,6 +263,8 @@ describe("multer fileFilter()", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUploadObj.any.mockReturnValue(mockAnyFn);
+    // Restore mockRandomUUID return value after clearAllMocks wipes it
+    mockRandomUUID.mockReturnValue("test-uuid-1234");
   });
 
   // [G] productImage + image/* → allowed
@@ -296,6 +317,8 @@ describe("uploadFile() middleware", () => {
     // and mockAnyFn has lost its implementation.  Restore both here so
     // upload.any()(req, res, cb) works correctly in every test.
     mockUploadObj.any.mockReturnValue(mockAnyFn);
+    // Restore mockRandomUUID return value after clearAllMocks wipes it
+    mockRandomUUID.mockReturnValue("test-uuid-1234");
   });
 
   /** Drive upload.any() callback with custom err / req mutations */

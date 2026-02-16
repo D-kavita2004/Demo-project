@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-
+import { describe, it, expect, beforeEach } from "@jest/globals";
 /* ===================== MOCKS (MUST BE FIRST) ===================== */
 
 jest.unstable_mockModule("../../../Src/Models/users.models.js", () => ({
@@ -259,11 +259,11 @@ describe("resetPassword", () => {
     jest.clearAllMocks();
   });
 
-  it("should return 404 if token or updatedPassword is missing", async () => {
+  it("should return 400 if token or updatedPassword is missing", async () => {
     const res = mockResponse();
     await resetPassword({ params: {}, body: {} }, res);
 
-    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
       success: false,
       message: "Token and new password are required",

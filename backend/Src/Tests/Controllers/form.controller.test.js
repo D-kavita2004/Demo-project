@@ -1,16 +1,24 @@
 import { jest } from "@jest/globals";
+import { describe, it, expect, beforeEach } from "@jest/globals";
 
-/* =========================
-   MOCK MODULES (ESM)
-========================= */
 
-jest.unstable_mockModule("../../Models/form.models.js", () => ({
-  default: {
-    find: jest.fn(),
-    findById: jest.fn(),
-    findByIdAndUpdate: jest.fn(),
-  },
-}));
+jest.unstable_mockModule("../../Models/form.models.js", () => {
+  let _formImpl = null;   // ← lives in the factory closure (the only copy that matters)
+
+  const MockForm = jest.fn(function (...args) {
+    
+    if (_formImpl) _formImpl(this, ...args);
+  });
+  MockForm.find              = jest.fn();
+  MockForm.findById          = jest.fn();
+  MockForm.findByIdAndUpdate = jest.fn();
+
+  // Exported helpers so tests can reach into this closure
+  MockForm._setImpl   = (fn) => { _formImpl = fn; };
+  MockForm._clearImpl = ()   => { _formImpl = null; };
+
+  return { default: MockForm };
+});
 
 jest.unstable_mockModule("../../../Config/logger.js", () => ({
   default: {
@@ -88,7 +96,10 @@ const mockFormFindChain = (result) => {
    [E] DB throws              → 500
 ===================================================== */
 describe("createNewIssue", () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    Form._clearImpl(); // reset constructor delegation between tests
+  });
 
   // Shared valid payload
   const validData = {
@@ -129,25 +140,18 @@ describe("createNewIssue", () => {
 
   // [C] QA team, data present → form saved, 201
   it("should create and save a form for QA team and return 201", async () => {
+    // Mock the receiving number
     generateReceivingNo.mockResolvedValue("RN-001");
 
-    // Mock the Form constructor and save
+    // Create a fake Form instance with save
     const saveMock = jest.fn().mockResolvedValue(true);
-    const formInstance = { save: saveMock, formData: {}, status: "" };
-    Form.mockImplementation
-      ? Form.mockImplementation(() => formInstance)
-      : (Form.prototype
-          ? (Form.prototype.save = saveMock)
-          : null);
 
-    // Use a class-mock approach via the module mock
-    // Since Form is a class, we mock `new Form(...)` by replacing the default export
-    const FormModule = await import("../../Models/form.models.js");
-    const OriginalForm = FormModule.default;
-
-    // Reassign Form default to a constructor mock
-    const MockFormConstructor = jest.fn(() => formInstance);
-    FormModule.default = MockFormConstructor;
+    // Replace Form module with a constructor that always returns this instance
+    Form.mockImplementation(function () {
+      this.save = saveMock;
+      this.formData = {};
+      this.status = "";
+    });
 
     const req = {
       user: { team: { flag: "QA" } },
@@ -164,10 +168,9 @@ describe("createNewIssue", () => {
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({ message: "Issue submitted successfully" }),
     );
-
-    // Restore
-    FormModule.default = OriginalForm;
   });
+
+
 
   // [A] req.body.data undefined → data assigned to {} → hits 400 (empty-data guard)
   it("should handle missing req.body.data gracefully (defaults to empty object)", async () => {
