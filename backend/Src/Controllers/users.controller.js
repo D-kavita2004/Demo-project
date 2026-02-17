@@ -68,7 +68,7 @@ export const handleSignUp = async (req, res) => {
       lastName,
       role: role || undefined,
       password: hashedPassword,
-      team:teamExists._id || undefined  ,
+      team:teamExists._id,
     });
 
     // Populate team and sanitize user
@@ -184,7 +184,7 @@ export const updateUser = async (req, res) => {
           firstName,
           lastName,
           email,
-          team:teamExists._id || undefined,
+          team:teamExists._id,
         },
       },
       {
