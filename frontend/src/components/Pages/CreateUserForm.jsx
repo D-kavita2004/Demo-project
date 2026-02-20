@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { registerUserSchema } from "../ValidateSchema/authInputValidationShema";
 import api from "@/api/axiosInstance";
 import { useState,useEffect } from "react";
+import { Eye,EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -25,6 +26,7 @@ import {
 
 const CreateUserForm = ({ suppliersList,setUsersList }) => {
   const [open, setOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -149,17 +151,24 @@ const CreateUserForm = ({ suppliersList,setUsersList }) => {
                       </div>
 
                       {/* Password */}
-                      <div className="space-y-2">
-                        <Label>Password</Label>
-                        <Input
-                          type="password"
-                          required
+                      <div>
+                        <Label htmlFor="password" className="my-1">Password</Label>
+                        <div className="relative">
+                          <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="enter password"
                           {...register("password")}
-                          placeholder="Enter password"
-                          className="transition-all focus:ring-2 focus:ring-primary"
-                        />
+                          />
+                          <span
+                              className="absolute right-3 top-2.5 cursor-pointer text-gray-500 hover:text-gray-700 transition"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                          </span>
+                        </div>
                         {errors.password && (
-                          <p className="text-red-500 text-xs">{errors.password.message}</p>
+                          <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
                         )}
                       </div>
 
